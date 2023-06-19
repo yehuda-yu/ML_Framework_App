@@ -2,4 +2,5 @@ scikit-learn
 streamlit
 pandas
 numpy
+openpyxl
 pickle
