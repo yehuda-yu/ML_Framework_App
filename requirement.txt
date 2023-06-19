@@ -1,6 +1,6 @@
 streamlit
 pandas
 numpy
-xgboost==1.0.2
+xgboost
 sklearn
 pickle
