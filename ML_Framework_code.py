@@ -9,7 +9,6 @@ Created on Mon Jun 19 18:58:32 2023
 import streamlit as st
 import pandas as pd
 import numpy as np
-import xgboost as xgb
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import RandomizedSearchCV, cross_val_predict, train_test_split
@@ -41,21 +40,12 @@ if uploaded_file is not None:
     y = data[target_column] # target
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split_percentage, random_state=42) # split the data
 
-    # Create three regression models: XGBoost, Random Forest, and Linear Regression
-    models = {"XGBoost": xgb.XGBRegressor(objective='reg:squarederror'),
-              "Random Forest": RandomForestRegressor(),
+    # Create two regression models: Random Forest and Linear Regression
+    models = {"Random Forest": RandomForestRegressor(),
               "Linear Regression": LinearRegression()}
 
     # Define the parameter grids for each model
-    param_grids = {"XGBoost": {'max_depth': [4, 5, 6,7,8],
-                               'learning_rate': [0.1, 0.01, 0.001],
-                               'n_estimators': [i for i in range(100, 1400, 150)],
-                               'subsample': [i/10 for i in range(1, 10)],
-                               'colsample_bytree': [i/10 for i in range(1, 10)],
-                               'reg_alpha': [i/10 for i in range(1, 10)],
-                               'reg_lambda': [i/10 for i in range(1, 10)],
-                               'min_child_weight':[i for i in range(2,8)]},
-                "Random Forest": {'n_estimators': [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)],
+    param_grids = {"Random Forest": {'n_estimators': [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)],
                                   'max_features': ['auto', 'sqrt'],
                                   'max_depth': [int(x) for x in np.linspace(10, 110, num = 11)],
                                   'min_samples_split': [2, 5, 10],
