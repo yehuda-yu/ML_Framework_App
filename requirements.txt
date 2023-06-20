@@ -3,4 +3,3 @@ streamlit
 openpyxl
 pandas
 numpy
-pickle
