@@ -47,7 +47,7 @@ def perform_eda(data):
     # Visualize the relationships between the variables using a pairplot
     if visualize_data:
         sns.pairplot(data)
-        plt.show()
+        st.pyplot()
 
 # Create a title and a sidebar for the app
 st.title("End to end ML Regression Model Builder")
