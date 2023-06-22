@@ -50,7 +50,7 @@ def perform_eda(data):
         plt.show()
 
 # Create a title and a sidebar for the app
-st.title("End to eand ML Regression Model Builder")
+st.title("End to end ML Regression Model Builder")
 st.sidebar.header("User Input")
 
 # upload file
