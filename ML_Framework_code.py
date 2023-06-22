@@ -6,9 +6,17 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from scipy.stats import expon, reciprocal
 from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import ElasticNet, BayesianRidge
 from sklearn.model_selection import RandomizedSearchCV, cross_val_predict, train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import pickle
+
+# Helper function to create a download link for a file
+def get_binary_file_downloader_html(bin_file, file_label="File"):
+    import base64
+    bin_str = base64.b64encode(bin_file.encode()).decode()
+    href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{bin_file}">Download {file_label}</a>'
+    return href
 
 # Create a title and a sidebar for the app
 st.title("Regression Model Builder")
@@ -45,23 +53,30 @@ if uploaded_file is not None:
     
         # Create two regression models: Random Forest and Linear Regression
         models = {"Random Forest": RandomForestRegressor(),
-                  "SVM Regression": SVR()}
+                  "SVM Regression": SVR(),
+                  "ElasticNet": ElasticNet(),
+          "BayesianRidge": BayesianRidge()}
     
-        # Define the parameter grids for each model
         param_grids = {"Random Forest": {'n_estimators': [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)],
-                                      'max_features': ['auto', 'sqrt'],
-                                      'max_depth': [int(x) for x in np.linspace(10, 110, num = 11)],
-                                      'min_samples_split': [2, 5, 10],
-                                      'min_samples_leaf': [1, 2, 4],
-                                      'bootstrap': [True, False]},
-                    "SVM Regression": {'kernel': ['rbf','linear'],
-                                       'shrinking': [False,True],
-                                        'C': reciprocal(10, 200),
-                                        'epsilon': reciprocal(0.1, 1.0),
-                                        'coef0': expon(scale=1.0),
-                                        'gamma': expon(scale=1.0),
-                                        'degree': [1,2,3,4,5,6],
-                                        'tol': expon(scale=1e-4)}}
+                                         'max_features': ['auto', 'sqrt'],
+                                         'max_depth': [int(x) for x in np.linspace(10, 110, num = 11)],
+                                         'min_samples_split': [2, 5, 10],
+                                         'min_samples_leaf': [1, 2, 4],
+                                         'bootstrap': [True, False]},
+                       "SVM Regression": {'kernel': ['rbf','linear'],
+                                          'shrinking': [False,True],
+                                          'C': reciprocal(10, 200),
+                                          'epsilon': reciprocal(0.1, 1.0),
+                                          'coef0': expon(scale=1.0),
+                                          'gamma': expon(scale=1.0),
+                                          'degree': [1,2,3,4,5,6],
+                                          'tol': expon(scale=1e-4)},
+                       "ElasticNet": {'alpha': [0.1, 0.5, 1.0],
+                                      'l1_ratio': [0.1, 0.5, 0.9]},
+                       "BayesianRidge": {'alpha_1': [1e-6, 1e-5, 1e-4],
+                                         'alpha_2': [1e-6, 1e-5, 1e-4],
+                                         'lambda_1': [1e-6, 1e-5, 1e-4],
+                                         'lambda_2': [1e-6, 1e-5, 1e-4]}}
     
         # For each model, use a progress bar or another widget to show the hyperparameter search with cross-validation
         st.subheader("Model Training")
@@ -83,7 +98,7 @@ if uploaded_file is not None:
     
             # Print the best parameters and score
             st.write(f"Best parameters for {model_type}: ", search.best_params_)
-            st.write(f"Best score for {model_type}: ", search.best_score_)
+            st.write(f"Best score for {model_type} on train set: ", search.best_score_)
     
             # Store the best model, score, and parameters
             best_models[model_type] = search.best_estimator_
@@ -127,11 +142,6 @@ if uploaded_file is not None:
         if st.button("Download"):
             st.markdown(get_binary_file_downloader_html("best_model.pkl", "Best Model"), unsafe_allow_html=True)
     
-    # Helper function to create a download link for a file
-    def get_binary_file_downloader_html(bin_file, file_label="File"):
-        import base64
-        bin_str = base64.b64encode(bin_file.encode()).decode()
-        href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{bin_file}">Download {file_label}</a>'
-        return href
+
 
 
