@@ -24,51 +24,43 @@ def get_binary_file_downloader_html(bin_file, file_label="File"):
 st.title("End to eand ML Regression Model Builder")
 st.sidebar.header("User Input")
 
-# Allow the user to upload a CSV or EXCEL file and display it as a table
-uploaded_file = st.sidebar.file_uploader("Upload your data file", type=["csv", "xlsx"])
-if uploaded_file is not None:
-    try:
-        data = pd.read_csv(uploaded_file)
-    except Exception as e:
-        print(e)
-        data = pd.read_excel(uploaded_file)
-    
-    
-    # Allow the user to select which EDA actions to apply
-    st.sidebar.subheader("EDA Options")
-    handle_missing_values = st.sidebar.checkbox("Handle missing values by drop Nan", value=True)
-    handle_outliers = st.sidebar.checkbox("Handle outliers by Z-score standardization", value=True)
-    normalize_data = st.sidebar.checkbox("Normalize data", value=False)
-    encode_categorical_variables = st.sidebar.checkbox("Encode categorical variables", value=True)
-    visualize_data = st.sidebar.checkbox("Visualize data", value=True)
 
-    # Define a function to perform EDA on the data
-    def perform_eda(data):
-        # Handle missing values
-        if handle_missing_values:
-            data = data.dropna() # drop rows with missing values
 
-        # Handle outliers using the Z-score method
-        if handle_outliers:
-            z_scores = (data - data.mean()) / data.std()
-            data = data[(z_scores < 3).all(axis=1)]
+# Allow the user to select which EDA actions to apply
+st.sidebar.subheader("EDA Options")
+handle_missing_values = st.sidebar.checkbox("Handle missing values by drop Nan", value=True)
+handle_outliers = st.sidebar.checkbox("Handle outliers by Z-score standardization", value=True)
+normalize_data = st.sidebar.checkbox("Normalize data", value=False)
+encode_categorical_variables = st.sidebar.checkbox("Encode categorical variables", value=True)
+visualize_data = st.sidebar.checkbox("Visualize data", value=True)
 
-        # Normalize the data using min-max scaling
-        if normalize_data:
-            scaler = MinMaxScaler()
-            data = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
+# Define a function to perform EDA on the data
+def perform_eda(data):
+    # Handle missing values
+    if handle_missing_values:
+        data = data.dropna() # drop rows with missing values
 
-        # Encode categorical variables using one-hot encoding
-        if encode_categorical_variables:
-            categorical_columns = data.select_dtypes(include=['object']).columns
-            encoder = OneHotEncoder()
-            encoded_data = encoder.fit_transform(data[categorical_columns])
-            data = pd.concat([data.drop(categorical_columns, axis=1), pd.DataFrame(encoded_data.toarray(), columns=encoder.get_feature_names_out())], axis=1)
+    # Handle outliers using the Z-score method
+    if handle_outliers:
+        z_scores = (data - data.mean()) / data.std()
+        data = data[(z_scores < 3).all(axis=1)]
 
-        # Visualize the relationships between the variables using a pairplot
-        if visualize_data:
-            sns.pairplot(data)
-            plt.show()
+    # Normalize the data using min-max scaling
+    if normalize_data:
+        scaler = MinMaxScaler()
+        data = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
+
+    # Encode categorical variables using one-hot encoding
+    if encode_categorical_variables:
+        categorical_columns = data.select_dtypes(include=['object']).columns
+        encoder = OneHotEncoder()
+        encoded_data = encoder.fit_transform(data[categorical_columns])
+        data = pd.concat([data.drop(categorical_columns, axis=1), pd.DataFrame(encoded_data.toarray(), columns=encoder.get_feature_names_out())], axis=1)
+
+    # Visualize the relationships between the variables using a pairplot
+    if visualize_data:
+        sns.pairplot(data)
+        plt.show()
 
     # Perform EDA on the data after it is uploaded and before the model is executed
     if uploaded_file is not None:
