@@ -70,10 +70,10 @@ if uploaded_file is not None:
     with st.expander("EDA Options"):
         # Allow the user to select which EDA actions to apply
         st.subheader("EDA Options")
-        handle_missing_values = st.checkbox("Handle missing values by drop Nan", value=True)
-        handle_outliers = st.checkbox("Handle outliers by Z-score standardization", value=True)
+        handle_missing_values = st.checkbox("Handle missing values by drop Nan", value=False)
+        handle_outliers = st.checkbox("Handle outliers by Z-score standardization", value=False)
         normalize_data = st.checkbox("Normalize data", value=False)
-        encode_categorical_variables = st.checkbox("Encode categorical variables", value=True)
+        encode_categorical_variables = st.checkbox("Encode categorical variables", value=False)
         #visualize_data = st.checkbox("Visualize data", value=True)
        
         # Perform EDA on the data
@@ -100,9 +100,9 @@ if uploaded_file is not None:
         
             # Create two regression models: Random Forest and Linear Regression
             models = {"Random Forest": RandomForestRegressor(),
-                      "SVM Regression": SVR(),
                       "ElasticNet": ElasticNet(),
-              "BayesianRidge": BayesianRidge()}
+                      "BayesianRidge": BayesianRidge(),
+                      "SVM Regression": SVR()}
         
             param_grids = {"Random Forest": {'n_estimators': [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)],
                                              'max_features': ['auto', 'sqrt'],
