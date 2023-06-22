@@ -46,10 +46,10 @@ def perform_eda(data):
             data = pd.concat([data.drop(categorical_columns, axis=1), pd.DataFrame(encoded_data.toarray(), columns=encoder.get_feature_names_out())], axis=1)
         
         # Visualize the relationships between the variables using a pairplot
-        if visualize_data:
-            fig = plt.figure()
-            sns.pairplot(data)
-            st.pyplot(fig)
+        #if visualize_data:
+         #   fig = plt.figure()
+          #  sns.pairplot(data)
+           # st.pyplot(fig)
         
 
 # Create a title and a sidebar for the app
@@ -74,7 +74,7 @@ if uploaded_file is not None:
         handle_outliers = st.checkbox("Handle outliers by Z-score standardization", value=True)
         normalize_data = st.checkbox("Normalize data", value=False)
         encode_categorical_variables = st.checkbox("Encode categorical variables", value=True)
-        visualize_data = st.checkbox("Visualize data", value=True)
+        #visualize_data = st.checkbox("Visualize data", value=True)
        
         # Perform EDA on the data
         perform_eda(data)
