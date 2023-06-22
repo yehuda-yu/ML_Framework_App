@@ -77,13 +77,13 @@ if uploaded_file is not None:
     perform_eda(data)
 
     # Allow the user to select a target column and a split percentage from the sidebar
-    features = st.sidebar.multiselect("Select features columns", data.columns.tolist(), default=data.columns.tolist())
-    target_column = st.sidebar.selectbox("Select the target column", data.columns)
+    features = st.multiselect("Select features columns", data.columns.tolist(), default=data.columns.tolist())
+    target_column = st.selectbox("Select the target column", data.columns)
     data = data[features + [target_column]]
-    split_percentage = st.sidebar.slider("Select the train-test split percentage", 0.1, 0.9, 0.7)
+    split_percentage = st.slider("Select the train-test split percentage", 0.1, 0.9, 0.7)
     
     # Run model queue
-    run_model = st.sidebar.button("Run model")
+    run_model = st.button("Run model")
     
     if run_model:
         # present data
