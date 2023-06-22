@@ -25,6 +25,8 @@ st.title("End to eand ML Regression Model Builder")
 st.sidebar.header("User Input")
 
 
+# upload file
+uploaded_file = st.sidebar.file_uploader("Upload your data file", type=["csv", "xlsx"])
 
 # Allow the user to select which EDA actions to apply
 st.sidebar.subheader("EDA Options")
