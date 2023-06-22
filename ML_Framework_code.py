@@ -51,10 +51,10 @@ def perform_eda(data):
 
 # Create a title and a sidebar for the app
 st.title("End to end ML Regression Model Builder")
-st.sidebar.header("User Input")
+st.header("User Input")
 
 # upload file
-uploaded_file = st.sidebar.file_uploader("Upload your data file", type=["csv", "xlsx"])
+uploaded_file = st.file_uploader("Upload your data file", type=["csv", "xlsx"])
 
 
 # Perform EDA on the data after it is uploaded and before the model is executed
