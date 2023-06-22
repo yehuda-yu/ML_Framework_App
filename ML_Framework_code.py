@@ -47,8 +47,8 @@ def perform_eda(data):
         
         # Visualize the relationships between the variables using a pairplot
         if visualize_data:
-            fig, ax = plt.subplots()
-            ax = sns.pairplot(data)
+            fig = plt.figure()
+            sns.pairplot(data)
             st.pyplot(fig)
         
 
