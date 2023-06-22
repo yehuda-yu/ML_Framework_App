@@ -76,8 +76,6 @@ if uploaded_file is not None:
     # Perform EDA on the data
     perform_eda(data)
 
-    st.subheader("Data Preview")
-
     # Allow the user to select a target column and a split percentage from the sidebar
     features = st.sidebar.multiselect("Select features columns", data.columns.tolist(), default=data.columns.tolist())
     target_column = st.sidebar.selectbox("Select the target column", data.columns)
@@ -89,6 +87,7 @@ if uploaded_file is not None:
     
     if run_model:
         # present data
+        st.subheader("Data Preview")
         st.write(data.head())
         # Shuffle the data and split it into train and test sets based on the user input
         data = data.sample(frac=1, random_state=42) # shuffle the data
