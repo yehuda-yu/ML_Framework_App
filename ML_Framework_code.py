@@ -14,7 +14,6 @@ from sklearn.model_selection import RandomizedSearchCV, cross_val_predict, train
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import pickle
 import functions
-from functions import get_binary_file_downloader_html
 
 def perform_eda(data):
      with st.spinner('Performing EDA...'):
