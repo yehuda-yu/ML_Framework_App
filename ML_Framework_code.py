@@ -13,6 +13,7 @@ from sklearn.linear_model import ElasticNet, BayesianRidge
 from sklearn.model_selection import RandomizedSearchCV, cross_val_predict, train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import pickle
+import functions
 
 # Create a title and a sidebar for the app
 st.title("End to end ML Regression Model Builder")
