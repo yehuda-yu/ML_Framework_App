@@ -1,5 +1,11 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, LabelEncoder
+
+
 # Helper function to create a download link for a file
 def get_binary_file_downloader_html(bin_file, file_label="File"):
     import base64
