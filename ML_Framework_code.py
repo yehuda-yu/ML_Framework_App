@@ -39,7 +39,7 @@ if uploaded_file is not None:
         #visualize_data = st.checkbox("Visualize data", value=True)
        
         # Perform EDA on the data
-        perform_eda(data)
+        functions.perform_eda(data)
     with st.expander("Find best regression model"):
         # Allow the user to select a target column and a split percentage from the sidebar
         features = st.multiselect("Select features columns", data.columns.tolist(), default=data.columns.tolist())
@@ -149,7 +149,7 @@ if uploaded_file is not None:
             st.subheader("Download Best Model")
             st.markdown("Click the button below to download the best model as a pickle file.")
             if st.button("Download"):
-                st.markdown(get_binary_file_downloader_html("best_model.pkl", "Best Model"), unsafe_allow_html=True)
+                st.markdown(functions.get_binary_file_downloader_html("best_model.pkl", "Best Model"), unsafe_allow_html=True)
     
 
 
