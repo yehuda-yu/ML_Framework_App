@@ -4,6 +4,8 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, LabelEncoder
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
   
 def perform_eda(data,handle_missing_values,handle_outliers,normalize_data,encode_categorical_variables):
      with st.spinner('Performing EDA...'):
