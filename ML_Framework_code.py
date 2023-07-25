@@ -9,10 +9,11 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from scipy.stats import expon, reciprocal
 from sklearn.linear_model import LinearRegression
-from sklearn.linear_model import ElasticNet, BayesianRidge
 from sklearn.model_selection import RandomizedSearchCV, cross_val_predict, train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import pickle
+from xgboost import XGBRegressor
+
 # import functions
 
 # Helper function to create a download link for a file
@@ -45,11 +46,6 @@ def perform_eda(data):
             encoded_data = encoder.fit_transform(data[categorical_columns])
             data = pd.concat([data.drop(categorical_columns, axis=1), pd.DataFrame(encoded_data.toarray(), columns=encoder.get_feature_names_out())], axis=1)
         
-        # Visualize the relationships between the variables using a pairplot
-        #if visualize_data:
-         #   fig = plt.figure()
-          #  sns.pairplot(data)
-           # st.pyplot(fig)
 
 # Create a title and a sidebar for the app
 st.title("End to end ML Regression Model Builder")
@@ -96,38 +92,65 @@ if uploaded_file is not None:
             y = data[target_column] # target
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split_percentage, random_state=42) # split the data
         
-            # Create two regression models: Random Forest and Linear Regression
-            models = {"Random Forest": RandomForestRegressor(),
-                      "ElasticNet": ElasticNet(),
-                      "BayesianRidge": BayesianRidge(),
-                      "SVM Regression": SVR()}
-        
-            param_grids = {"Random Forest": {'n_estimators': [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)],
-                                             'max_features': ['auto', 'sqrt'],
-                                             'max_depth': [int(x) for x in np.linspace(10, 110, num = 11)],
-                                             'min_samples_split': [2, 5, 10],
-                                             'min_samples_leaf': [1, 2, 4],
-                                             'bootstrap': [True, False]},
-                           "SVM Regression": {'kernel': ['rbf','linear'],
-                                              'shrinking': [False,True],
-                                              'C': reciprocal(10, 200),
-                                              'epsilon': reciprocal(0.1, 1.0),
-                                              'coef0': expon(scale=1.0),
-                                              'gamma': expon(scale=1.0),
-                                              'degree': [1,2,3,4,5,6],
-                                              'tol': expon(scale=1e-4)},
-                           "ElasticNet": {'alpha': [0.1, 0.5, 1.0],
-                                          'l1_ratio': [0.1, 0.5, 0.9]},
-                           "BayesianRidge": {'alpha_1': [1e-6, 1e-5, 1e-4],
-                                             'alpha_2': [1e-6, 1e-5, 1e-4],
-                                             'lambda_1': [1e-6, 1e-5, 1e-4],
-                                             'lambda_2': [1e-6, 1e-5, 1e-4]}}
-        
+            # Create regression models
+            models = {"Linear Regression": LinearRegression(),
+                      "Random Forest": RandomForestRegressor(),
+                      "SVM Regression": SVR(),
+                      "XGBoost": XGBRegressor()}
+            
+            param_grids = {
+                "Linear Regression": {},  # No hyperparameters to tune for Linear Regression
+                "Random Forest": {
+                    'n_estimators': [int(x) for x in np.linspace(start=200, stop=2000, num=10)],
+                    'max_features': ['auto', 'sqrt'],
+                    'max_depth': [int(x) for x in np.linspace(10, 110, num=11)],
+                    'min_samples_split': [2, 5, 10],
+                    'min_samples_leaf': [1, 2, 4],
+                    'bootstrap': [True, False]
+                },
+                "SVM Regression": {
+                    'kernel': ['rbf', 'linear'],
+                    'shrinking': [False, True],
+                    'C': reciprocal(10, 200),
+                    'epsilon': reciprocal(0.1, 1.0),
+                    'coef0': expon(scale=1.0),
+                    'gamma': expon(scale=1.0),
+                    'degree': [1, 2, 3, 4, 5, 6],
+                    'tol': expon(scale=1e-4)
+                },
+                "XGBoost": {
+                    'n_estimators': [int(x) for x in np.linspace(start=200, stop=2000, num=10)],
+                    'max_depth': [3, 4, 5, 6, 8, 10, 12, 15],
+                    'learning_rate': [0.01, 0.05, 0.1, 0.2, 0.3],
+                    'subsample': [0.7, 0.8, 0.9, 1.0],
+                    'colsample_bytree': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+                    'gamma': [0, 1, 5],
+                    'reg_alpha': [0, 0.01, 0.1, 1, 10],
+                    'reg_lambda': [0, 0.01, 0.1, 1, 10]
+                }
+            }
+            
             # For each model, use a progress bar or another widget to show the hyperparameter search with cross-validation
             st.subheader("Model Training")
-            best_models = {} # store the best models for each type
-            best_scores = {} # store the best scores for each type
-            best_params = {} # store the best parameters for each type
+            best_models = {}  # store the best models for each type
+            best_scores = {}  # store the best scores for each type
+            best_params = {}  # store the best parameters for each type
+            
+            for model_type in models.keys():
+                st.write(f"Training {model_type} model...")
+                with st.spinner('It can take some time...'):
+                    # Perform the randomized search with cross-validation
+                    search = RandomizedSearchCV(models[model_type], param_grids[model_type], cv=3, n_iter=10, random_state=42)
+                    search.fit(X_train, y_train)
+            
+                # Print the best parameters and score
+                st.write(f"Best parameters for {model_type}: ", search.best_params_)
+                st.write(f"Best score for {model_type} on train set: ", search.best_score_)
+            
+                # Store the best model, score, and parameters
+                best_models[model_type] = search.best_estimator_
+                best_scores[model_type] = search.best_score_
+                best_params[model_type] = search.best_params_
         
             for model_type in models.keys():
                 st.write(f"Training {model_type} model...")
