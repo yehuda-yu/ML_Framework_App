@@ -125,9 +125,6 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
             center_circle = plt.Circle((0, 0), 0.70, fc='white')
             ax.add_artist(center_circle)
 
-            # Add a legend showing the total importance
-            ax.legend([f'Total Importance: {total_importance:.1f}'], loc='lower right')
-
         else:  # For SVM Regression and other models
             result = permutation_importance(model, X_train, y_train, n_repeats=10, random_state=42)
             importances = result.importances_mean
@@ -144,9 +141,6 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
             # Add a center circle to make it look like a donut chart
             center_circle = plt.Circle((0, 0), 0.70, fc='white')
             ax.add_artist(center_circle)
-
-            # Add a legend showing the total importance
-            ax.legend([f'Total Importance: {total_importance:.1f}'], loc='lower right')
 
     plt.tight_layout()
     plt.show()
