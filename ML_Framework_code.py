@@ -2,7 +2,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import functions  # Custom functions
+import matplotlib.pyplot as plt
+import functions  # Custom functions.py file
 
 # Machine Learning Libraries
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, LabelEncoder
@@ -112,7 +113,6 @@ if uploaded_file is not None:
 
         # Evaluate each model on the test set
         for model_type in best_models.keys():
-            st.write(f"Evaluating {model_type} model...")
             # Predict the target variable for the test set
             y_test_pred = best_models[model_type].predict(X_test)
 
