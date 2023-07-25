@@ -100,28 +100,7 @@ if uploaded_file is not None:
                 best_models[model_type] = search.best_estimator_
                 best_scores[model_type] = search.best_score_
                 best_params[model_type] = search.best_params_
-        
-            for model_type in models.keys():
-                st.write(f"Training {model_type} model...")
-                with st.spinner('its can takes some time...'):
-                    
-        
-                    # Perform the randomized search with cross-validation
-                    search = RandomizedSearchCV(models[model_type], param_grids[model_type], cv=3,
-                                                n_iter=10 if model_type != "Linear Regression" else 1,
-                                                random_state=42)
-                    search.fit(X_train, y_train)
-        
-        
-                # Print the best parameters and score
-                st.write(f"Best parameters for {model_type}: ", search.best_params_)
-                st.write(f"Best score for {model_type} on train set: ", search.best_score_)
-        
-                # Store the best model, score, and parameters
-                best_models[model_type] = search.best_estimator_
-                best_scores[model_type] = search.best_score_
-                best_params[model_type] = search.best_params_
-        
+             
             # Evaluate the models on the test set and display the results (MAE, MSE, RMSE, R2, etc.)
             st.subheader("Model Evaluation")
             # Create a DataFrame to store the evaluation results
@@ -156,16 +135,18 @@ if uploaded_file is not None:
             best_model_type = results.loc[results["RMSE"].idxmin(), "Model"]  # get the model type with the lowest RMSE
             best_model_type_scalar = best_model_type.iloc[0]  # Convert Series to scalar value (string)
             best_model = best_models[best_model_type_scalar]  # get the best model object
-            import pickle
-            with open("best_model.pkl", "wb") as f:
-                pickle.dump(best_model, f)  # save the model as a pickle file
+
+            # Modify the file name to include the model name
+            file_name = f"best_model_{best_model_type_scalar}.pkl"
+            with open(file_name, "wb") as f:
+              pickle.dump(best_model, f)  # save the model as a pickle file with the modified file name
 
         
             # Allow the user to download the pickle file with a button
             st.subheader("Download Best Model")
-            st.markdown("Click the button below to download the best model as a pickle file.")
+            st.markdown(f"Click the button below to download the {best_model_type_scalar} model as a pickle file.")
             if st.button("Download"):
-                st.markdown(functions.get_binary_file_downloader_html("best_model.pkl", "Best Model"), unsafe_allow_html=True)
+                st.markdown(functions.get_binary_file_downloader_html("best_model_{best_model_type_scalar}.pkl", "Best Model"), unsafe_allow_html=True)
     
 
 
