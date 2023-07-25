@@ -13,7 +13,7 @@ def get_binary_file_downloader_html(bin_file, file_label="File"):
     href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{bin_file}">Download {file_label}</a>'
     return href
      
-def perform_eda(data):
+def perform_eda(data,handle_missing_values,handle_outliers,normalize_data,encode_categorical_variables):
      with st.spinner('Performing EDA...'):
         # Handle missing values
         if handle_missing_values:
