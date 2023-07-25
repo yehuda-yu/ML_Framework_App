@@ -111,18 +111,19 @@ if uploaded_file is not None:
         # Create a DataFrame to store the evaluation results
         results = pd.DataFrame(columns=["Model", "MAE", "MSE", "RMSE", "R2", "RPD"])
 
-        # Evaluate each model on the test set
+        # Evaluate each model on the test set and store the results in a dictionary
+        model_evaluations = {}
         for model_type in best_models.keys():
             # Predict the target variable for the test set
             y_test_pred = best_models[model_type].predict(X_test)
-
+        
             # Calculate MAE, MSE, RMSE, R2, etc.
             mae = mean_absolute_error(y_test, y_test_pred)
             mse = mean_squared_error(y_test, y_test_pred)
             rmse = np.sqrt(mse)
             r2 = r2_score(y_test, y_test_pred)
             rpd = y_test.std() / rmse
-
+        
             # Append the results to the dataframe
             results = pd.concat([results, pd.DataFrame({"Model": [model_type],
                                                         "MAE": [mae],
@@ -130,12 +131,29 @@ if uploaded_file is not None:
                                                         "RMSE": [rmse],
                                                         "R2": [r2],
                                                         "RPD": [rpd]})])
-
-            # Plot scatter subplots for the current model
-            st.subheader(f"Scatter Plot for {model_type}")
-            y_test_dict = {model_type: y_test}
-            y_test_pred_dict = {model_type: y_test_pred}
-            functions.plot_scatter_subplots(y_test_dict, y_test_pred_dict, [model_type])
+        
+            # Store the model evaluation results in the dictionary
+            model_evaluations[model_type] = {
+                "y_test": y_test,
+                "y_test_pred": y_test_pred
+            }
+        
+        # Plot scatter subplots for all models after the loop
+        st.header("Step 7: Scatter Plots for Model Evaluation")
+        fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+        
+        for i, (model_type, evaluation) in enumerate(model_evaluations.items()):
+            ax = axes[i]
+            ax.scatter(evaluation["y_test"], evaluation["y_test_pred"], alpha=0.7, edgecolors='w')
+            ax.plot([evaluation["y_test"].min(), evaluation["y_test"].max()],
+                    [evaluation["y_test"].min(), evaluation["y_test"].max()],
+                    'k--', lw=2)
+            ax.set_xlabel('True Values (y_test)')
+            ax.set_ylabel('Predictions (y_test_pred)')
+            ax.set_title(model_type)
+        
+        plt.tight_layout()
+        st.pyplot(fig)
 
         # Display the results as a table
         st.write(results)   
