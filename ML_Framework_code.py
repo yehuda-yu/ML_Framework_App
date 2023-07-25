@@ -139,8 +139,8 @@ if uploaded_file is not None:
             }
         
         # Plot scatter subplots for all models after the loop
-        st.header("Step 7: Scatter Plots for Model Evaluation")
-        fig, axes = plt.subplots(1, 3, figsize=(18, 12))
+        st.header("Step 6: Scatter Plots for Model Evaluation")
+        fig, axes = plt.subplots(1, 3, figsize=(18, 9))
         
         for i, (model_type, evaluation) in enumerate(model_evaluations.items()):
             ax = axes[i]
@@ -159,7 +159,7 @@ if uploaded_file is not None:
         st.write(results)   
 
         # Download Best Model
-        st.header("Step 6: Download Best Model")
+        st.header("Step 7: Download Best Model")
         selected_model = st.selectbox("Select the model to download", results["Model"])
         best_model = best_models[selected_model]
         file_name = f"best_model_{selected_model}.pkl"
