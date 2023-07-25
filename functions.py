@@ -145,36 +145,3 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
     plt.tight_layout()
     plt.show()
     st.pyplot(fig)
-'''
-# Plot prediction vs true test set
-def plot_scatter_subplots(y_test_dict, y_test_pred_dict, model_names):
-    """
-    Plots scatter plots of the true values and predictions for each model.
-    Args:
-        y_test_dict (dict): A dictionary of the true values for each model.
-        y_test_pred_dict (dict): A dictionary of the predictions for each model.
-        model_names (list): A list of the model names.
-    Returns:
-        None.
-    """
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
-
-    for i, model_name in enumerate(model_names):
-        ax = axes[i]
-        ax.scatter(y_test_dict[model_name], y_test_pred_dict[model_name], alpha=0.7, edgecolors='w')
-        ax.plot([y_test_dict[model_name].min(), y_test_dict[model_name].max()],
-                [y_test_dict[model_name].min(), y_test_dict[model_name].max()],
-                'k--', lw=2)
-        ax.set_xlabel('True Values (y_test)')
-        ax.set_ylabel('Predictions (y_test_pred)')
-        ax.set_title(model_name)
-
-    plt.tight_layout()
-    st.pyplot(fig)
-        
-        # Visualize the relationships between the variables using a pairplot
-        #if visualize_data:
-         #   fig = plt.figure()
-          #  sns.pairplot(data)
-           # st.pyplot(fig)
-'''
