@@ -140,7 +140,7 @@ if uploaded_file is not None:
         
         # Plot scatter subplots for all models after the loop
         st.header("Step 7: Scatter Plots for Model Evaluation")
-        fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+        fig, axes = plt.subplots(1, 3, figsize=(18, 12))
         
         for i, (model_type, evaluation) in enumerate(model_evaluations.items()):
             ax = axes[i]
