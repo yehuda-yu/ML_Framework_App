@@ -154,9 +154,12 @@ if uploaded_file is not None:
         
             # Select the best model based on the lowest RMSE and save it as a pickle file
             best_model_type = results.loc[results["RMSE"].idxmin(), "Model"]  # get the model type with the lowest RMSE
-            best_model = best_models[best_model_type]  # get the best model object
+            best_model_type_scalar = best_model_type.iloc[0]  # Convert Series to scalar value (string)
+            best_model = best_models[best_model_type_scalar]  # get the best model object
+            import pickle
             with open("best_model.pkl", "wb") as f:
-              pickle.dump(best_model, f)  # save the model as a pickle file
+                pickle.dump(best_model, f)  # save the model as a pickle file
+
         
             # Allow the user to download the pickle file with a button
             st.subheader("Download Best Model")
