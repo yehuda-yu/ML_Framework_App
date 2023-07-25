@@ -14,9 +14,6 @@ from sklearn.model_selection import RandomizedSearchCV, cross_val_predict, train
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import pickle
 
-# Helper function to create a download link for a file
-# (Put the implementation of the helper function here)
-
 # Create a title and a sidebar for the app
 st.title("End to end ML Regression Model Builder")
 st.header("User Input")
