@@ -150,12 +150,12 @@ if uploaded_file is not None:
         
         for i, (model_type, evaluation) in enumerate(model_evaluations.items()):
             ax = axes[i]
-            ax.scatter(evaluation["y_test"], evaluation["y_test_pred"], alpha=0.7, edgecolors='w')
+            ax.scatter(evaluation["y_test_pred"],evaluation["y_test"], alpha=0.8,color= '#2a9d8f', edgecolors='black')
             ax.plot([evaluation["y_test"].min(), evaluation["y_test"].max()],
                     [evaluation["y_test"].min(), evaluation["y_test"].max()],
                     'k--', lw=2)
-            ax.set_xlabel('True Values (y_test)')
-            ax.set_ylabel('Predictions (y_test_pred)')
+            ax.set_xlabel('Predictions (y_test_pred)')
+            ax.set_ylabel('True Values (y_test)')
             ax.set_title(model_type)
         
         plt.tight_layout()
