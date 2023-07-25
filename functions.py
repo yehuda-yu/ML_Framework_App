@@ -36,7 +36,7 @@ def train_models(models, param_grids, X_train, y_train):
     best_params = {}  # Store the best parameters for each type
 
     for model_type in models.keys():
-        print(f"Training {model_type} model...")
+        st.write(f"Training {model_type} model...")
         # Perform the randomized search with cross-validation
         search = RandomizedSearchCV(models[model_type], param_grids[model_type], cv=3, n_iter=10, random_state=42)
         search.fit(X_train, y_train)
