@@ -53,7 +53,7 @@ def train_models(models, param_grids, X_train, y_train):
             # Store the best model, score, and parameters
             best_models[model_type] = search.best_estimator_
             best_scores[model_type] = round(search.best_score_, 2)
-            best_params[model_type] = search.best_params__
+            best_params[model_type] = search.best_params_
 
         return best_models, best_scores, best_params
 
