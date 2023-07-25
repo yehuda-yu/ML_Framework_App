@@ -132,19 +132,22 @@ if uploaded_file is not None:
                                                         "RPD": [rpd]})])
 
         # Display the results as a table
-        st.write(results)
+        st.write(results)   
 
-        # Download Best Model
-        st.header("Step 6: Download Best Model")
-        selected_model = st.selectbox("Select the model to download", results["Model"])
-        best_model = best_models[selected_model]
-        file_name = f"best_model_{selected_model}.pkl"
-
-        # Save the selected model as a pickle file
-        with open(file_name, "wb") as f:
-            pickle.dump(best_model, f)
-
-        # Allow the user to download the selected pickle file with a button
-        st.write(f"Click the button below to download the {selected_model} model as a pickle file.")
-        if st.button("Download"):
-            st.markdown(functions.get_binary_file_downloader_html(file_name, "Best Model"), unsafe_allow_html=True)
+    # Download Best Model
+    st.header("Step 6: Download Best Model")
+    selected_model = st.selectbox("Select the model to download", results["Model"])
+    best_model = best_models[selected_model]
+    file_name = f"best_model_{selected_model}.pkl"
+    
+    # Save the selected model as a pickle file
+    with open(file_name, "wb") as f:
+        pickle.dump(best_model, f)
+    
+    # Allow the user to download the selected pickle file with a button
+    download_button = st.button("Download Best Model")
+    if download_button:
+        st.download_button(label="Click here to download the best model",
+                           data=open(file_name, "rb").read(),
+                           file_name=file_name,
+                           mime="application/octet-stream")
