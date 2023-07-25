@@ -3,7 +3,12 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-plt.rcParams['font.size'] = 16
+# Set the font size for regular text
+plt.rcParams['font.size'] = 14
+# Set the font size for titles
+plt.rcParams['axes.titlesize'] = 16
+# Set the font size for large titles
+plt.rcParams['axes.titlesize'] = 20
 import functions  # Custom functions.py file
 
 # Machine Learning Libraries
