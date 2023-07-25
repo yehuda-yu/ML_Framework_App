@@ -98,8 +98,12 @@ if uploaded_file is not None:
         functions.plot_scatter_subplots(model_evaluations)
         st.table(results.set_index("Model"))
 
+        # Step 7: Feature Importance
+        st.header("Step 7: Feature Importance")
+        functions.plot_feature_importance(best_models, X_train)
+
         # Download Best Model
-        st.header("Step 6: Download Best Model")
+        st.header("Step 7: Download Best Model")
         selected_model = st.selectbox("Select the model to download", results["Model"])
         best_model = best_models[selected_model]
         file_name = f"best_model_{selected_model}.pkl"
