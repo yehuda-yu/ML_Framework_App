@@ -47,6 +47,7 @@ def train_models(models, param_grids, X_train, y_train):
         best_params[model_type] = search.best_params_
 
     return best_models, best_scores, best_params
+
 def evaluate_models(best_models, X_test, y_test):
     # Create a DataFrame to store the evaluation results
     results = pd.DataFrame(columns=["Model", "MAE", "MSE", "RMSE", "R2", "RPD"])
@@ -92,6 +93,32 @@ def plot_scatter_subplots(model_evaluations):
         ax.set_xlabel('Predictions (y_test_pred)')
         ax.set_ylabel('True Values (y_test)')
         ax.set_title(model_type)
+
+    plt.tight_layout()
+    plt.show()
+    st.pyplot(fig)
+
+def plot_feature_importance(best_models, X_train):
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+    for i, (model_type, model) in enumerate(best_models.items()):
+        if hasattr(model, 'feature_importances_'):
+            importances = model.feature_importances_
+            indices = np.argsort(importances)[::-1]
+            names = [X_train.columns[i] for i in indices]
+            importance_values = [importances[i] for i in indices]
+            total_importance = np.sum(importance_values)
+
+            ax = axes[i]
+            ax.pie(importance_values, labels=names, autopct=lambda p: '{:.1f}%'.format(p) if p > 0 else '', startangle=90)
+            ax.set_title(model_type)
+            ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+            # Add a center circle to make it look like a donut chart
+            center_circle = plt.Circle((0, 0), 0.70, fc='white')
+            ax.add_artist(center_circle)
+
+            # Add a legend showing the total importance
+            ax.legend([f'Total Importance: {total_importance:.1f}'], loc='lower right')
 
     plt.tight_layout()
     plt.show()
