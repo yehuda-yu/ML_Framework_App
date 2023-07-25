@@ -12,16 +12,16 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import RandomizedSearchCV, cross_val_predict, train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import pickle
-
-# import functions
+import functions
 
 # Helper function to create a download link for a file
+'''
 def get_binary_file_downloader_html(bin_file, file_label="File"):
     import base64
     bin_str = base64.b64encode(bin_file.encode()).decode()
     href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{bin_file}">Download {file_label}</a>'
     return href
-     
+
 def perform_eda(data):
      with st.spinner('Performing EDA...'):
         # Handle missing values
@@ -45,7 +45,7 @@ def perform_eda(data):
             encoded_data = encoder.fit_transform(data[categorical_columns])
             data = pd.concat([data.drop(categorical_columns, axis=1), pd.DataFrame(encoded_data.toarray(), columns=encoder.get_feature_names_out())], axis=1)
         
-
+        '''  
 # Create a title and a sidebar for the app
 st.title("End to end ML Regression Model Builder")
 st.header("User Input")
@@ -70,7 +70,7 @@ if uploaded_file is not None:
         #visualize_data = st.checkbox("Visualize data", value=True)
        
         # Perform EDA on the data
-        perform_eda(data)
+        functions.perform_eda(data)
     with st.expander("Find best regression model"):
         # Allow the user to select a target column and a split percentage from the sidebar
         features = st.multiselect("Select features columns", data.columns.tolist(), default=data.columns.tolist())
@@ -196,7 +196,7 @@ if uploaded_file is not None:
             st.subheader("Download Best Model")
             st.markdown("Click the button below to download the best model as a pickle file.")
             if st.button("Download"):
-                st.markdown(get_binary_file_downloader_html("best_model.pkl", "Best Model"), unsafe_allow_html=True)
+                st.markdown(functions.get_binary_file_downloader_html("best_model.pkl", "Best Model"), unsafe_allow_html=True)
     
 
 
