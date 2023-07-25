@@ -93,8 +93,7 @@ if uploaded_file is not None:
                     search.fit(X_train, y_train)
             
                 # Print the best parameters and score
-                st.write(f"Best parameters for {model_type}: ", search.best_params_)
-                st.write(f"Best score for {model_type} on train set: ", search.best_score_)
+                st.write(f"Best score for {model_type} on train set: ", round(search.best_score_,2))
             
                 # Store the best model, score, and parameters
                 best_models[model_type] = search.best_estimator_
