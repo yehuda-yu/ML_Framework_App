@@ -99,7 +99,7 @@ def plot_scatter_subplots(model_evaluations):
     plt.show()
     st.pyplot(fig)
 
-def plot_feature_importance(best_models, X_train, model_type_to_title=None):
+def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=None):
     if model_type_to_title is None:
         model_type_to_title = {
             "Linear Regression": "Linear Regression",
