@@ -100,10 +100,14 @@ if uploaded_file is not None:
 
         # Step 7: Feature Importance
         st.header("Step 7: Feature Importance")
-        functions.plot_feature_importance(best_models, X_train)
+        model_type_to_title = {"Linear Regression": "Linear Model",
+            "Random Forest": "Random Forest",
+            "SVM Regression": "SVM Model"
+        }
+        functions.plot_feature_importance(best_models, X_train, y_train, model_type_to_title)
 
         # Download Best Model
-        st.header("Step 7: Download Best Model")
+        st.header("Step 8: Download Best Model")
         selected_model = st.selectbox("Select the model to download", results["Model"])
         best_model = best_models[selected_model]
         file_name = f"best_model_{selected_model}.pkl"
