@@ -101,11 +101,30 @@ def plot_scatter_subplots(model_evaluations):
 def plot_feature_importance(best_models, X_train):
     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
     for i, (model_type, model) in enumerate(best_models.items()):
-        if hasattr(model, 'feature_importances_'):
+        if model_type == "Random Forest" and hasattr(model, 'feature_importances_'):
             importances = model.feature_importances_
             indices = np.argsort(importances)[::-1]
             names = [X_train.columns[i] for i in indices]
             importance_values = [importances[i] for i in indices]
+            total_importance = np.sum(importance_values)
+
+            ax = axes[i]
+            ax.pie(importance_values, labels=names, autopct=lambda p: '{:.1f}%'.format(p) if p > 0 else '', startangle=90)
+            ax.set_title(model_type)
+            ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+            # Add a center circle to make it look like a donut chart
+            center_circle = plt.Circle((0, 0), 0.70, fc='white')
+            ax.add_artist(center_circle)
+
+            # Add a legend showing the total importance
+            ax.legend([f'Total Importance: {total_importance:.1f}'], loc='lower right')
+
+        elif model_type == "Linear Regression" or model_type == "SVM Regression":
+            coefficients = model.coef_
+            indices = np.argsort(np.abs(coefficients))[::-1]
+            names = [X_train.columns[i] for i in indices]
+            importance_values = np.abs(coefficients[indices])
             total_importance = np.sum(importance_values)
 
             ax = axes[i]
