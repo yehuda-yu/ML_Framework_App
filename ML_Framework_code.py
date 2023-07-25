@@ -131,6 +131,12 @@ if uploaded_file is not None:
                                                         "R2": [r2],
                                                         "RPD": [rpd]})])
 
+            # Plot scatter subplots for the current model
+            st.subheader(f"Scatter Plot for {model_type}")
+            y_test_dict = {model_type: y_test}
+            y_test_pred_dict = {model_type: y_test_pred}
+            functions.plot_scatter_subplots(y_test_dict, y_test_pred_dict, [model_type])
+
         # Display the results as a table
         st.write(results)   
 
