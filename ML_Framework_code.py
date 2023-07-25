@@ -40,7 +40,7 @@ if uploaded_file is not None:
         #visualize_data = st.checkbox("Visualize data", value=True)
        
         # Perform EDA on the data
-        functions.perform_eda(data)
+        functions.perform_eda(data,handle_missing_values,handle_outliers,normalize_data,encode_categorical_variables)
     with st.expander("Find best regression model"):
         # Allow the user to select a target column and a split percentage from the sidebar
         features = st.multiselect("Select features columns", data.columns.tolist(), default=data.columns.tolist())
