@@ -94,9 +94,9 @@ if uploaded_file is not None:
         st.header("Step 5: Model Evaluation")
         results, model_evaluations = functions.evaluate_models(best_models, X_test, y_test)
         
-        # Step 6: Scatter Plots for Model Evaluation
-        st.header("Step 6: Scatter Plots for Model Evaluation")
+        # Step 6: Scatter Plots and table for Model Evaluation
         functions.plot_scatter_subplots(model_evaluations)
+        st.table(results)
 
         # Download Best Model
         st.header("Step 6: Download Best Model")
