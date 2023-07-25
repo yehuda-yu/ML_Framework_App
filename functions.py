@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, LabelEncoder
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.inspection import permutation_importance
   
 def perform_eda(data,handle_missing_values,handle_outliers,normalize_data,encode_categorical_variables):
      with st.spinner('Performing EDA...'):
@@ -98,10 +99,17 @@ def plot_scatter_subplots(model_evaluations):
     plt.show()
     st.pyplot(fig)
 
-def plot_feature_importance(best_models, X_train):
+def plot_feature_importance(best_models, X_train, model_type_to_title=None):
+    if model_type_to_title is None:
+        model_type_to_title = {
+            "Linear Regression": "Linear Regression",
+            "Random Forest": "Random Forest",
+            "SVM Regression": "SVM Regression"
+        }
+
     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
     for i, (model_type, model) in enumerate(best_models.items()):
-        if model_type == "Random Forest" and hasattr(model, 'feature_importances_'):
+        if hasattr(model, 'feature_importances_'):  # For Random Forest
             importances = model.feature_importances_
             indices = np.argsort(importances)[::-1]
             names = [X_train.columns[i] for i in indices]
@@ -110,7 +118,7 @@ def plot_feature_importance(best_models, X_train):
 
             ax = axes[i]
             ax.pie(importance_values, labels=names, autopct=lambda p: '{:.1f}%'.format(p) if p > 0 else '', startangle=90)
-            ax.set_title(model_type)
+            ax.set_title(model_type_to_title.get(model_type, model_type))
             ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
             # Add a center circle to make it look like a donut chart
@@ -120,16 +128,17 @@ def plot_feature_importance(best_models, X_train):
             # Add a legend showing the total importance
             ax.legend([f'Total Importance: {total_importance:.1f}'], loc='lower right')
 
-        elif model_type == "Linear Regression" or model_type == "SVM Regression":
-            coefficients = model.coef_
-            indices = np.argsort(np.abs(coefficients))[::-1]
+        else:  # For SVM Regression and other models
+            result = permutation_importance(model, X_train, y_train, n_repeats=10, random_state=42)
+            importances = result.importances_mean
+            indices = np.argsort(importances)[::-1]
             names = [X_train.columns[i] for i in indices]
-            importance_values = np.abs(coefficients[indices])
+            importance_values = [importances[i] for i in indices]
             total_importance = np.sum(importance_values)
 
             ax = axes[i]
             ax.pie(importance_values, labels=names, autopct=lambda p: '{:.1f}%'.format(p) if p > 0 else '', startangle=90)
-            ax.set_title(model_type)
+            ax.set_title(model_type_to_title.get(model_type, model_type))
             ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
             # Add a center circle to make it look like a donut chart
