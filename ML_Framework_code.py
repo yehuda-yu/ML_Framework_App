@@ -12,7 +12,6 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import RandomizedSearchCV, cross_val_predict, train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import pickle
-from xgboost import XGBRegressor
 
 # import functions
 
@@ -95,8 +94,7 @@ if uploaded_file is not None:
             # Create regression models
             models = {"Linear Regression": LinearRegression(),
                       "Random Forest": RandomForestRegressor(),
-                      "SVM Regression": SVR(),
-                      "XGBoost": XGBRegressor()}
+                      "SVM Regression": SVR()}
             
             param_grids = {
                 "Linear Regression": {},  # No hyperparameters to tune for Linear Regression
@@ -118,16 +116,6 @@ if uploaded_file is not None:
                     'degree': [1, 2, 3, 4, 5, 6],
                     'tol': expon(scale=1e-4)
                 },
-                "XGBoost": {
-                    'n_estimators': [int(x) for x in np.linspace(start=200, stop=2000, num=10)],
-                    'max_depth': [3, 4, 5, 6, 8, 10, 12, 15],
-                    'learning_rate': [0.01, 0.05, 0.1, 0.2, 0.3],
-                    'subsample': [0.7, 0.8, 0.9, 1.0],
-                    'colsample_bytree': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-                    'gamma': [0, 1, 5],
-                    'reg_alpha': [0, 0.01, 0.1, 1, 10],
-                    'reg_lambda': [0, 0.01, 0.1, 1, 10]
-                }
             }
             
             # For each model, use a progress bar or another widget to show the hyperparameter search with cross-validation
