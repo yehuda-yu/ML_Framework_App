@@ -96,7 +96,7 @@ if uploaded_file is not None:
         
         # Step 6: Scatter Plots and table for Model Evaluation
         functions.plot_scatter_subplots(model_evaluations)
-        st.table(results)
+        st.table(results.set_index("model")
 
         # Download Best Model
         st.header("Step 6: Download Best Model")
