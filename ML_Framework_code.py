@@ -21,9 +21,6 @@ from sklearn.model_selection import RandomizedSearchCV, cross_val_predict, train
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import pickle
 
-# Helper function to create a download link for a file
-# (Put the implementation of the helper function here)
-
 # Create a title for the app
 st.title("End to End ML Regression Model Builder")
 
@@ -91,77 +88,15 @@ if uploaded_file is not None:
             "SVM Regression": {},
         }
 
-        # Model Training
-        st.header("Step 4: Model Training")
-        best_models = {}  # Store the best models for each type
-        best_scores = {}  # Store the best scores for each type
-        best_params = {}  # Store the best parameters for each type
+        best_models, best_scores, best_params = functions.train_models(models, param_grids, X_train, y_train)
 
-        for model_type in models.keys():
-            st.write(f"Training {model_type} model...")
-            with st.spinner('Training in progress...'):
-                # Perform the randomized search with cross-validation
-                search = RandomizedSearchCV(models[model_type], param_grids[model_type], cv=3, n_iter=10, random_state=42)
-                search.fit(X_train, y_train)
-
-            # Print the best parameters and score
-            st.write(f"Best score for {model_type} on the train set: ", round(search.best_score_, 2))
-
-            # Store the best model, score, and parameters
-            best_models[model_type] = search.best_estimator_
-            best_scores[model_type] = search.best_score_
-            best_params[model_type] = search.best_params_
-
-        # Model Evaluation
+        # Step 5: Model Evaluation
         st.header("Step 5: Model Evaluation")
-        # Create a DataFrame to store the evaluation results
-        results = pd.DataFrame(columns=["Model", "MAE", "MSE", "RMSE", "R2", "RPD"])
-
-        # Evaluate each model on the test set and store the results in a dictionary
-        model_evaluations = {}
-        for model_type in best_models.keys():
-            # Predict the target variable for the test set
-            y_test_pred = best_models[model_type].predict(X_test)
+        results, model_evaluations = functions.evaluate_models(best_models, X_test, y_test)
         
-            # Calculate MAE, MSE, RMSE, R2, etc.
-            mae = mean_absolute_error(y_test, y_test_pred)
-            mse = mean_squared_error(y_test, y_test_pred)
-            rmse = np.sqrt(mse)
-            r2 = r2_score(y_test, y_test_pred)
-            rpd = y_test.std() / rmse
-        
-            # Append the results to the dataframe
-            results = pd.concat([results, pd.DataFrame({"Model": [model_type],
-                                                        "MAE": [mae],
-                                                        "MSE": [mse],
-                                                        "RMSE": [rmse],
-                                                        "R2": [r2],
-                                                        "RPD": [rpd]})])
-        
-            # Store the model evaluation results in the dictionary
-            model_evaluations[model_type] = {
-                "y_test": y_test,
-                "y_test_pred": y_test_pred
-            }
-        
-        # Plot scatter subplots for all models after the loop
-        fig, axes = plt.subplots(1, 3, figsize=(24, 9))
-        
-        for i, (model_type, evaluation) in enumerate(model_evaluations.items()):
-            ax = axes[i]
-            ax.scatter(evaluation["y_test_pred"],evaluation["y_test"], alpha=0.8,color= '#2a9d8f', edgecolors='black')
-            ax.plot([evaluation["y_test"].min(), evaluation["y_test"].max()],
-                    [evaluation["y_test"].min(), evaluation["y_test"].max()],
-                    'k--', lw=2)
-            ax.set_xlabel('Predictions (y_test_pred)')
-            ax.set_ylabel('True Values (y_test)')
-            ax.set_title(model_type)
-        
-        plt.tight_layout()
-        st.pyplot(fig)
-
-        # Display the results as a table
-        st.write(results)   
+        # Step 6: Scatter Plots for Model Evaluation
+        st.header("Step 6: Scatter Plots for Model Evaluation")
+        functions.plot_scatter_subplots(model_evaluations)
 
         # Download Best Model
         st.header("Step 6: Download Best Model")
