@@ -101,7 +101,7 @@ if uploaded_file is not None:
                 # Store the best model, score, and parameters
                 best_models[model_type] = search.best_estimator_
                 best_scores[model_type] = search.best_score_
-                best_params[model_type] = search.best_params()
+                best_params[model_type] = search.best_params_
 
             # Model Evaluation
             st.subheader("Model Evaluation")
