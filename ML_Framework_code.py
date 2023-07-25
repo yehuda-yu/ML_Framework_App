@@ -87,7 +87,7 @@ if uploaded_file is not None:
             },
             "SVM Regression": {},
         }
-
+        st.header("Step 4: Model Training")
         best_models, best_scores, best_params = functions.train_models(models, param_grids, X_train, y_train)
 
         # Step 5: Model Evaluation
