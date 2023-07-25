@@ -144,7 +144,7 @@ if uploaded_file is not None:
         
             # Allow the user to download the pickle file with a button
             st.subheader("Download Best Model")
-            st.markdown(f"Click the button below to download the {best_model_type_scalar} model as a pickle file.")
+            st.markdown(f"Click the button below to download the {best_model} model as a pickle file.")
             if st.button("Download"):
                 st.markdown(functions.get_binary_file_downloader_html("best_model_{best_model_type_scalar}.pkl", "Best Model"), unsafe_allow_html=True)
     
