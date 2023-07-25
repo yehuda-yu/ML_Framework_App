@@ -131,22 +131,25 @@ if uploaded_file is not None:
             # Display the results as a table
             st.write(results)
         
-            # Select the best model based on the lowest RMSE and save it as a pickle file
-            best_model_type = results.loc[results["RMSE"].idxmin(), "Model"]  # get the model type with the lowest RMSE
-            best_model_type_scalar = best_model_type.iloc[0]  # Convert Series to scalar value (string)
-            best_model = best_models[best_model_type_scalar]  # get the best model object
-
-            # Modify the file name to include the model name
-            file_name = f"best_model_{best_model_type_scalar}.pkl"
+            # Allow the user to select the model they want to download
+            selected_model = st.selectbox("Select the model to download", results["Model"])
+            
+            # Find the best model based on the selected model name
+            best_model = best_models[selected_model]
+            
+            # Modify the file name to include the selected model name
+            file_name = f"best_model_{selected_model}.pkl"
+            
+            # Save the selected model as a pickle file
+            import pickle
             with open(file_name, "wb") as f:
-              pickle.dump(best_model, f)  # save the model as a pickle file with the modified file name
-
-        
-            # Allow the user to download the pickle file with a button
+                pickle.dump(best_model, f)
+            
+            # Allow the user to download the selected pickle file with a button
             st.subheader("Download Best Model")
-            st.markdown(f"Click the button below to download the {best_model} model as a pickle file.")
+            st.markdown(f"Click the button below to download the {selected_model} model as a pickle file.")
             if st.button("Download"):
-                st.markdown(functions.get_binary_file_downloader_html("best_model_{best_model_type_scalar}.pkl", "Best Model"), unsafe_allow_html=True)
+                st.markdown(functions.get_binary_file_downloader_html(file_name, "Best Model"), unsafe_allow_html=True))
     
 
 
