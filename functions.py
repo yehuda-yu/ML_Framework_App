@@ -100,7 +100,7 @@ def evaluate_models(best_models, X_test, y_test):
     except Exception as e:
         st.error(f"An error occurred while evaluating models: {e}")
         return None, None
-
+'''
 def plot_scatter_subplots(model_evaluations):
     try:
         fig, axes = plt.subplots(1, 3, figsize=(18, 9))
@@ -121,7 +121,7 @@ def plot_scatter_subplots(model_evaluations):
 
     except Exception as e:
         st.error(f"An error occurred while plotting scatter subplots: {e}")
-
+'''
 def plot_scatter_subplots(model_evaluations):
     try:
         fig = sp.make_subplots(rows=1, cols=3, subplot_titles=list(model_evaluations.keys()), shared_yaxes=True,
