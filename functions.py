@@ -120,6 +120,48 @@ def plot_scatter_subplots(model_evaluations):
     except Exception as e:
         st.error(f"An error occurred while plotting scatter subplots: {e}")
 
+import plotly.graph_objects as go
+import plotly.subplots as sp
+
+def plot_scatter_subplots(model_evaluations):
+    try:
+        fig = sp.make_subplots(rows=1, cols=3, subplot_titles=list(model_evaluations.keys()), shared_yaxes=True,
+                               horizontal_spacing=0.1, vertical_spacing=0.2)
+
+        for i, (model_type, evaluation) in enumerate(model_evaluations.items()):
+            fig.add_trace(
+                go.Scatter(
+                    x=evaluation["y_test_pred"],
+                    y=evaluation["y_test"],
+                    mode='markers',
+                    marker=dict(color='#2a9d8f', opacity=0.8, line=dict(color='black', width=1)),
+                    showlegend=False
+                ),
+                row=1,
+                col=i + 1
+            )
+            fig.add_trace(
+                go.Scatter(
+                    x=[evaluation["y_test"].min(), evaluation["y_test"].max()],
+                    y=[evaluation["y_test"].min(), evaluation["y_test"].max()],
+                    mode='lines',
+                    line=dict(color='black', dash='dash', width=2),
+                    showlegend=False
+                ),
+                row=1,
+                col=i + 1
+            )
+            fig.update_xaxes(title_text="Predictions (y_test_pred)", row=1, col=i + 1)
+            fig.update_yaxes(title_text="True Values (y_test)", row=1, col=i + 1)
+
+        fig.update_layout(title_text="Scatter Subplots", title_x=0.5, width=1000, height=500)
+        fig.show()
+        # Use st.write() instead of st.pyplot() since Plotly figures are not directly supported by st.pyplot().
+        # You can also use st.plotly_chart() to show the plotly figure if you are using Streamlit >= 1.0.0.
+        # st.plotly_chart(fig)
+
+    except Exception as e:
+        st.error(f"An error occurred while plotting scatter subplots: {e}")
 
 def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=None):
     try:
