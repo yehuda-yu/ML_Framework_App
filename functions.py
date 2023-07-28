@@ -7,6 +7,8 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, L
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.inspection import permutation_importance
+import plotly.graph_objects as go
+import plotly.subplots as sp
   
 def perform_eda(data, handle_missing_values, handle_outliers, normalize_data, encode_categorical_variables):
     try:
@@ -119,9 +121,6 @@ def plot_scatter_subplots(model_evaluations):
 
     except Exception as e:
         st.error(f"An error occurred while plotting scatter subplots: {e}")
-
-import plotly.graph_objects as go
-import plotly.subplots as sp
 
 def plot_scatter_subplots(model_evaluations):
     try:
