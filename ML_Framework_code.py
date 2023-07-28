@@ -85,14 +85,7 @@ if uploaded_file is not None:
                 'min_samples_leaf': [1, 2, 4],
                 'bootstrap': [True, False]
             },
-            "SVM Regression": {'kernel': ['rbf', 'linear'],
-                    'shrinking': [False, True],
-                    'C': reciprocal(10, 200),
-                    'epsilon': reciprocal(0.1, 1.0),
-                    'coef0': expon(scale=1.0),
-                    'gamma': expon(scale=1.0),
-                    'degree': [1, 2, 3, 4, 5, 6],
-                    'tol': expon(scale=1e-4)},
+            "SVM Regression": {},
         }
         st.header("Step 4: Model Training")
         best_models, best_scores, best_params = functions.train_models(models, param_grids, X_train, y_train)
