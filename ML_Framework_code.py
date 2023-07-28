@@ -9,6 +9,8 @@ plt.rcParams['font.size'] = 14
 plt.rcParams['axes.titlesize'] = 16
 # Set the font size for large titles
 plt.rcParams['axes.titlesize'] = 20
+import plotly.graph_objects as go
+import plotly.subplots as sp
 import functions  # Custom functions.py file
 
 # Machine Learning Libraries
