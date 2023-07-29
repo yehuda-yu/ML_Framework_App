@@ -98,7 +98,7 @@ if uploaded_file is not None:
         
         # Step 6: Scatter Plots and table for Model Evaluation
         functions.plot_scatter_subplots(model_evaluations)
-        st.table(results.set_index("Model"))
+        st.dataframe(results.set_index("Model"))
 
         # Step 7: Feature Importance
         st.header("Step 7: Feature Importance")
