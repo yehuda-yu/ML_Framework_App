@@ -157,7 +157,7 @@ def plot_scatter_subplots(model_evaluations):
         fig.show()
         # Use st.write() instead of st.pyplot() since Plotly figures are not directly supported by st.pyplot().
         # You can also use st.plotly_chart() to show the plotly figure if you are using Streamlit >= 1.0.0.
-        # st.plotly_chart(fig)
+        st.plotly_chart(fig)
 
     except Exception as e:
         st.error(f"An error occurred while plotting scatter subplots: {e}")
