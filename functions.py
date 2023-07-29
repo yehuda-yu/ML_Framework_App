@@ -153,7 +153,7 @@ def plot_scatter_subplots(model_evaluations):
             fig.update_xaxes(title_text="Predictions (y_test_pred)", row=1, col=i + 1)
             fig.update_yaxes(title_text="True Values (y_test)", row=1, col=i + 1)
 
-        fig.update_layout(title_text="Scatter Subplots", title_x=0.5, width=1000, height=500)
+        fig.update_layout(title_text="Prediction Vs True Plots", title_x=0.5, width=1000, height=500)
         fig.show()
         # Use st.write() instead of st.pyplot() since Plotly figures are not directly supported by st.pyplot().
         # You can also use st.plotly_chart() to show the plotly figure if you are using Streamlit >= 1.0.0.
