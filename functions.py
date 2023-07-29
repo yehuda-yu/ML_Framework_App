@@ -121,7 +121,7 @@ def plot_scatter_subplots(model_evaluations):
 
     except Exception as e:
         st.error(f"An error occurred while plotting scatter subplots: {e}")
-'''
+
 def plot_scatter_subplots(model_evaluations):
     try:
         fig = sp.make_subplots(rows=1, cols=3, subplot_titles=list(model_evaluations.keys()), shared_yaxes=True,
@@ -161,7 +161,7 @@ def plot_scatter_subplots(model_evaluations):
 
     except Exception as e:
         st.error(f"An error occurred while plotting scatter subplots: {e}")
-'''
+
 def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=None):
     try:
         if model_type_to_title is None:
