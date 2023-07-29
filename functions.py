@@ -212,3 +212,64 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
 
     except Exception as e:
         st.error(f"An error occurred while plotting feature importance: {e}")
+
+def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=None):
+    try:
+        if model_type_to_title is None:
+            model_type_to_title = {
+                "Linear Regression": "Linear Regression",
+                "Random Forest": "Random Forest",
+                "SVM Regression": "SVM Regression"
+            }
+
+        fig = go.Figure()
+
+        for i, (model_type, model) in enumerate(best_models.items()):
+            if hasattr(model, 'feature_importances_'):  # For Random Forest
+                importances = model.feature_importances_
+                indices = np.argsort(importances)[::-1]
+                names = [X_train.columns[i] for i in indices]
+                importance_values = [importances[i] for i in indices]
+                total_importance = np.sum(importance_values)
+
+                fig.add_trace(go.Pie(
+                    labels=names,
+                    values=importance_values,
+                    hoverinfo='label+percent',
+                    textinfo='percent',
+                    textfont_size=12,
+                    marker=dict(colors=px.colors.qualitative.Plotly),
+                    hole=0.7,
+                    name=model_type_to_title.get(model_type, model_type),
+                ))
+
+            else:  # For SVM Regression and other models
+                result = permutation_importance(model, X_train, y_train, n_repeats=10, random_state=42)
+                importances = result.importances_mean
+                indices = np.argsort(importances)[::-1]
+                names = [X_train.columns[i] for i in indices]
+                importance_values = [importances[i] for i in indices]
+                total_importance = np.sum(importance_values)
+
+                fig.add_trace(go.Pie(
+                    labels=names,
+                    values=importance_values,
+                    hoverinfo='label+percent',
+                    textinfo='percent',
+                    textfont_size=12,
+                    marker=dict(colors=px.colors.qualitative.Plotly),
+                    hole=0.7,
+                    name=model_type_to_title.get(model_type, model_type),
+                ))
+
+        fig.update_layout(
+            title_text="Feature Importance for Different Models",
+            annotations=[dict(text="Total Importance", x=0.5, y=0.5, font_size=20, showarrow=False)],
+            showlegend=True,
+            grid=dict(columns=3),
+        )
+
+        fig.show()
+
+    except Exception as e:
+        print(f"Error: {e}")
