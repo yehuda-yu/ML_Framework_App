@@ -212,7 +212,7 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
 
     except Exception as e:
         st.error(f"An error occurred while plotting feature importance: {e}")
-"""
+      
 def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=None):
     try:
         if model_type_to_title is None:
@@ -222,56 +222,27 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
                 "SVM Regression": "SVM Regression"
             }
 
-        fig = go.Figure()
-
+        importances = {}
         for i, (model_type, model) in enumerate(best_models.items()):
             if hasattr(model, 'feature_importances_'):  # For Random Forest
-                importances = model.feature_importances_
-                indices = np.argsort(importances)[::-1]
-                names = [X_train.columns[i] for i in indices]
-                importance_values = [importances[i] for i in indices]
-                total_importance = np.sum(importance_values)
-
-                fig.add_trace(go.Pie(
-                    labels=names,
-                    values=importance_values,
-                    hoverinfo='label+percent',
-                    textinfo='percent',
-                    textfont_size=12,
-                    marker=dict(colors=px.colors.qualitative.Plotly),
-                    hole=0.7,
-                    name=model_type_to_title.get(model_type, model_type),
-                ))
-
+                importances[model_type] = model.feature_importances_
             else:  # For SVM Regression and other models
                 result = permutation_importance(model, X_train, y_train, n_repeats=10, random_state=42)
-                importances = result.importances_mean
-                indices = np.argsort(importances)[::-1]
-                names = [X_train.columns[i] for i in indices]
-                importance_values = [importances[i] for i in indices]
-                total_importance = np.sum(importance_values)
+                importances[model_type] = result.importances_mean
 
-                fig.add_trace(go.Pie(
-                    labels=names,
-                    values=importance_values,
-                    hoverinfo='label+percent',
-                    textinfo='percent',
-                    textfont_size=12,
-                    marker=dict(colors=px.colors.qualitative.Plotly),
-                    hole=0.7,
-                    name=model_type_to_title.get(model_type, model_type),
-                ))
+        fig = sp.make_subplots(rows=1, cols=3, subplot_titles=list(best_models.keys()), horizontal_spacing=0.1)
 
-        fig.update_layout(
-            title_text="Feature Importance for Different Models",
-            annotations=[dict(text="Total Importance", x=0.5, y=0.5, font_size=20, showarrow=False)],
-            showlegend=True,
-            grid=dict(columns=3),
-        )
+        for i, (model_type, importance_values) in enumerate(importances.items()):
+            indices = np.argsort(importance_values)[::-1]
+            names = [X_train.columns[i] for i in indices]
+            importance_values = [importance_values[i] for i in indices]
 
+            fig.add_trace(go.Pie(labels=names, values=importance_values, textinfo='label+percent', hole=0.7), row=1, col=i+1)
+            fig.update_layout(title_text=model_type_to_title.get(model_type, model_type), showlegend=False)
+
+        fig.update_layout(height=500, width=1200)
         fig.show()
-        st.pyplot(fig)
 
     except Exception as e:
         print(f"Error: {e}")
-"""
+
