@@ -106,8 +106,10 @@ if uploaded_file is not None:
             "Random Forest": "Random Forest",
             "SVM Regression": "SVM Model"
         }
-        functions.plot_feature_importance(best_models, X_train, y_train, model_type_to_title)
 
+        # Plot feature importance
+        functions.plot_feature_importance(best_models, X_train, y_train)
+        
         # Download Best Model
         st.header("Step 8: Download Best Model")
         selected_model = st.selectbox("Select the model to download", results["Model"])
