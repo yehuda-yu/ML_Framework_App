@@ -111,8 +111,8 @@ def plot_scatter_subplots(model_evaluations):
             ax.plot([evaluation["y_test"].min(), evaluation["y_test"].max()],
                     [evaluation["y_test"].min(), evaluation["y_test"].max()],
                     'k--', lw=2)
-            ax.set_xlabel('Predictions (y_test_pred)')
-            ax.set_ylabel('True Values (y_test)')
+            ax.set_xlabel('Predictions (test set)')
+            ax.set_ylabel('True Values (test set)')
             ax.set_title(model_type)
 
         plt.tight_layout()
