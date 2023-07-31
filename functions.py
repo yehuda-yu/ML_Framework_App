@@ -247,7 +247,8 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
     except Exception as e:
         print(f"Error: {e}")
 
-"""
+"""import plotly.graph_objects as go
+
 def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=None):
     try:
         if model_type_to_title is None:
@@ -265,14 +266,18 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
                 result = permutation_importance(model, X_train, y_train, n_repeats=10, random_state=42)
                 importances[model_type] = result.importances_mean
 
+        fig = go.Figure()
+
         for model_type, importance_values in importances.items():
             indices = np.argsort(importance_values)[::-1]
             names = [X_train.columns[i] for i in indices]
             importance_values = [importance_values[i] for i in indices]
 
-            fig = px.pie(names=names, values=importance_values, title=model_type_to_title.get(model_type, model_type),
-                         textinfo='label+percent', hole=0.7)
-            st.plotly_chart(fig)
+            fig.add_trace(go.Pie(labels=names, values=importance_values, textinfo='label+percent', hole=0.7, name=model_type_to_title.get(model_type, model_type)))
+
+        fig.update_layout(height=500, width=1200, title="Feature Importance by Model")
+        fig.show()
 
     except Exception as e:
         print(f"Error: {e}")
+
