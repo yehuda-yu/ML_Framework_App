@@ -9,7 +9,8 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.inspection import permutation_importance
 import plotly.graph_objects as go
 import plotly.subplots as sp
-  
+import plotly.express as px
+
 def perform_eda(data, handle_missing_values, handle_outliers, normalize_data, encode_categorical_variables):
     try:
         with st.spinner('Performing EDA...'):
@@ -212,7 +213,7 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
 
     except Exception as e:
         st.error(f"An error occurred while plotting feature importance: {e}")
-"""
+
 def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=None):
     try:
         if model_type_to_title is None:
@@ -246,3 +247,32 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
     except Exception as e:
         print(f"Error: {e}")
 
+"""
+def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=None):
+    try:
+        if model_type_to_title is None:
+            model_type_to_title = {
+                "Linear Regression": "Linear Regression",
+                "Random Forest": "Random Forest",
+                "SVM Regression": "SVM Regression"
+            }
+
+        importances = {}
+        for i, (model_type, model) in enumerate(best_models.items()):
+            if hasattr(model, 'feature_importances_'):  # For Random Forest
+                importances[model_type] = model.feature_importances_
+            else:  # For SVM Regression and other models
+                result = permutation_importance(model, X_train, y_train, n_repeats=10, random_state=42)
+                importances[model_type] = result.importances_mean
+
+        for model_type, importance_values in importances.items():
+            indices = np.argsort(importance_values)[::-1]
+            names = [X_train.columns[i] for i in indices]
+            importance_values = [importance_values[i] for i in indices]
+
+            fig = px.pie(names=names, values=importance_values, title=model_type_to_title.get(model_type, model_type),
+                         textinfo='label+percent', hole=0.7)
+            st.plotly_chart(fig)
+
+    except Exception as e:
+        print(f"Error: {e}")
