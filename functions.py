@@ -241,7 +241,6 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
             fig.update_layout(title_text=model_type_to_title.get(model_type, model_type), showlegend=False)
 
         fig.update_layout(height=500, width=1200)
-        fig.show()
         st.plotly_chart(fig)
 
     except Exception as e:
