@@ -108,7 +108,7 @@ if uploaded_file is not None:
         }
 
         # Plot feature importance
-        functions.plot_feature_importance(best_models, X_train, y_train)
+        functions.plot_feature_importance(best_models, X_train, y_train,model_type_to_title=None)
         
         # Download Best Model
         st.header("Step 8: Download Best Model")
