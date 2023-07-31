@@ -247,7 +247,7 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
     except Exception as e:
         print(f"Error: {e}")
 
-"""import plotly.graph_objects as go
+"""
 
 def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=None):
     try:
