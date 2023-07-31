@@ -96,22 +96,22 @@ if uploaded_file is not None:
         st.header("Step 5: Model Evaluation")
         results, model_evaluations = functions.evaluate_models(best_models, X_test, y_test)
         
-        # Step 6: Scatter Plots and table for Model Evaluation
+        # Scatter Plots and table for Model Evaluation
         functions.plot_scatter_subplots(model_evaluations)
         st.dataframe(results.set_index("Model"))
 
-        # Step 7: Feature Importance
-        st.header("Step 7: Feature Importance")
+        # Step 6: Feature Importance
+        st.header("Step 6: Feature Importance")
         model_type_to_title = {"Linear Regression": "Linear Model",
             "Random Forest": "Random Forest",
             "SVM Regression": "SVM Model"
         }
 
         # Plot feature importance
-        functions.plot_feature_importance(best_models, X_train, y_train,model_type_to_title=None)
+        functions.plot_feature_importance(best_models, X_train, y_train)
         
         # Download Best Model
-        st.header("Step 8: Download Best Model")
+        st.header("Step 7: Download Best Model")
         selected_model = st.selectbox("Select the model to download", results["Model"])
         best_model = best_models[selected_model]
         file_name = f"best_model_{selected_model}.pkl"
