@@ -113,19 +113,19 @@ if uploaded_file is not None:
         
         # Display the download section
         st.header("Step 7: Download Best Model")
-        selected_model = st.selectbox("Select the model to download", results["Model"], key="model_selection")
-        file_name = f"best_model_{selected_model}.pkl"
         
-        # Check if the button is clicked
-        download_button = st.button("Download Best Model", key="download_button")
+        # Get the index of the model with the highest R2 score
+        best_r2_index = results["R2 Score"].idxmax()
+        best_model_name = results.loc[best_r2_index, "Model"]
+        file_name = f"best_model_{best_model_name}.pkl"
         
-        # Save the selected model as a pickle file if the button is clicked
-        if download_button:
-            best_model = best_models[selected_model]
-            with open(file_name, "wb") as f:
-                pickle.dump(best_model, f)
+        # Save the best model as a pickle file
+        best_model = best_models[best_model_name]
+        with open(file_name, "wb") as f:
+            pickle.dump(best_model, f)
         
-            st.download_button(label="Click here to download the best model",
-                               data=open(file_name, "rb").read(),
-                               file_name=file_name,
-                               mime="application/octet-stream")
+        # Provide a download link for the best model
+        st.download_button(label="Download the best model with highest R2",
+                           data=open(file_name, "rb").read(),
+                           file_name=file_name,
+                           mime="application/octet-stream")
