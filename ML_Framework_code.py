@@ -111,19 +111,20 @@ if uploaded_file is not None:
         # Plot feature importance
         functions.plot_feature_importance(best_models, X_train, y_train)
         
-        # Download Best Model
+        # Display the download section
         st.header("Step 7: Download Best Model")
-        selected_model = st.selectbox("Select the model to download", results["Model"])
-        best_model = best_models[selected_model]
+        selected_model = st.selectbox("Select the model to download", results["Model"], key="model_selection")
         file_name = f"best_model_{selected_model}.pkl"
         
-        # Save the selected model as a pickle file
-        with open(file_name, "wb") as f:
-            pickle.dump(best_model, f)
+        # Check if the button is clicked
+        download_button = st.button("Download Best Model", key="download_button")
         
-        # Allow the user to download the selected pickle file with a button
-        download_button = st.button("Download Best Model")
+        # Save the selected model as a pickle file if the button is clicked
         if download_button:
+            best_model = best_models[selected_model]
+            with open(file_name, "wb") as f:
+                pickle.dump(best_model, f)
+        
             st.download_button(label="Click here to download the best model",
                                data=open(file_name, "rb").read(),
                                file_name=file_name,
