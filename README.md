@@ -36,10 +36,6 @@ The **End-to-End ML Regression Model Builder** is a web-based Streamlit app desi
 8. Visualize feature importance using generated plots.
 9. Download the best-performing model by clicking the download button.
 
-> "The journey of building and evaluating regression models just got easier with the End-to-End ML Regression Model Builder. This user-friendly web app streamlines the process, allowing you to focus more on insights and less on coding."
-
-— Excerpt from [Article Title](https://www.example.com/article-link)
-
 ## Author
 
 Created by [Yehuda Yungstein](https://www.linkedin.com/in/yehuda-yungstein/) — Connect with me on LinkedIn!
