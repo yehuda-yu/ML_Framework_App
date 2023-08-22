@@ -104,25 +104,35 @@ def evaluate_models(best_models, X_test, y_test):
 
 def plot_scatter_subplots(model_evaluations):
     try:
-        fig, axes = plt.subplots(1, 3, figsize=(18, 9))
+        fig = sp.make_subplots(rows=1, cols=len(model_evaluations), 
+                               subplot_titles=list(model_evaluations.keys()))
 
         for i, (model_type, evaluation) in enumerate(model_evaluations.items()):
-            ax = axes[i]
-            ax.scatter(evaluation["y_test_pred"], evaluation["y_test"], alpha=0.8, color='#2a9d8f', edgecolors='black')
-            ax.plot([evaluation["y_test"].min(), evaluation["y_test"].max()],
-                    [evaluation["y_test"].min(), evaluation["y_test"].max()],
-                    'k--', lw=2)
-            ax.set_xlabel('Predictions (test set)')
-            ax.set_ylabel('True Values (test set)')
-            ax.set_title(model_type)
+            scatter_trace = go.Scatter(x=evaluation["y_test_pred"], 
+                                       y=evaluation["y_test"],
+                                       mode='markers',
+                                       marker=dict(color='#2a9d8f', line=dict(color='black', width=1)),
+                                       name=model_type)
 
-        plt.tight_layout()
-        plt.show()
-        st.pyplot(fig)
+            reference_line = go.Scatter(x=[min(evaluation["y_test"]), max(evaluation["y_test"])],
+                                        y=[min(evaluation["y_test"]), max(evaluation["y_test"])],
+                                        mode='lines',
+                                        line=dict(color='black', dash='dash'),
+                                        showlegend=False)
+
+            fig.add_trace(scatter_trace, row=1, col=i+1)
+            fig.add_trace(reference_line, row=1, col=i+1)
+
+            fig.update_xaxes(title_text="Predictions (test set)", row=1, col=i+1)
+            fig.update_yaxes(title_text="True Values (test set)", row=1, col=i+1)
+
+        fig.update_layout(title_text="Scatter Subplots",
+                          margin=dict(l=0, r=0, t=60, b=0))
+
+        st.plotly_chart(fig)
 
     except Exception as e:
         st.error(f"An error occurred while plotting scatter subplots: {e}")
-
 
 def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=None):
     try:
@@ -133,7 +143,7 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
                 "SVM Regression": "SVM Regression"
             }
 
-        fig = make_subplots(rows=1, cols=len(best_models), shared_yaxes=True, subplot_titles=list(best_models.keys()))
+        fig = go.Figure()
 
         for i, (model_type, model) in enumerate(best_models.items()):
             if hasattr(model, 'feature_importances_'):  # For Random Forest
@@ -144,8 +154,8 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
                 total_importance = np.sum(importance_values)
 
                 fig.add_trace(go.Pie(labels=names, values=importance_values, 
-                                     textinfo='label+percent', hole=0.3),
-                              row=1, col=i+1)
+                                     textinfo='label+percent', hole=0.3,
+                                     title=model_type_to_title.get(model_type, model_type)))
 
             else:  # For SVM Regression and other models
                 result = permutation_importance(model, X_train, y_train, n_repeats=10, random_state=42)
@@ -156,10 +166,11 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
                 total_importance = np.sum(importance_values)
 
                 fig.add_trace(go.Pie(labels=names, values=importance_values, 
-                                     textinfo='label+percent', hole=0.3),
-                              row=1, col=i+1)
+                                     textinfo='label+percent', hole=0.3,
+                                     title=model_type_to_title.get(model_type, model_type)))
 
-        fig.update_layout(title_text="Feature Importance",
+        fig.update_layout(grid={'rows': 1, 'columns': len(best_models)},
+                          title_text="Feature Importance",
                           margin=dict(l=0, r=0, t=60, b=0))
 
         st.plotly_chart(fig)
