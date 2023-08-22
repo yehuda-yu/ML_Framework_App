@@ -143,9 +143,9 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
                 "SVM Regression": "SVM Regression"
             }
 
-        fig = go.Figure()
-
         for i, (model_type, model) in enumerate(best_models.items()):
+            fig = go.Figure()
+
             if hasattr(model, 'feature_importances_'):  # For Random Forest
                 importances = model.feature_importances_
                 indices = np.argsort(importances)[::-1]
@@ -169,11 +169,11 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
                                      textinfo='label+percent', hole=0.3,
                                      title=model_type_to_title.get(model_type, model_type)))
 
-        fig.update_layout(grid={'rows': 1, 'columns': len(best_models)},
-                          title_text="Feature Importance",
-                          margin=dict(l=0, r=0, t=60, b=0))
+            fig.update_layout(title_text="Feature Importance",
+                              margin=dict(l=0, r=0, t=60, b=0))
 
-        st.plotly_chart(fig)
+            st.write(model_type_to_title.get(model_type, model_type))
+            st.plotly_chart(fig)
 
     except Exception as e:
         st.error(f"An error occurred while plotting feature importance: {e}")
