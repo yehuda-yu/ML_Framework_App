@@ -172,7 +172,8 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
                 "SVM Regression": "SVM Regression"
             }
 
-        fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+        fig = go.Figure()
+
         for i, (model_type, model) in enumerate(best_models.items()):
             if hasattr(model, 'feature_importances_'):  # For Random Forest
                 importances = model.feature_importances_
@@ -181,14 +182,9 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
                 importance_values = [importances[i] for i in indices]
                 total_importance = np.sum(importance_values)
 
-                ax = axes[i]
-                ax.pie(importance_values, labels=names, autopct=lambda p: '{:.1f}%'.format(p) if p > 0 else '', startangle=90)
-                ax.set_title(model_type_to_title.get(model_type, model_type))
-                ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-
-                # Add a center circle to make it look like a donut chart
-                center_circle = plt.Circle((0, 0), 0.70, fc='white')
-                ax.add_artist(center_circle)
+                fig.add_trace(go.Pie(labels=names, values=importance_values, 
+                                     textinfo='label+percent', hole=0.3,
+                                     title=model_type_to_title.get(model_type, model_type)))
 
             else:  # For SVM Regression and other models
                 result = permutation_importance(model, X_train, y_train, n_repeats=10, random_state=42)
@@ -198,22 +194,20 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
                 importance_values = [importances[i] for i in indices]
                 total_importance = np.sum(importance_values)
 
-                ax = axes[i]
-                ax.pie(importance_values, labels=names, autopct=lambda p: '{:.1f}%'.format(p) if p > 0 else '', startangle=90)
-                ax.set_title(model_type_to_title.get(model_type, model_type))
-                ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+                fig.add_trace(go.Pie(labels=names, values=importance_values, 
+                                     textinfo='label+percent', hole=0.3,
+                                     title=model_type_to_title.get(model_type, model_type)))
 
-                # Add a center circle to make it look like a donut chart
-                center_circle = plt.Circle((0, 0), 0.70, fc='white')
-                ax.add_artist(center_circle)
+        fig.update_layout(grid={'rows': 1, 'columns': len(best_models)},
+                          title_text="Feature Importance",
+                          margin=dict(l=0, r=0, t=60, b=0))
 
-        plt.tight_layout()
-        plt.show()
-        st.pyplot(fig)
+        st.plotly_chart(fig)
 
     except Exception as e:
         st.error(f"An error occurred while plotting feature importance: {e}")
-"""
+
+
 def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=None):
     try:
         if model_type_to_title is None:
@@ -223,27 +217,37 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=N
                 "SVM Regression": "SVM Regression"
             }
 
-        importances = {}
+        fig = go.Figure()
+
         for i, (model_type, model) in enumerate(best_models.items()):
             if hasattr(model, 'feature_importances_'):  # For Random Forest
-                importances[model_type] = model.feature_importances_
+                importances = model.feature_importances_
+                indices = np.argsort(importances)[::-1]
+                names = [X_train.columns[i] for i in indices]
+                importance_values = [importances[i] for i in indices]
+                total_importance = np.sum(importance_values)
+
+                fig.add_trace(go.Pie(labels=names, values=importance_values, 
+                                     textinfo='label+percent', hole=0.3,
+                                     title=model_type_to_title.get(model_type, model_type)))
+
             else:  # For SVM Regression and other models
                 result = permutation_importance(model, X_train, y_train, n_repeats=10, random_state=42)
-                importances[model_type] = result.importances_mean
+                importances = result.importances_mean
+                indices = np.argsort(importances)[::-1]
+                names = [X_train.columns[i] for i in indices]
+                importance_values = [importances[i] for i in indices]
+                total_importance = np.sum(importance_values)
 
-        fig = sp.make_subplots(rows=1, cols=3, subplot_titles=list(best_models.keys()), horizontal_spacing=0.1)
+                fig.add_trace(go.Pie(labels=names, values=importance_values, 
+                                     textinfo='label+percent', hole=0.3,
+                                     title=model_type_to_title.get(model_type, model_type)))
 
-        for i, (model_type, importance_values) in enumerate(importances.items()):
-            indices = np.argsort(importance_values)[::-1]
-            names = [X_train.columns[i] for i in indices]
-            importance_values = [importance_values[i] for i in indices]
+        fig.update_layout(grid={'rows': 1, 'columns': len(best_models)},
+                          title_text="Feature Importance",
+                          margin=dict(l=0, r=0, t=60, b=0))
 
-            fig.add_trace(go.Pie(labels=names, values=importance_values, textinfo='label+percent', hole=0.7), row=1, col=i+1)
-            fig.update_layout(title_text=model_type_to_title.get(model_type, model_type), showlegend=False)
-
-        fig.update_layout(height=500, width=1200)
         st.plotly_chart(fig)
 
     except Exception as e:
-        print(f"Error: {e}")
-    """
+        st.error(f"An error occurred while plotting feature importance: {e}")
