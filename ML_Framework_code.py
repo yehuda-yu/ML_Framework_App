@@ -113,7 +113,7 @@ if uploaded_file is not None:
         
         # Get the index of the model with the highest R2 score
         best_r2_index = results["R2"].idxmax()
-        best_model_name = results.loc[best_r2_index, "Model"]
+        best_model_name = results.iloc[best_r2_index]["Model"]
         file_name = f"best_model_{best_model_name}.pkl"
         
         # Save the best model as a pickle file
