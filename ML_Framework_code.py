@@ -112,7 +112,7 @@ if uploaded_file is not None:
         functions.plot_feature_importance(best_models, X_train, y_train)
         
         # Get the index of the model with the highest R2 score
-        best_r2_index = results["R2 Score"].idxmax()
+        best_r2_index = results["R2"].idxmax()
         best_model_name = results.loc[best_r2_index, "Model"]
         file_name = f"best_model_{best_model_name}.pkl"
         
