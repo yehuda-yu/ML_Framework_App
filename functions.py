@@ -11,35 +11,46 @@ import plotly.graph_objects as go
 import plotly.subplots as sp
 import plotly.express as px
 
-def perform_eda(data, handle_missing_values, handle_outliers, normalize_data, encode_categorical_variables):
-    try:
-        with st.spinner('Performing EDA...'):
-            # Handle missing values
-            if handle_missing_values:
-                data = data.dropna()  # drop rows with missing values
+def replace_missing_with_average(data):
+    """Replace missing values with the average of each column."""
+    return data.fillna(data.mean())
 
-            # Handle outliers using the Z-score method
-            if handle_outliers:
-                z_scores = (data - data.mean()) / data.std()
-                data = data[(z_scores < 3).all(axis=1)]
+def replace_missing_with_zero(data):
+    """Replace missing values with zero."""
+    return data.fillna(0)
 
-            # Normalize the data using min-max scaling
-            if normalize_data:
-                scaler = MinMaxScaler()
-                data = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
+def delete_missing_values(data):
+    """Delete rows containing missing values."""
+    return data.dropna()
 
-            # Encode categorical variables using one-hot encoding
-            if encode_categorical_variables:
-                categorical_columns = data.select_dtypes(include=['object']).columns
-                encoder = OneHotEncoder()
-                encoded_data = encoder.fit_transform(data[categorical_columns])
-                data = pd.concat([data.drop(categorical_columns, axis=1), pd.DataFrame(encoded_data.toarray(), columns=encoder.get_feature_names_out())], axis=1)
+def normalize_data_minmax(data):
+    """Normalize data using Min-Max scaling."""
+    scaler = MinMaxScaler()
+    normalized_data = scaler.fit_transform(data)
+    return pd.DataFrame(normalized_data, columns=data.columns)
 
-        return data
+def normalize_data_standard(data):
+    """Standardize data using Z-score standardization."""
+    scaler = StandardScaler()
+    standardized_data = scaler.fit_transform(data)
+    return pd.DataFrame(standardized_data, columns=data.columns)
 
-    except Exception as e:
-        st.error(f"An error occurred while performing EDA: {e}")
-        return None
+def encode_categorical_onehot(data):
+    """One-hot encode categorical variables."""
+    categorical_columns = data.select_dtypes(include=['object']).columns
+    encoder = OneHotEncoder(drop='first', sparse=False)
+    encoded_data = pd.DataFrame(encoder.fit_transform(data[categorical_columns]))
+    data = pd.concat([data, encoded_data], axis=1)
+    data = data.drop(categorical_columns, axis=1)
+    return data
+
+def encode_categorical_label(data):
+    """Label encode categorical variables."""
+    le = LabelEncoder()
+    categorical_columns = data.select_dtypes(include=['object']).columns
+    for column in categorical_columns:
+        data[column] = le.fit_transform(data[column])
+    return data
 
 def train_models(models, param_grids, X_train, y_train):
     try:
