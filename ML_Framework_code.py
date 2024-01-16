@@ -43,8 +43,8 @@ features = st.multiselect("Select features columns", data.columns.tolist(), defa
 st.header("Step 3: Target Column Selection")
 target_column = st.selectbox("Select the target column", data.columns)
 
-
 st.header("Step 4: Data Processing Options")
+
 # Checkbox for handling missing values
 handle_missing_values = st.checkbox("Handle missing values")
 if handle_missing_values:
@@ -71,7 +71,7 @@ run_model = st.button("Run Model")
 if run_model:
     try:
         # define data as features + target
-        data[features + [target_column]]
+        data = data[features + [target_column]]
         
         # Perform data processing
         if handle_missing_values:
@@ -88,14 +88,18 @@ if run_model:
             data = pd.concat([data, encoded_data], axis=1)
             data = data.drop(categorical_columns, axis=1)
 
+        # Separate feature columns into encoded and non-encoded
+        encoded_feature_columns = [col for col in data.columns if col in categorical_columns]
+        non_encoded_feature_columns = [col for col in data.columns if col not in encoded_feature_columns]
+
+        # Normalize only non-encoded feature columns
         if normalize_data:
             if normalization_method == "MinMaxScaler":
                 scaler = MinMaxScaler()
-                data = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
+                data[non_encoded_feature_columns] = scaler.fit_transform(data[non_encoded_feature_columns])
             elif normalization_method == "StandardScaler":
                 scaler = StandardScaler()
-                data = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
-
+                data[non_encoded_feature_columns] = scaler.fit_transform(data[non_encoded_feature_columns])
 
         # Display the processed data
         st.subheader("Processed Data:")
