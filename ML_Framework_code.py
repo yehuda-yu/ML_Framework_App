@@ -117,24 +117,6 @@ if run_model:
                   "SVM Regression": SVR(),
                   "Linear Regression": LinearRegression()}
 
-        # Training the models using the custom function
-        best_models, best_scores, best_params = functions.train_models(models, param_grids, X_train, y_train)
-
-    except Exception as e:
-            st.error(f"Error during model training and evaluation: {str(e)}")
-        
-    # Evaluate the models on the test set using the custom function
-    results, model_evaluations = functions.evaluate_models(best_models, X_test, y_test)
-
-    # Plot scatter subplots using the custom function
-    functions.plot_scatter_subplots(model_evaluations)
-
-    # Plot feature importance using the custom function
-    functions.plot_feature_importance(best_models, X_train, y_train)
-
-"""
-
-    
         # Define the parameter grids for each model
         param_grids = {
             "Random Forest": {'n_estimators': [int(x) for x in np.linspace(start=200, stop=2000, num=10)],
@@ -158,6 +140,26 @@ if run_model:
                                   'n_jobs': [None, 1, 2, 4],
                                   'positive': [True, False],}  
         }
+
+        # Training the models using the custom function
+        best_models, best_scores, best_params = functions.train_models(models, param_grids, X_train, y_train)
+
+    except Exception as e:
+            st.error(f"Error during model training and evaluation: {str(e)}")
+        
+    # Evaluate the models on the test set using the custom function
+    results, model_evaluations = functions.evaluate_models(best_models, X_test, y_test)
+
+    # Plot scatter subplots using the custom function
+    functions.plot_scatter_subplots(model_evaluations)
+
+    # Plot feature importance using the custom function
+    functions.plot_feature_importance(best_models, X_train, y_train)
+
+"""
+
+    
+
     
         # For each model, use a progress bar or another widget to show the hyperparameter search with cross-validation
         st.subheader("Model Training")
