@@ -31,7 +31,7 @@ if uploaded_file is not None:
     except Exception as e:
         print(e)
         data = pd.read_excel(uploaded_file)
-
+"""
 # Feature columns selection
 st.header("Step 2: Feature Columns Selection")
 features = st.multiselect("Select features columns", data.columns.tolist(), default=data.columns.tolist())
@@ -192,3 +192,5 @@ if run_model:
             st.markdown(functions.get_binary_file_downloader_html("best_model.pkl", "Best Model"), unsafe_allow_html=True)
     except Exception as e:
         st.error(f"Error during model training and evaluation: {str(e)}")
+
+    """
