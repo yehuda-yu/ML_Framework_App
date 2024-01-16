@@ -166,27 +166,33 @@ if run_model:
     
         # Evaluate the models on the test set and display the results (MAE, MSE, RMSE, R2, etc.)
         st.subheader("Model Evaluation")
-        results = pd.DataFrame(columns=["Model", "MAE", "MSE", "RMSE", "R2", "RPD"]) # store the results for each model
+        # Create an empty list to store results
+        results_list = []
+        
         for model_type in best_models.keys():
             st.write(f"Evaluating {model_type} model...")
+            
             # Predict the target variable for the test set
             y_test_pred = best_models[model_type].predict(X_test)
-    
+        
             # Calculate MAE, MSE, RMSE, R2, etc.
             mae = mean_absolute_error(y_test, y_test_pred)
             mse = mean_squared_error(y_test, y_test_pred)
             rmse = np.sqrt(mse)
             r2 = r2_score(y_test, y_test_pred)
-            rpd = y_test.std()/rmse
-    
-            # Append the results to the dataframe
-            results = results.append({"Model": model_type,
-                                      "MAE": mae,
-                                      "MSE": mse,
-                                      "RMSE": rmse,
-                                      "R2": r2,
-                                      "RPD": rpd}, ignore_index=True)
-    
+            rpd = y_test.std() / rmse
+        
+            # Append the results to the list
+            results_list.append({"Model": model_type,
+                                 "MAE": mae,
+                                 "MSE": mse,
+                                 "RMSE": rmse,
+                                 "R2": r2,
+                                 "RPD": rpd})
+        
+        # Create a DataFrame from the list
+        results = pd.DataFrame(results_list)
+        
         # Display the results as a table
         st.write(results)
     
