@@ -39,9 +39,9 @@ features = st.multiselect("Select features columns", data.columns.tolist(), defa
 # Select target column
 st.header("Step 3: Target Column Selection")
 target_column = st.selectbox("Select the target column", data.columns)
-"""
-st.header("Step 4: Data Processing Options")
 
+st.header("Step 4: Data Processing Options")
+"""
 # Checkbox for handling missing values
 handle_missing_values = st.checkbox("Handle missing values")
 if handle_missing_values:
