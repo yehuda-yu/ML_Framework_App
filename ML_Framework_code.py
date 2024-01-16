@@ -82,6 +82,12 @@ if run_model:
             elif missing_values_option == "Delete":
                 data = data.dropna()
 
+        if encode_categorical_variables and categorical_columns:
+            encoder = OneHotEncoder(drop='first', sparse=False)
+            encoded_data = pd.DataFrame(encoder.fit_transform(data[categorical_columns]))
+            data = pd.concat([data, encoded_data], axis=1)
+            data = data.drop(categorical_columns, axis=1)
+
         if normalize_data:
             if normalization_method == "MinMaxScaler":
                 scaler = MinMaxScaler()
@@ -90,11 +96,6 @@ if run_model:
                 scaler = StandardScaler()
                 data = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
 
-        if encode_categorical_variables and categorical_columns:
-            encoder = OneHotEncoder(drop='first', sparse=False)
-            encoded_data = pd.DataFrame(encoder.fit_transform(data[categorical_columns]))
-            data = pd.concat([data, encoded_data], axis=1)
-            data = data.drop(categorical_columns, axis=1)
 
         # Display the processed data
         st.subheader("Processed Data:")
