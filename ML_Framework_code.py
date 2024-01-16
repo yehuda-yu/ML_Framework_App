@@ -94,7 +94,7 @@ if run_model:
         # Present data
         st.subheader("Data Preview")
         st.write(data[features + [target_column]].head())
-"""
+
         # Shuffle the data and split it into train and test sets based on the user input
         data = data.sample(frac=1, random_state=42) # shuffle the data
         X = data.drop(target_column, axis=1) # features
@@ -192,5 +192,3 @@ if run_model:
             st.markdown(functions.get_binary_file_downloader_html("best_model.pkl", "Best Model"), unsafe_allow_html=True)
     except Exception as e:
         st.error(f"Error during model training and evaluation: {str(e)}")
-
-    """
