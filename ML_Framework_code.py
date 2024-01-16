@@ -110,7 +110,8 @@ if run_model:
     
         # Create two regression models: Random Forest and Linear Regression
         models = {"Random Forest": RandomForestRegressor(),
-                  "SVM Regression": LinearRegression()}
+                  "SVM Regression": SVR(),
+                  "Linear Regression": LinearRegression()}
     
         # Define the parameter grids for each model
         param_grids = {"Random Forest": {'n_estimators': [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)],
