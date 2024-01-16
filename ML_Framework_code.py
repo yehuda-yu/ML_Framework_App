@@ -112,6 +112,11 @@ if run_model:
         y = data[target_column] # target
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split_percentage, random_state=42) # split the data
 
+        # Create two regression models: Random Forest and Linear Regression
+        models = {"Random Forest": RandomForestRegressor(),
+                  "SVM Regression": SVR(),
+                  "Linear Regression": LinearRegression()}
+
         # Training the models using the custom function
         best_models, best_scores, best_params = functions.train_models(models, param_grids, X_train, y_train)
 
@@ -128,10 +133,7 @@ if run_model:
     functions.plot_feature_importance(best_models, X_train, y_train)
 
 """
-        # Create two regression models: Random Forest and Linear Regression
-        models = {"Random Forest": RandomForestRegressor(),
-                  "SVM Regression": SVR(),
-                  "Linear Regression": LinearRegression()}
+
     
         # Define the parameter grids for each model
         param_grids = {
