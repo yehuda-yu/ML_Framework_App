@@ -31,7 +31,6 @@ if uploaded_file is not None:
     except Exception as e:
         print(e)
         data = pd.read_excel(uploaded_file)
-    st.session_state.data = data  # Save data in session_state
 
 # Feature columns selection
 st.header("Step 2: Feature Columns Selection")
