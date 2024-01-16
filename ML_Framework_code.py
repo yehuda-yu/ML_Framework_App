@@ -147,11 +147,11 @@ if run_model:
         
         # Evaluate the models on the test set using the custom function
         results, model_evaluations = functions.evaluate_models(best_models, X_test, y_test)
-
-        st.table(results)
     
         # Plot scatter subplots using the custom function
         functions.plot_scatter_subplots(model_evaluations)
+
+        st.dataframe(results)
     
         # Plot feature importance using the custom function
         functions.plot_feature_importance(best_models, X_train, y_train)
