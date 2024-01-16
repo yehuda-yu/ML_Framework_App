@@ -31,9 +31,6 @@ st.title("End to End ML Regression Model Builder")
 st.header("Step 1: Upload Data")
 uploaded_file = st.file_uploader("Upload your data file", type=["csv", "xlsx"])
 
-# Data processing options
-data = st.session_state.data if 'data' in st.session_state else None  # Initialize data variable using session_state
-
 # Perform EDA on the data after it is uploaded and before the model is executed
 if uploaded_file is not None:
     try:
