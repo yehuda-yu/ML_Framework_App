@@ -135,9 +135,7 @@ if run_model:
                                   'normalize': [True, False],
                                   'copy_X': [True, False],
                                   'n_jobs': [None, 1, 2, 4],
-                                  'positive': [True, False],
-                                  'selection': ['cyclic', 'random'],
-                                  'alpha': reciprocal(1e-6, 1e-3)}  # Example regularization parameter
+                                  'positive': [True, False],}  
         }
     
         # For each model, use a progress bar or another widget to show the hyperparameter search with cross-validation
