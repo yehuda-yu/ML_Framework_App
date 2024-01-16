@@ -32,7 +32,7 @@ if uploaded_file is not None:
         print(e)
         data = pd.read_excel(uploaded_file)
 
-st.table(data)
+st.DataFrame(data)
 """
 # Feature columns selection
 st.header("Step 2: Feature Columns Selection")
