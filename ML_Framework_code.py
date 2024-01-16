@@ -7,6 +7,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 import functions  # Custom functions.py file
 import pickle
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # Set the font size for regular text
 plt.rcParams['font.size'] = 14
