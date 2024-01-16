@@ -115,6 +115,9 @@ if run_model:
         # Training the models using the custom function
         best_models, best_scores, best_params = functions.train_models(models, param_grids, X_train, y_train)
 
+    except Exception as e:
+            st.error(f"Error during model training and evaluation: {str(e)}")
+        
         # Evaluate the models on the test set using the custom function
         results, model_evaluations = functions.evaluate_models(best_models, X_test, y_test)
 
@@ -124,8 +127,7 @@ if run_model:
         # Plot feature importance using the custom function
         functions.plot_feature_importance(best_models, X_train, y_train)
 
-
-        """
+"""
         # Create two regression models: Random Forest and Linear Regression
         models = {"Random Forest": RandomForestRegressor(),
                   "SVM Regression": SVR(),
@@ -233,4 +235,4 @@ if run_model:
     except Exception as e:
         st.error(f"Error during model training and evaluation: {str(e)}")
 
-         """
+"""
