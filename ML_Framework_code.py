@@ -4,11 +4,14 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
+from scipy.stats import expon, reciprocal
+from sklearn.model_selection import RandomizedSearchCV, cross_val_predict, train_test_split
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import functions  # Custom functions.py file
 import pickle
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Set the font size for regular text
 plt.rcParams['font.size'] = 14
