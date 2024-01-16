@@ -132,7 +132,6 @@ if run_model:
                                'tol': expon(scale=1e-4)},
         
             "Linear Regression": {'fit_intercept': [True, False],
-                                  'normalize': [True, False],
                                   'copy_X': [True, False],
                                   'n_jobs': [None, 1, 2, 4],
                                   'positive': [True, False],}  
