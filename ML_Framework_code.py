@@ -1,27 +1,19 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+import functions  # Custom functions.py file
+import pickle
+
 # Set the font size for regular text
 plt.rcParams['font.size'] = 14
 # Set the font size for titles
 plt.rcParams['axes.titlesize'] = 16
 # Set the font size for large titles
 plt.rcParams['axes.titlesize'] = 20
-import plotly.graph_objects as go
-import plotly.subplots as sp
-import functions  # Custom functions.py file
-
-# Machine Learning Libraries
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, LabelEncoder
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.svm import SVR
-from scipy.stats import expon, reciprocal
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import RandomizedSearchCV, cross_val_predict, train_test_split
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from sklearn.inspection import permutation_importance
-import pickle
 
 # Create a title for the app
 st.title("End to End ML Regression Model Builder")
@@ -31,7 +23,7 @@ st.header("Step 1: Upload Data")
 uploaded_file = st.file_uploader("Upload your data file", type=["csv", "xlsx"])
 
 # Data processing options
-data = None  # Initialize data variable
+data = st.session_state.data if 'data' in st.session_state else None  # Initialize data variable using session_state
 
 # Perform EDA on the data after it is uploaded and before the model is executed
 if uploaded_file is not None:
@@ -40,7 +32,8 @@ if uploaded_file is not None:
     except Exception as e:
         print(e)
         data = pd.read_excel(uploaded_file)
-        
+    st.session_state.data = data  # Save data in session_state
+
 st.header("Step 2: Data Processing Options")
 
 # Checkbox for handling missing values
