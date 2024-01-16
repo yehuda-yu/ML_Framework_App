@@ -76,7 +76,7 @@ run_model = st.button("Run Model")
 if run_model:
     try:
         # define data as features + target
-        data[features + [target_column]]
+        data = data[features + [target_column]]
         
         # Perform data processing
         if handle_missing_values:
