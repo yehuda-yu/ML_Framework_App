@@ -42,7 +42,7 @@ if uploaded_file is not None:
         print(e)
         data = pd.read_excel(uploaded_file)
     st.session_state.data = data  # Save data in session_state
-
+"""
 st.header("Step 2: Data Processing Options")
 
 # Checkbox for handling missing values
@@ -195,4 +195,4 @@ if run_model:
         st.markdown("Click the button below to download the best model as a pickle file.")
         if st.button("Download"):
             st.markdown(functions.get_binary_file_downloader_html("best_model.pkl", "Best Model"), unsafe_allow_html=True)
-    
+    """
