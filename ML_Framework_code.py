@@ -90,9 +90,6 @@ if run_model:
         st.subheader("Processed Data:")
         st.write(data)
 
-        # Present data
-        st.subheader("Data Preview")
-        st.write(data[features + [target_column]].head())
 
         # Shuffle the data and split it into train and test sets based on the user input
         data = data.sample(frac=1, random_state=42) # shuffle the data
