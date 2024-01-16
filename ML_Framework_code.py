@@ -92,6 +92,9 @@ if run_model:
         encoded_feature_columns = [col for col in data.columns if col in categorical_columns]
         non_encoded_feature_columns = [col for col in data.columns if col not in encoded_feature_columns]
 
+        # Convert feature names to strings
+        data.columns = data.columns.astype(str)
+
         # Normalize only non-encoded feature columns
         if normalize_data:
             if normalization_method == "MinMaxScaler":
