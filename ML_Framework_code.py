@@ -17,6 +17,13 @@ plt.rcParams['axes.titlesize'] = 16
 # Set the font size for large titles
 plt.rcParams['axes.titlesize'] = 20
 
+# Helper function to create a download link for a file
+def get_binary_file_downloader_html(bin_file, file_label="File"):
+    import base64
+    bin_str = base64.b64encode(bin_file.encode()).decode()
+    href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{bin_file}">Download {file_label}</a>'
+    return href
+
 # Create a title for the app
 st.title("End to End ML Regression Model Builder")
 
@@ -187,11 +194,5 @@ if run_model:
         st.subheader("Download Best Model")
         st.markdown("Click the button below to download the best model as a pickle file.")
         if st.button("Download"):
-            st.markdown(get_binary_file_downloader_html("best_model.pkl", "Best Model"), unsafe_allow_html=True)
+            st.markdown(functions.get_binary_file_downloader_html("best_model.pkl", "Best Model"), unsafe_allow_html=True)
     
-    # Helper function to create a download link for a file
-    def get_binary_file_downloader_html(bin_file, file_label="File"):
-        import base64
-        bin_str = base64.b64encode(bin_file.encode()).decode()
-        href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{bin_file}">Download {file_label}</a>'
-        return href
