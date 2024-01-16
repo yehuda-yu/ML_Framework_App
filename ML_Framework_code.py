@@ -32,8 +32,6 @@ if uploaded_file is not None:
         print(e)
         data = pd.read_excel(uploaded_file)
 
-st.dataframe(data)
-"""
 # Feature columns selection
 st.header("Step 2: Feature Columns Selection")
 features = st.multiselect("Select features columns", data.columns.tolist(), default=data.columns.tolist())
@@ -41,7 +39,7 @@ features = st.multiselect("Select features columns", data.columns.tolist(), defa
 # Select target column
 st.header("Step 3: Target Column Selection")
 target_column = st.selectbox("Select the target column", data.columns)
-
+"""
 st.header("Step 4: Data Processing Options")
 
 # Checkbox for handling missing values
