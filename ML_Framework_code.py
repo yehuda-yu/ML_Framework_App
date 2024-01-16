@@ -85,15 +85,17 @@ if run_model:
         if encode_categorical_variables and categorical_columns:
             encoder = OneHotEncoder(drop='first', sparse=False)
             encoded_data = pd.DataFrame(encoder.fit_transform(data[categorical_columns]))
+            encoded_columns = [f"encoded_{col}" for col in categorical_columns]
+            encoded_data.columns = encoded_columns
             data = pd.concat([data, encoded_data], axis=1)
             data = data.drop(categorical_columns, axis=1)
 
         # Separate feature columns into encoded and non-encoded
-        encoded_feature_columns = [col for col in data.columns if col in categorical_columns]
-        non_encoded_feature_columns = [col for col in data.columns if col not in encoded_feature_columns]
+        encoded_feature_columns = [col for col in data.columns if col.startswith("encoded_")]
+        non_encoded_feature_columns = [col for col in data.columns if not col.startswith("encoded_")]
 
-        # Convert feature names to strings
-        data.columns = data.columns.astype(str)
+        # Add prefixes to feature names
+        data.columns = ["encoded_" + col if col in encoded_feature_columns else "original_" + col + "_n" for col in data.columns]
 
         # Normalize only non-encoded feature columns
         if normalize_data:
