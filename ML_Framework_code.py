@@ -58,6 +58,10 @@ if encode_categorical_variables:
 st.header("Step 3: Feature Columns Selection")
 features = st.multiselect("Select features columns", data.columns.tolist(), default=data.columns.tolist())
 
+# Select target column
+st.header("Step 4: Target Column Selection")
+target_column = st.selectbox("Select the target column", data.columns)
+
 # Run Model button
 run_model = st.button("Run Model")
 
