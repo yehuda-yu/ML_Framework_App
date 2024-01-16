@@ -57,6 +57,9 @@ categorical_columns = []
 if encode_categorical_variables:
     categorical_columns = st.multiselect("Select categorical columns for encoding", data.columns)
 
+# Allow the user to select a split percentage from slider
+split_percentage = st.slider("Select the train-test split percentage", 0.1, 0.9, 0.7)
+
 # Run Model button
 run_model = st.button("Run Model")
 
