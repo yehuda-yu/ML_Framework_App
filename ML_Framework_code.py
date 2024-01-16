@@ -118,14 +118,14 @@ if run_model:
     except Exception as e:
             st.error(f"Error during model training and evaluation: {str(e)}")
         
-        # Evaluate the models on the test set using the custom function
-        results, model_evaluations = functions.evaluate_models(best_models, X_test, y_test)
+    # Evaluate the models on the test set using the custom function
+    results, model_evaluations = functions.evaluate_models(best_models, X_test, y_test)
 
-        # Plot scatter subplots using the custom function
-        functions.plot_scatter_subplots(model_evaluations)
+    # Plot scatter subplots using the custom function
+    functions.plot_scatter_subplots(model_evaluations)
 
-        # Plot feature importance using the custom function
-        functions.plot_feature_importance(best_models, X_train, y_train)
+    # Plot feature importance using the custom function
+    functions.plot_feature_importance(best_models, X_train, y_train)
 
 """
         # Create two regression models: Random Forest and Linear Regression
