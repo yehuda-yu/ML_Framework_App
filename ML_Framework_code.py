@@ -68,7 +68,7 @@ features = st.multiselect("Select features columns", data.columns.tolist(), defa
 # Select target column
 st.header("Step 4: Target Column Selection")
 target_column = st.selectbox("Select the target column", data.columns)
-"""
+
 # Run Model button
 run_model = st.button("Run Model")
 
@@ -195,4 +195,5 @@ if run_model:
         st.markdown("Click the button below to download the best model as a pickle file.")
         if st.button("Download"):
             st.markdown(functions.get_binary_file_downloader_html("best_model.pkl", "Best Model"), unsafe_allow_html=True)
-    """
+    except Exception as e:
+        st.error(f"Error during model training and evaluation: {str(e)}")
