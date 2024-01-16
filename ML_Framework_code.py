@@ -43,8 +43,6 @@ features = st.multiselect("Select features columns", data.columns.tolist(), defa
 st.header("Step 3: Target Column Selection")
 target_column = st.selectbox("Select the target column", data.columns)
 
-# define data as features + target
-data[features + [target_column]]
 
 st.header("Step 4: Data Processing Options")
 # Checkbox for handling missing values
@@ -72,6 +70,9 @@ run_model = st.button("Run Model")
 # Run the model if the button is clicked
 if run_model:
     try:
+        # define data as features + target
+        data[features + [target_column]]
+        
         # Perform data processing
         if handle_missing_values:
             if missing_values_option == "Replace with average":
