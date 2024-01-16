@@ -12,6 +12,10 @@ import pickle
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.inspection import permutation_importance
+import plotly.graph_objects as go
+import plotly.subplots as sp
+import plotly.express as px
 
 # Set the font size for regular text
 plt.rcParams['font.size'] = 14
@@ -107,7 +111,21 @@ if run_model:
         X = data.drop(target_column, axis=1) # features
         y = data[target_column] # target
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split_percentage, random_state=42) # split the data
-    
+
+        # Training the models using the custom function
+        best_models, best_scores, best_params = functions.train_models(models, param_grids, X_train, y_train)
+
+        # Evaluate the models on the test set using the custom function
+        results, model_evaluations = functions.evaluate_models(best_models, X_test, y_test)
+
+        # Plot scatter subplots using the custom function
+        functions.plot_scatter_subplots(model_evaluations)
+
+        # Plot feature importance using the custom function
+        functions.plot_feature_importance(best_models, X_train, y_train)
+
+
+        """
         # Create two regression models: Random Forest and Linear Regression
         models = {"Random Forest": RandomForestRegressor(),
                   "SVM Regression": SVR(),
@@ -214,3 +232,5 @@ if run_model:
             st.markdown(functions.get_binary_file_downloader_html("best_model.pkl", "Best Model"), unsafe_allow_html=True)
     except Exception as e:
         st.error(f"Error during model training and evaluation: {str(e)}")
+
+         """
