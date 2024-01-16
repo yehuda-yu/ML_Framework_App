@@ -42,7 +42,7 @@ if uploaded_file is not None:
         print(e)
         data = pd.read_excel(uploaded_file)
     st.session_state.data = data  # Save data in session_state
-"""
+
 st.header("Step 2: Data Processing Options")
 
 # Checkbox for handling missing values
@@ -60,7 +60,7 @@ encode_categorical_variables = st.checkbox("Encode categorical variables")
 categorical_columns = []
 if encode_categorical_variables:
     categorical_columns = st.multiselect("Select categorical columns for encoding", data.columns)
-
+"""
 # Feature columns selection
 st.header("Step 3: Feature Columns Selection")
 features = st.multiselect("Select features columns", data.columns.tolist(), default=data.columns.tolist())
