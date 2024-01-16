@@ -114,20 +114,31 @@ if run_model:
                   "Linear Regression": LinearRegression()}
     
         # Define the parameter grids for each model
-        param_grids = {"Random Forest": {'n_estimators': [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)],
-                                      'max_features': ['auto', 'sqrt'],
-                                      'max_depth': [int(x) for x in np.linspace(10, 110, num = 11)],
-                                      'min_samples_split': [2, 5, 10],
-                                      'min_samples_leaf': [1, 2, 4],
-                                      'bootstrap': [True, False]},
-                    "SVM Regression": {'kernel': ['rbf','linear'],
-                                       'shrinking': [False,True],
-                                        'C': reciprocal(10, 200),
-                                        'epsilon': reciprocal(0.1, 1.0),
-                                        'coef0': expon(scale=1.0),
-                                        'gamma': expon(scale=1.0),
-                                        'degree': [1,2,3,4,5,6],
-                                        'tol': expon(scale=1e-4)}}
+        param_grids = {
+            "Random Forest": {'n_estimators': [int(x) for x in np.linspace(start=200, stop=2000, num=10)],
+                              'max_features': ['auto', 'sqrt'],
+                              'max_depth': [int(x) for x in np.linspace(10, 110, num=11)],
+                              'min_samples_split': [2, 5, 10],
+                              'min_samples_leaf': [1, 2, 4],
+                              'bootstrap': [True, False]},
+            
+            "SVM Regression": {'kernel': ['rbf', 'linear'],
+                               'shrinking': [False, True],
+                               'C': reciprocal(10, 200),
+                               'epsilon': reciprocal(0.1, 1.0),
+                               'coef0': expon(scale=1.0),
+                               'gamma': expon(scale=1.0),
+                               'degree': [1, 2, 3, 4, 5, 6],
+                               'tol': expon(scale=1e-4)},
+        
+            "Linear Regression": {'fit_intercept': [True, False],
+                                  'normalize': [True, False],
+                                  'copy_X': [True, False],
+                                  'n_jobs': [None, 1, 2, 4],
+                                  'positive': [True, False],
+                                  'selection': ['cyclic', 'random'],
+                                  'alpha': reciprocal(1e-6, 1e-3)}  # Example regularization parameter
+        }
     
         # For each model, use a progress bar or another widget to show the hyperparameter search with cross-validation
         st.subheader("Model Training")
