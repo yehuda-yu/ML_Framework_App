@@ -30,52 +30,57 @@ st.title("End to End ML Regression Model Builder")
 st.header("Step 1: Upload Data")
 uploaded_file = st.file_uploader("Upload your data file", type=["csv", "xlsx"])
 
-# Perform EDA on the data after it is uploaded and before the model is executed
-if uploaded_file is not None:
+# Data processing options
+st.header("Step 2: Data Processing Options")
+
+# Checkbox for handling missing values
+handle_missing_values = st.checkbox("Handle missing values")
+if handle_missing_values:
+    missing_values_option = st.radio("Choose missing values handling method", ["Replace with average", "Replace with 0", "Delete"])
+
+# Checkbox for normalization
+normalize_data = st.checkbox("Normalize data")
+if normalize_data:
+    normalization_method = st.radio("Choose normalization method", ["MinMaxScaler", "StandardScaler"])
+
+# Checkbox for encoding
+encode_categorical_variables = st.checkbox("Encode categorical variables")
+categorical_columns = []
+if encode_categorical_variables:
+    categorical_columns = st.multiselect("Select categorical columns for encoding", data.columns)
+
+# Apply button
+if st.button("Apply"):
     try:
-        data = pd.read_csv(uploaded_file)
+        # Perform data processing
+        if handle_missing_values:
+            if missing_values_option == "Replace with average":
+                data = data.fillna(data.mean())
+            elif missing_values_option == "Replace with 0":
+                data = data.fillna(0)
+            elif missing_values_option == "Delete":
+                data = data.dropna()
+
+        if normalize_data:
+            if normalization_method == "MinMaxScaler":
+                scaler = MinMaxScaler()
+                data = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
+            elif normalization_method == "StandardScaler":
+                scaler = StandardScaler()
+                data = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
+
+        if encode_categorical_variables and categorical_columns:
+            encoder = OneHotEncoder(drop='first', sparse=False)
+            encoded_data = pd.DataFrame(encoder.fit_transform(data[categorical_columns]))
+            data = pd.concat([data, encoded_data], axis=1)
+            data = data.drop(categorical_columns, axis=1)
+
+        # Display the processed data
+        st.subheader("Processed Data:")
+        st.write(data)
+
     except Exception as e:
-        print(e)
-        data = pd.read_excel(uploaded_file)
-
-    # Inform the user about successful data upload
-    st.success("Data uploaded successfully!")
-
-    # Step 2: Exploratory Data Analysis (EDA) Options
-    st.header("Step 2: Exploratory Data Analysis (EDA) Options")
-
-    # 1. Treatment of missing values
-    handle_missing_values = st.checkbox("Handle missing values", value=False)
-    if handle_missing_values:
-        missing_values_option = st.selectbox("Choose missing values handling method", ["Replace with average", "Replace with 0", "Delete"])
-        if missing_values_option == "Replace with average":
-            data = functions.replace_missing_with_average(data)
-        elif missing_values_option == "Replace with 0":
-            data = functions.replace_missing_with_zero(data)
-        elif missing_values_option == "Delete":
-            data = functions.delete_missing_values(data)
-
-    # 2. Normalization
-    normalize_data = st.checkbox("Normalize data", value=False)
-    if normalize_data:
-        normalization_method = st.selectbox("Choose normalization method", ["MinMaxScaler", "StandardScaler"])
-        if normalization_method == "MinMaxScaler":
-            data = functions.normalize_data_minmax(data)
-        elif normalization_method == "StandardScaler":
-            data = functions.normalize_data_standard(data)
-
-    # 3. Encoding
-    encode_categorical_variables = st.checkbox("Encode categorical variables", value=False)
-    if encode_categorical_variables:
-        encoding_method = st.selectbox("Choose encoding method", ["OneHotEncoder", "LabelEncoder"])
-        if encoding_method == "OneHotEncoder":
-            data = functions.encode_categorical_onehot(data)
-        elif encoding_method == "LabelEncoder":
-            data = functions.encode_categorical_label(data)
-
-    # Display the processed data
-    st.subheader("Processed Data:")
-    st.write(data)
+        st.error(f"Error during data processing: {str(e)}")
 
     # Step 3: Find best regression model
     st.header("Step 3: Find best regression model")
