@@ -31,6 +31,16 @@ st.header("Step 1: Upload Data")
 uploaded_file = st.file_uploader("Upload your data file", type=["csv", "xlsx"])
 
 # Data processing options
+data = None  # Initialize data variable
+
+# Perform EDA on the data after it is uploaded and before the model is executed
+if uploaded_file is not None:
+    try:
+        data = pd.read_csv(uploaded_file)
+    except Exception as e:
+        print(e)
+        data = pd.read_excel(uploaded_file)
+        
 st.header("Step 2: Data Processing Options")
 
 # Checkbox for handling missing values
