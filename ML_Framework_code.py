@@ -54,8 +54,15 @@ categorical_columns = []
 if encode_categorical_variables:
     categorical_columns = st.multiselect("Select categorical columns for encoding", data.columns)
 
-# Apply button
-if st.button("Apply"):
+# Feature columns selection
+st.header("Step 3: Feature Columns Selection")
+features = st.multiselect("Select features columns", data.columns.tolist(), default=data.columns.tolist())
+
+# Run Model button
+run_model = st.button("Run Model")
+
+# Run the model if the button is clicked
+if run_model:
     try:
         # Perform data processing
         if handle_missing_values:
@@ -84,25 +91,13 @@ if st.button("Apply"):
         st.subheader("Processed Data:")
         st.write(data)
 
-    except Exception as e:
-        st.error(f"Error during data processing: {str(e)}")
-
-    # Step 3: Find best regression model
-    st.header("Step 3: Find best regression model")
-    features = st.multiselect("Select features columns", data.columns.tolist(), default=data.columns.tolist())
-    target_column = st.selectbox("Select the target column", data.columns)
-    data = data[features + [target_column]]
-    split_percentage = st.slider("Select the train-test split percentage", 0.1, 0.9, 0.7)
-    run_model = st.button("Run Model")
-
-    if run_model:
         # Present data
         st.subheader("Data Preview")
-        st.write(data.head())
+        st.write(data[features + [target_column]].head())
 
         # Shuffle the data and split it into train and test sets based on the user input
         data = data.sample(frac=1, random_state=42)  # Shuffle the data
-        X = data.drop(target_column, axis=1)  # Features
+        X = data[features]  # Features
         y = data[target_column]  # Target
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1 - split_percentage, random_state=42)
 
