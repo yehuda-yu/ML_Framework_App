@@ -41,7 +41,7 @@ st.header("Step 3: Target Column Selection")
 target_column = st.selectbox("Select the target column", data.columns)
 
 st.header("Step 4: Data Processing Options")
-"""
+
 # Checkbox for handling missing values
 handle_missing_values = st.checkbox("Handle missing values")
 if handle_missing_values:
@@ -94,7 +94,7 @@ if run_model:
         # Present data
         st.subheader("Data Preview")
         st.write(data[features + [target_column]].head())
-
+"""
         # Shuffle the data and split it into train and test sets based on the user input
         data = data.sample(frac=1, random_state=42) # shuffle the data
         X = data.drop(target_column, axis=1) # features
