@@ -151,7 +151,8 @@ def plot_scatter_subplots(model_evaluations):
     except Exception as e:
         st.error(f"An error occurred while plotting scatter subplots: {e}")
         
-def plot_feature_importance(best_models, X_train, y_train, model_type_to_title = {model_type: model_type.title() for model_type in models.keys()}):
+        
+def plot_feature_importance(best_models, X_train, y_train,  ):
     try:
         colors = ['#2a9d8f', '#e76f51', '#f4a261']  # Color palette for 3 models
         color_iter = iter(colors)
@@ -176,7 +177,7 @@ def plot_feature_importance(best_models, X_train, y_train, model_type_to_title =
             fig.add_trace(go.Pie(labels=names, values=importance_values,
                                   textinfo='label+percent', hole=0.3,
                                   marker=dict(colors=color),  # Set color for pie chart
-                                  title=model_type_to_title.get(model_type, model_type)),
+                                  title=model_type),
                           row=1, col=i+1)
 
         fig.update_layout(title_text="Feature Importance",
