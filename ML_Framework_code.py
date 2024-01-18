@@ -171,7 +171,7 @@ if run_model:
                     "features": [selected_feature],
                     "kind": "average",
                 }
-                display = plot_partial_dependence(
+                display =  PartialDependenceDisplay.from_estimator(
                     model,
                     X_train,
                     **features_info,
