@@ -12,30 +12,36 @@ import plotly.subplots as sp
 import plotly.express as px
 from sklearn.inspection import PartialDependenceDisplay
 
+st.cache_data
 def replace_missing_with_average(data):
     """Replace missing values with the average of each column."""
     return data.fillna(data.mean())
 
+st.cache_data
 def replace_missing_with_zero(data):
     """Replace missing values with zero."""
     return data.fillna(0)
 
+st.cache_data
 def delete_missing_values(data):
     """Delete rows containing missing values."""
     return data.dropna()
 
+st.cache_data
 def normalize_data_minmax(data):
     """Normalize data using Min-Max scaling."""
     scaler = MinMaxScaler()
     normalized_data = scaler.fit_transform(data)
     return pd.DataFrame(normalized_data, columns=data.columns)
 
+st.cache_data
 def normalize_data_standard(data):
     """Standardize data using Z-score standardization."""
     scaler = StandardScaler()
     standardized_data = scaler.fit_transform(data)
     return pd.DataFrame(standardized_data, columns=data.columns)
 
+st.cache_data
 def encode_categorical_onehot(data):
     """One-hot encode categorical variables."""
     categorical_columns = data.select_dtypes(include=['object']).columns
@@ -45,6 +51,7 @@ def encode_categorical_onehot(data):
     data = data.drop(categorical_columns, axis=1)
     return data
 
+st.cache_data
 def encode_categorical_label(data):
     """Label encode categorical variables."""
     le = LabelEncoder()
@@ -53,6 +60,7 @@ def encode_categorical_label(data):
         data[column] = le.fit_transform(data[column])
     return data
 
+st.cache_data
 def train_models(models, param_grids, X_train, y_train):
     try:
         best_models = {}  # Store the best models for each type
@@ -76,6 +84,7 @@ def train_models(models, param_grids, X_train, y_train):
         st.error(f"An error occurred while training models: {e}")
         return None, None, None
 
+st.cache_data
 def evaluate_models(best_models, X_test, y_test):
     try:
         # Create a DataFrame to store the evaluation results
@@ -114,7 +123,7 @@ def evaluate_models(best_models, X_test, y_test):
         st.error(f"An error occurred while evaluating models: {e}")
         return None, None
 
-
+st.cache_data
 def plot_scatter_subplots(model_evaluations):
     try:
         fig = sp.make_subplots(rows=1, cols=len(model_evaluations),
@@ -152,7 +161,8 @@ def plot_scatter_subplots(model_evaluations):
     except Exception as e:
         st.error(f"An error occurred while plotting scatter subplots: {e}")
         
-        
+
+st.cache_data       
 def plot_feature_importance(best_models, X_train, y_train):
     try:
         colors = ['#2a9d8f', '#e76f51', '#f4a261']   # Color palette for 3 models
@@ -189,6 +199,7 @@ def plot_feature_importance(best_models, X_train, y_train):
     except Exception as e:
         st.error(f"An error occurred while plotting feature importance: {e}")
 
+st.cache_data
 def plot_pdp(best_models, X_train, features, target_column):
     try:
         colors = ['#2a9d8f', '#e76f51', '#f4a261', '#738bd7', '#d35400', '#a6c7d8']
