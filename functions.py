@@ -189,36 +189,32 @@ def plot_feature_importance(best_models, X_train, y_train):
         st.error(f"An error occurred while plotting feature importance: {e}")
 
 
-def plot_partial_dependence(best_models, X_train, y_train, selected_feature):
-    """Plots partial dependence plots for each model, using colors from feature importance."""
-    colors = ['#2a9d8f', '#e76f51', '#f4a261']  # Color palette for 3 models
+def plot_pdp(best_models, X_train, features, target_column):
+    try:
+        for selected_feature in features:
+            st.subheader(f"Partial Dependence Plots (PDP) for {selected_feature}")
+            fig, axs = plt.subplots(1, len(best_models), figsize=(15, 4), constrained_layout=True)  # Create subplots
 
-    fig, axs = plt.subplots(1, len(best_models), figsize=(15, 4), constrained_layout=True)
+            for i, (model_name, model) in enumerate(best_models.items()):
+                # Generate PDP for each model
+                features_info = {
+                    "features": [selected_feature],
+                    "kind": "average",
+                }
 
-    for i, (model_name, model) in enumerate(best_models.items()):
-        # Get feature importance for color mapping
-        if hasattr(model, 'feature_importances_'):
-            importances = model.feature_importances_
-        else:
-            result = permutation_importance(model, X_train, y_train, n_repeats=10, random_state=42)
-            importances = result.importances_mean
+                display = PartialDependenceDisplay.from_estimator(
+                    model,
+                    X_train,
+                    **features_info,
+                    ax=axs[i],
+                )
 
-        color_index = np.where(X_train.columns == selected_feature)[0][0]  # Get color based on feature index
-        color = colors[color_index]
+                axs[i].set_title(f"{model_name} - {selected_feature}")
+                axs[i].set_xlabel(selected_feature)
+                axs[i].set_ylabel(f"Partial Dependence for {target_column}")
 
-        # Generate PDP with model name as title and color
-        features_info = {
-            "features": [selected_feature],
-            "kind": "average",
-        }
-        display = PartialDependenceDisplay.from_estimator(
-            model,
-            X_train,
-            **features_info,
-            ax=axs[i],
-            color=color,  # Set color for PDP line
-        )
-        axs[i].set_title(f"{model_name}")
+            fig.suptitle(f"Partial Dependence of {target_column} on {selected_feature}", fontsize=16)
+            st.pyplot(fig)
 
-    fig.suptitle(f"Partial Dependence of {target_column} on {selected_feature}", fontsize=16)
-    st.pyplot(fig)
+    except Exception as e:
+        st.error(f"An error occurred while plotting PDP: {e}")
