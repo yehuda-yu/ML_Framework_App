@@ -160,7 +160,7 @@ if run_model:
         functions.plot_feature_importance(best_models, X_train, y_train)
 
         # Allow the user to select a feature for PDP
-         st.header("Partial Dependence Plots")
+        st.header("Partial Dependence Plots")
         selected_feature = st.selectbox("Select a feature for Partial Dependence Plot", X.columns)
         
         # Plot Partial Dependence Plots for each model
