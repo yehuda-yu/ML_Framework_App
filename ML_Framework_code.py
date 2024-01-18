@@ -176,7 +176,7 @@ if run_model:
                     X_train,
                     **features_info,
                     ax=axs[i],
-                    # Use common_params if needed
+                    **best_params
                 )
                 axs[i].set_title(f"{model_name} - {selected_feature}")
 
