@@ -16,6 +16,7 @@ from sklearn.inspection import permutation_importance
 import plotly.graph_objects as go
 import plotly.subplots as sp
 import plotly.express as px
+import pdpbox
 
 # Set the font size for regular text
 plt.rcParams['font.size'] = 14
@@ -157,6 +158,23 @@ if run_model:
     
         # Plot feature importance using the custom function
         functions.plot_feature_importance(best_models, X_train, y_train)
+
+
+        st.header("Partial Dependence Plots")
+        feature_column = st.selectbox("Select a feature to visualize", X_train.columns)
+
+        # Create a function to plot partial dependence plots
+        def plot_partial_dependence(model, X_train, feature_names, feature_index):
+            pdp = pdpbox.pdp_isolate(model=model, dataset=X_train, model_features=feature_names, feature=feature_index)
+            fig, ax = plt.subplots()
+            pdp.plot(ax=ax)
+            st.pyplot(fig)
+
+        # Plot PDPs for each model
+        for model_type, model in best_models.items():
+            st.subheader(f"Partial Dependence Plot for {model_type}")
+            feature_index = list(X_train.columns).index(feature_column)
+            plot_partial_dependence(model, X_train, X_train.columns, feature_index)
         
     except Exception as e:
             st.error(f"Error during model training and evaluation: {str(e)}")
