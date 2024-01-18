@@ -176,8 +176,7 @@ def plot_feature_importance(best_models, X_train, y_train):
 
             fig.add_trace(go.Pie(labels=names, values=importance_values,
                                   textinfo='label+percent', hole=0.3,
-                                  marker=dict(colors=[color] * len(importances)),  # Set color for pie chart
-                                  line=dict(color='white', width=2),  # Set line color and width
+                                  marker=dict(colors=[color] * len(importances),line=dict(color='white', width=2)),  # Set color for pie chart
                                   title=model_type),
                           row=1, col=i+1)
 
