@@ -170,8 +170,8 @@ if run_model:
             # Call the function to plot PDP with specified colors
             functions.plot_pdp(best_models, X_train, [selected_feature], target_column,)
 
- except Exception as e:
-      st.error(f"Error during model training and evaluation: {str(e)}")
+     except Exception as e:
+          st.error(f"Error during model training and evaluation: {str(e)}")
 
 """    
         # Allow the user to download the pickle file with a button
