@@ -189,46 +189,35 @@ def plot_feature_importance(best_models, X_train, y_train):
     except Exception as e:
         st.error(f"An error occurred while plotting feature importance: {e}")
 
-def plot_pdp(best_models, X_train, features, target_column, colors):
+def plot_pdp(best_models, X_train, features, target_column):
     try:
+        colors = ['#2a9d8f', '#e76f51', '#f4a261', '#738bd7', '#d35400', '#a6c7d8']
+
         for selected_feature in features:
             st.subheader(f"Partial Dependence Plots (PDP) for {selected_feature}")
+            fig, axs = plt.subplots(1, len(best_models), figsize=(15, 6), constrained_layout=True)
 
-            # Create a figure layout with subplots
-            fig = go.Figure(
-                layout=go.Layout(
-                    title=f"Partial Dependence of {target_column} on {selected_feature}",
-                    xaxis_title=selected_feature,
-                    yaxis_title=f"Partial Dependence for {target_column}",
-                    subplots=go.Subplot(nrows=1, ncols=len(best_models)),
-                )
-            )
-
-            # Generate PDP traces for each model
             for i, (model_name, model) in enumerate(best_models.items()):
                 features_info = {
                     "features": [selected_feature],
                     "kind": "average",
                 }
 
-                pdp_data = PartialDependenceDisplay.from_estimator(
-                    model, X_train, **features_info
+                display = PartialDependenceDisplay.from_estimator(
+                    model,
+                    X_train,
+                    **features_info,
+                    ax=axs[i],
                 )
 
-                trace = go.Scatter(
-                    x=pdp_data.feature_values[0],
-                    y=pdp_data.predictions.mean(axis=0),
-                    name=model_name,
-                    marker=dict(color=colors[i]),
-                )
-                fig.add_trace(trace, row=1, col=i + 1)
+                axs[i].set_facecolor(colors[i % len(colors)])  # Cycle through colors
+                axs[i].set_title(f"{model_name}")
+                axs[i].set_xlabel(selected_feature)
+                axs[i].set_ylabel(f"Partial Dependence for {target_column}")
 
-            # Update subplot titles and adjust layout
-            for i in range(len(best_models)):
-                fig.update_layout(annotations=[{"x": (0.5 + i) / len(best_models), "y": 1.1}])
-                fig.update_traces(title=best_models[i]["model_name"], row=1, col=i + 1)
-
-            st.plotly_chart(fig, use_container_width=True)
+            fig.suptitle(f"Partial Dependence of {target_column} on {selected_feature}")
+            plt.tight_layout()
+            st.pyplot(fig)
 
     except Exception as e:
         st.error(f"An error occurred while plotting PDP: {e}")
