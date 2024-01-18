@@ -190,15 +190,17 @@ def plot_feature_importance(best_models, X_train, y_train):
         st.error(f"An error occurred while plotting feature importance: {e}")
 
 
-def plot_pdp(best_models, X_train, features, target_column,):
+def plot_pdp(best_models, X_train, features, target_column):
     try:
         num_models = len(best_models)
         colors = ['#2a9d8f', '#e76f51', '#f4a261']
 
         for selected_feature in features:
             st.subheader(f"Partial Dependence Plots (PDP) for {selected_feature}")
-            fig, axs = plt.subplots(1, num_models, figsize=(15, 6), constrained_layout=True)  # Create subplots
-
+            
+            # Create subplots using Plotly
+            fig = sp.make_subplots(1, num_models, subplot_titles=list(best_models.keys()))
+            
             for i, (model_name, model) in enumerate(best_models.items()):
                 # Generate PDP for each model
                 features_info = {
@@ -210,15 +212,29 @@ def plot_pdp(best_models, X_train, features, target_column,):
                     model,
                     X_train,
                     **features_info,
-                    ax=axs[i],
+                    ax=None,  # Pass ax=None when using Plotly
                 )
 
-                axs[i].set_title(f"{model_name} - {selected_feature}")
-                axs[i].set_xlabel(selected_feature)
-                axs[i].set_ylabel(f"Partial Dependence for {target_column}")
+                # Extract PDP data from display
+                pdp_data = display.pd_results[0]
 
-            fig.suptitle(f"Partial Dependence of {target_column} on {selected_feature}", fontsize=16)
-            st.pyplot(fig)
+                # Create a scatter plot for the PDP
+                scatter_trace = go.Scatter(x=pdp_data["values"],
+                                          y=pdp_data["average"],
+                                          mode='lines',
+                                          name=model_name,
+                                          line=dict(color=colors[i], width=2),
+                                          showlegend=True)
+
+                fig.add_trace(scatter_trace, row=1, col=i+1)
+
+                # Customize subplot title and axis labels
+                fig.update_xaxes(title_text=selected_feature, row=1, col=i+1)
+                fig.update_yaxes(title_text=f"Partial Dependence for {target_column}", row=1, col=i+1)
+                fig.update_layout(title_text=f"{model_name}")
+
+            # Show Plotly figure in Streamlit
+            st.plotly_chart(fig)
 
     except Exception as e:
         st.error(f"An error occurred while plotting PDP: {e}")
