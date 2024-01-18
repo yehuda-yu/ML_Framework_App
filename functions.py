@@ -151,48 +151,40 @@ def plot_scatter_subplots(model_evaluations):
     except Exception as e:
         st.error(f"An error occurred while plotting scatter subplots: {e}")
         
-
-
 def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=None):
     try:
-        if model_type_to_title is None:
-            model_type_to_title = {
-                "Linear Regression": "Linear Regression",
-                "Random Forest": "Random Forest",
-                "SVM Regression": "SVM Regression"
-            }
+        colors = ['#2a9d8f', '#e76f51', '#f4a261']  # Color palette for 3 models
+        color_iter = iter(colors)
+
+        fig = sp.make_subplots(rows=1, cols=len(best_models),
+                               specs=[[{'type': 'pie'}] * len(best_models)],
+                               subplot_titles=list(best_models.keys()))
 
         for i, (model_type, model) in enumerate(best_models.items()):
-            fig = go.Figure()
+            color = next(color_iter)  # Assign next color from palette
 
             if hasattr(model, 'feature_importances_'):  # For Random Forest
                 importances = model.feature_importances_
-                indices = np.argsort(importances)[::-1]
-                names = [X_train.columns[i] for i in indices]
-                importance_values = [importances[i] for i in indices]
-                total_importance = np.sum(importance_values)
-
-                fig.add_trace(go.Pie(labels=names, values=importance_values, 
-                                     textinfo='label+percent', hole=0.3,
-                                     title=model_type_to_title.get(model_type, model_type)))
-
             else:  # For SVM Regression and other models
                 result = permutation_importance(model, X_train, y_train, n_repeats=10, random_state=42)
                 importances = result.importances_mean
-                indices = np.argsort(importances)[::-1]
-                names = [X_train.columns[i] for i in indices]
-                importance_values = [importances[i] for i in indices]
-                total_importance = np.sum(importance_values)
 
-                fig.add_trace(go.Pie(labels=names, values=importance_values, 
-                                     textinfo='label+percent', hole=0.3,
-                                     title=model_type_to_title.get(model_type, model_type)))
+            indices = np.argsort(importances)[::-1]
+            names = [X_train.columns[i] for i in indices]
+            importance_values = [importances[i] for i in indices]
 
-            fig.update_layout(title_text="Feature Importance",
-                              margin=dict(l=0, r=0, t=60, b=0))
+            fig.add_trace(go.Pie(labels=names, values=importance_values,
+                                  textinfo='label+percent', hole=0.3,
+                                  marker=dict(colors=color),  # Set color for pie chart
+                                  title=model_type_to_title.get(model_type, model_type)),
+                          row=1, col=i+1)
 
-            st.write(model_type_to_title.get(model_type, model_type))
-            st.plotly_chart(fig)
+        fig.update_layout(title_text="Feature Importance",
+                          margin=dict(l=0, r=0, t=60, b=0))
+
+        st.plotly_chart(fig)
 
     except Exception as e:
         st.error(f"An error occurred while plotting feature importance: {e}")
+
+
