@@ -112,24 +112,31 @@ def evaluate_models(best_models, X_test, y_test):
     except Exception as e:
         st.error(f"An error occurred while evaluating models: {e}")
         return None, None
-
 def plot_scatter_subplots(model_evaluations):
     try:
-        fig = sp.make_subplots(rows=1, cols=len(model_evaluations), 
-                               subplot_titles=list(model_evaluations.keys()))
+        fig = make_subplots(rows=1, cols=len(model_evaluations), 
+                            subplot_titles=list(model_evaluations.keys()))
 
         for i, (model_type, evaluation) in enumerate(model_evaluations.items()):
-            scatter_trace = go.Scatter(x=evaluation["y_test_pred"], 
-                                       y=evaluation["y_test"],
-                                       mode='markers',
-                                       marker=dict(color='#2a9d8f', line=dict(color='black', width=1)),
-                                       name=model_type)
+            # Assign different colors to each point based on the model type
+            colors = px.colors.qualitative.Plotly[:len(evaluation["y_test"])]
+            
+            scatter_trace = go.Scatter(
+                x=evaluation["y_test_pred"], 
+                y=evaluation["y_test"],
+                mode='markers',
+                marker=dict(color=colors, line=dict(color='black', width=1)),
+                text=[f'{model_type}: {point}' for point in evaluation["y_test"]],
+                name=model_type
+            )
 
-            reference_line = go.Scatter(x=[min(evaluation["y_test"]), max(evaluation["y_test"])],
-                                        y=[min(evaluation["y_test"]), max(evaluation["y_test"])],
-                                        mode='lines',
-                                        line=dict(color='black', dash='dash'),
-                                        showlegend=False)
+            reference_line = go.Scatter(
+                x=[min(evaluation["y_test"]), max(evaluation["y_test"])],
+                y=[min(evaluation["y_test"]), max(evaluation["y_test"])],
+                mode='lines',
+                line=dict(color='black', dash='dash'),
+                showlegend=False
+            )
 
             fig.add_trace(scatter_trace, row=1, col=i+1)
             fig.add_trace(reference_line, row=1, col=i+1)
@@ -144,6 +151,8 @@ def plot_scatter_subplots(model_evaluations):
 
     except Exception as e:
         st.error(f"An error occurred while plotting scatter subplots: {e}")
+        
+
 
 def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=None):
     try:
