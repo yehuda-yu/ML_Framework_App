@@ -154,7 +154,7 @@ def plot_scatter_subplots(model_evaluations):
         
 def plot_feature_importance(best_models, X_train, y_train,  ):
     try:
-        colors = ['#2a9d8f', '#e76f51', '#f4a261']  # Color palette for 3 models
+        colors = ['#ed6a5a', '#f4f1bb', '#9bc1bc']  # Color palette for 3 models
         color_iter = iter(colors)
 
         fig = sp.make_subplots(rows=1, cols=len(best_models),
