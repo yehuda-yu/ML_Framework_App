@@ -9,6 +9,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.inspection import permutation_importance
 import plotly.graph_objects as go
 import plotly.subplots as sp
+from plotly.subplots import make_subplots
 import plotly.express as px
 
 def replace_missing_with_average(data):
@@ -112,6 +113,8 @@ def evaluate_models(best_models, X_test, y_test):
     except Exception as e:
         st.error(f"An error occurred while evaluating models: {e}")
         return None, None
+
+
 def plot_scatter_subplots(model_evaluations):
     try:
         fig = make_subplots(rows=1, cols=len(model_evaluations), 
