@@ -190,33 +190,35 @@ def plot_feature_importance(best_models, X_train, y_train):
         st.error(f"An error occurred while plotting feature importance: {e}")
 
 
-def plot_pdp(best_models, X_train, features, target_column, custom_colors=None):
+def plot_pdp(best_models, X_train, features, target_column,):
     try:
         num_models = len(best_models)
-        colors = custom_colors if custom_colors else ['#2a9d8f', '#e76f51', '#f4a261']
+        colors = ['#2a9d8f', '#e76f51', '#f4a261']
 
         for selected_feature in features:
             st.subheader(f"Partial Dependence Plots (PDP) for {selected_feature}")
-            fig = sp.make_subplots(rows=1, cols=num_models, subplot_titles=list(best_models.keys()))
+            fig, axs = plt.subplots(1, num_models, figsize=(15, 4), constrained_layout=True)  # Create subplots
 
             for i, (model_name, model) in enumerate(best_models.items()):
                 # Generate PDP for each model
-                pdp_fig = PartialDependenceDisplay.from_estimator(model, X_train, features=[selected_feature], ax=fig['layout']['annotations'][i]['text'])
+                features_info = {
+                    "features": [selected_feature],
+                    "kind": "average",
+                }
 
-                # Update colors for each line in the plot
-                for trace, color in zip(pdp_fig.data, colors):
-                    trace.line.color = color
+                display = PartialDependenceDisplay.from_estimator(
+                    model,
+                    X_train,
+                    **features_info,
+                    ax=axs[i],
+                )
 
-                # Add PDP trace to the subplot
-                fig.add_trace(pdp_fig.data[0], row=1, col=i + 1)
+                axs[i].set_title(f"{model_name} - {selected_feature}")
+                axs[i].set_xlabel(selected_feature)
+                axs[i].set_ylabel(f"Partial Dependence for {target_column}")
 
-                fig.update_xaxes(title_text=selected_feature, row=1, col=i + 1)
-                fig.update_yaxes(title_text=f"Partial Dependence for {target_column}", row=1, col=i + 1)
-
-            fig.update_layout(title_text=f"Partial Dependence of {target_column} on {selected_feature}",
-                              margin=dict(l=0, r=0, t=60, b=0))
-
-            st.plotly_chart(fig)
+            fig.suptitle(f"Partial Dependence of {target_column} on {selected_feature}", fontsize=16)
+            st.pyplot(fig)
 
     except Exception as e:
         st.error(f"An error occurred while plotting PDP: {e}")
