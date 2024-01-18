@@ -181,7 +181,7 @@ else:
 
 
         # Allow the user to download the pickle file with a button
-        st.subheader("Download Best Model")
+        #st.subheader("Download Best Model")
         # Helper function to create a download link for a file
         #def get_binary_file_downloader_html(bin_file, file_label="File"):
          #   import base64
