@@ -164,23 +164,8 @@ if run_model:
         selected_feature = st.selectbox("Select feature to visualize", features)
 
         if selected_feature:
-            fig, axs = plt.subplots(1, 3, figsize=(15, 4), constrained_layout=True)  # Create 3 subplots
-            for i, (model_name, model) in enumerate(best_models.items()):
-                # Generate PDP for each model
-                features_info = {
-                    "features": [selected_feature],
-                    "kind": "average",
-                }
-                display =  PartialDependenceDisplay.from_estimator(
-                    model,
-                    X_train,
-                    **features_info,
-                    ax=axs[i],
-                )
-                axs[i].set_title(f"{model_name} - {selected_feature}")
+            plot_partial_dependence(best_models, X_train, y_train, selected_feature)
 
-            fig.suptitle(f"Partial Dependence of {target_column} on {selected_feature}", fontsize=16)
-            st.pyplot(fig)
 
     except Exception as e:
             st.error(f"Error during model training and evaluation: {str(e)}")
