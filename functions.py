@@ -190,17 +190,15 @@ def plot_feature_importance(best_models, X_train, y_train):
         st.error(f"An error occurred while plotting feature importance: {e}")
 
 
-def plot_pdp(best_models, X_train, features, target_column,):
+def plot_pdp(best_models, X_train, features, target_column):
     try:
-        num_models = len(best_models)
-        colors = ['#2a9d8f', '#e76f51', '#f4a261']
+        colors = ['#2a9d8f', '#e76f51', '#f4a261', '#738bd7', '#d35400', '#a6c7d8']
 
         for selected_feature in features:
             st.subheader(f"Partial Dependence Plots (PDP) for {selected_feature}")
-            fig, axs = plt.subplots(1, num_models, figsize=(15, 6), constrained_layout=True)  # Create subplots
+            fig, axs = plt.subplots(1, len(best_models), figsize=(15, 6), constrained_layout=True)
 
             for i, (model_name, model) in enumerate(best_models.items()):
-                # Generate PDP for each model
                 features_info = {
                     "features": [selected_feature],
                     "kind": "average",
@@ -213,11 +211,12 @@ def plot_pdp(best_models, X_train, features, target_column,):
                     ax=axs[i],
                 )
 
+                axs[i].set_facecolor(colors[i % len(colors)])  # Cycle through colors
                 axs[i].set_title(f"{model_name}")
                 axs[i].set_xlabel(selected_feature)
                 axs[i].set_ylabel(f"Partial Dependence for {target_column}")
 
-            fig.suptitle(f"Partial Dependence of {target_column} on {selected_feature}", fontsize=16)
+            fig.suptitle(f"Partial Dependence of {target_column} on {selected_feature}")
             plt.tight_layout()
             st.pyplot(fig)
 
