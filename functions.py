@@ -151,7 +151,7 @@ def plot_scatter_subplots(model_evaluations):
     except Exception as e:
         st.error(f"An error occurred while plotting scatter subplots: {e}")
         
-def plot_feature_importance(best_models, X_train, y_train, model_type_to_title=None):
+def plot_feature_importance(best_models, X_train, y_train, model_type_to_title = {model_type: model_type.title() for model_type in models.keys()}):
     try:
         colors = ['#2a9d8f', '#e76f51', '#f4a261']  # Color palette for 3 models
         color_iter = iter(colors)
