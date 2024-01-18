@@ -161,11 +161,12 @@ if run_model:
 
         # Display PDP graphs for selected feature
         st.header("Partial Dependence Plots (PDP)")
+
         selected_feature = st.selectbox("Select feature to visualize", features)
 
         if selected_feature:
-            plot_partial_dependence(best_models, X_train, y_train, selected_feature)
-
+            # Call the function to plot PDP with specified colors
+            plot_pdp(best_models, X_train, [selected_feature], target_column)
 
     except Exception as e:
             st.error(f"Error during model training and evaluation: {str(e)}")
