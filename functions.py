@@ -152,9 +152,9 @@ def plot_scatter_subplots(model_evaluations):
         st.error(f"An error occurred while plotting scatter subplots: {e}")
         
         
-def plot_feature_importance(best_models, X_train, y_train,  ):
+def plot_feature_importance(best_models, X_train, y_train):
     try:
-        colors = ['#ed6a5a', '#f4f1bb', '#9bc1bc']  # Color palette for 3 models
+        colors = ['#2a9d8f', '#e76f51', '#f4a261']   # Color palette for 3 models
         color_iter = iter(colors)
 
         fig = sp.make_subplots(rows=1, cols=len(best_models),
@@ -176,7 +176,7 @@ def plot_feature_importance(best_models, X_train, y_train,  ):
 
             fig.add_trace(go.Pie(labels=names, values=importance_values,
                                   textinfo='label+percent', hole=0.3,
-                                  marker=dict(colors=color),  # Set color for pie chart
+                                  marker=dict(colors=[color] * len(importances)),  # Set color for pie chart
                                   title=model_type),
                           row=1, col=i+1)
 
@@ -185,6 +185,8 @@ def plot_feature_importance(best_models, X_train, y_train,  ):
 
         st.plotly_chart(fig)
 
+    except Exception as e:
+        st.error(f"An error occurred while plotting feature importance: {e}")
     except Exception as e:
         st.error(f"An error occurred while plotting feature importance: {e}")
 
