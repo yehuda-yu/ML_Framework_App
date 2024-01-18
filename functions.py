@@ -116,14 +116,19 @@ def evaluate_models(best_models, X_test, y_test):
 
 def plot_scatter_subplots(model_evaluations):
     try:
-        fig = sp.make_subplots(rows=1, cols=len(model_evaluations), 
+        fig = sp.make_subplots(rows=1, cols=len(model_evaluations),
                                subplot_titles=list(model_evaluations.keys()))
 
+        colors = ['#2a9d8f', '#e76f51', '#f4a261', '#e9c46a', '#264653']  # Example color palette
+        color_iter = iter(colors)
+
         for i, (model_type, evaluation) in enumerate(model_evaluations.items()):
-            scatter_trace = go.Scatter(x=evaluation["y_test_pred"], 
+            color = next(color_iter)  # Assign a distinct color to each model
+
+            scatter_trace = go.Scatter(x=evaluation["y_test_pred"],
                                        y=evaluation["y_test"],
                                        mode='markers',
-                                       marker=dict(color='#2a9d8f', line=dict(color='black', width=1)),
+                                       marker=dict(color=color, line=dict(color='black', width=1)),
                                        name=model_type)
 
             reference_line = go.Scatter(x=[min(evaluation["y_test"]), max(evaluation["y_test"])],
