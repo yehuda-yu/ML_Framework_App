@@ -171,8 +171,8 @@ if uploaded_file is not None:
                 functions.plot_pdp(best_models, X_train, [selected_feature], target_column,)
 
     else:
-    st.info("Please upload a data file to continue.")
-    # Add placeholders or instructions for file upload
+        st.info("Please upload a data file to continue.")
+
 
     except Exception as e:
             st.error(f"Error during model training and evaluation: {str(e)}")
