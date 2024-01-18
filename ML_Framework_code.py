@@ -160,73 +160,8 @@ if run_model:
         
     except Exception as e:
             st.error(f"Error during model training and evaluation: {str(e)}")
-"""
 
-    
-        # For each model, use a progress bar or another widget to show the hyperparameter search with cross-validation
-        st.subheader("Model Training")
-        best_models = {} # store the best models for each type
-        best_scores = {} # store the best scores for each type
-        best_params = {} # store the best parameters for each type
-    
-        for model_type in models.keys():
-            st.write(f"Training {model_type} model...")
-            with st.spinner('its can takes some time...'):
-                
-    
-                # Perform the randomized search with cross-validation
-                search = RandomizedSearchCV(models[model_type], param_grids[model_type], cv=3,
-                                            n_iter=10 if model_type != "Linear Regression" else 1,
-                                            random_state=42)
-                search.fit(X_train, y_train)
-    
-    
-            # Print the best parameters and score
-            st.write(f"Best parameters for {model_type}: ", search.best_params_)
-            st.write(f"Best score for {model_type}: ", search.best_score_)
-    
-            # Store the best model, score, and parameters
-            best_models[model_type] = search.best_estimator_
-            best_scores[model_type] = search.best_score_
-            best_params[model_type] = search.best_params_
-    
-        # Evaluate the models on the test set and display the results (MAE, MSE, RMSE, R2, etc.)
-        st.subheader("Model Evaluation")
-        # Create an empty list to store results
-        results_list = []
-        
-        for model_type in best_models.keys():
-            st.write(f"Evaluating {model_type} model...")
-            
-            # Predict the target variable for the test set
-            y_test_pred = best_models[model_type].predict(X_test)
-        
-            # Calculate MAE, MSE, RMSE, R2, etc.
-            mae = mean_absolute_error(y_test, y_test_pred)
-            mse = mean_squared_error(y_test, y_test_pred)
-            rmse = np.sqrt(mse)
-            r2 = r2_score(y_test, y_test_pred)
-            rpd = y_test.std() / rmse
-        
-            # Append the results to the list
-            results_list.append({"Model": model_type,
-                                 "MAE": mae,
-                                 "MSE": mse,
-                                 "RMSE": rmse,
-                                 "R2": r2,
-                                 "RPD": rpd})
-        
-        # Create a DataFrame from the list
-        results = pd.DataFrame(results_list)
-        
-        # Display the results as a table
-        st.write(results)
-    
-        # Select the best model based on the lowest RMSE and save it as a pickle file
-        best_model_type = results.loc[results["RMSE"].idxmin(), "Model"] # get the model type with the lowest RMSE
-        best_model = best_models[best_model_type] # get the best model object
-        pickle.dump(best_model, open("best_model.pkl", "wb")) # save the model as a pickle file
-    
+"""    
         # Allow the user to download the pickle file with a button
         st.subheader("Download Best Model")
         # Helper function to create a download link for a file
