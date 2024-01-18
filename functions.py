@@ -10,6 +10,7 @@ from sklearn.inspection import permutation_importance
 import plotly.graph_objects as go
 import plotly.subplots as sp
 import plotly.express as px
+from sklearn.inspection import PartialDependenceDisplay
 
 def replace_missing_with_average(data):
     """Replace missing values with the average of each column."""
