@@ -197,7 +197,7 @@ def plot_pdp(best_models, X_train, features, target_column,):
 
         for selected_feature in features:
             st.subheader(f"Partial Dependence Plots (PDP) for {selected_feature}")
-            fig, axs = plt.subplots(1, num_models, figsize=(15, 4), constrained_layout=True)  # Create subplots
+            fig, axs = plt.subplots(1, num_models, figsize=(15, 6), constrained_layout=True)  # Create subplots
 
             for i, (model_name, model) in enumerate(best_models.items()):
                 # Generate PDP for each model
