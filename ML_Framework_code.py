@@ -27,12 +27,17 @@ plt.rcParams['axes.titlesize'] = 20
 # set the palette
 plt.rcParams['axes.prop_cycle'] = plt.cycler(color=['#2a9d8f', '#e76f51', '#f4a261', '#738bd7', '#d35400', '#a6c7d8'])
 
+# Placeholder for the rest of the app
+app_placeholder = st.empty()
+
 # Create a title for the app
-st.title("End to End ML Regression Model Builder")
+app_placeholder.title("End to End ML Regression Model Builder")
 
 # Step 1: Upload Data
-st.header("Step 1: Upload Data")
-uploaded_file = st.file_uploader("Upload your data file", type=["csv", "xlsx"])
+app_placeholder.header("Step 1: Upload Data")
+uploaded_file = app_placeholder.file_uploader("Upload your data file", type=["csv", "xlsx"])
+
+
 
 # Perform EDA on the data after it is uploaded and before the model is executed
 if uploaded_file is not None:
