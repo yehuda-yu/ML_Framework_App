@@ -16,7 +16,7 @@ from sklearn.inspection import permutation_importance
 import plotly.graph_objects as go
 import plotly.subplots as sp
 import plotly.express as px
-from sklearn.inspection import plot_partial_dependence
+from sklearn.inspection import PartialDependenceDisplay
 
 # Set the font size for regular text
 plt.rcParams['font.size'] = 14
@@ -159,20 +159,30 @@ if run_model:
         # Plot feature importance using the custom function
         functions.plot_feature_importance(best_models, X_train, y_train)
 
-        # Allow the user to select a feature for PDP
-        st.header("Partial Dependence Plots")
-        selected_feature = st.selectbox("Select a feature for Partial Dependence Plot", X.columns)
-        
-        # Plot Partial Dependence Plots for each model
-        for model_type, model in best_models.items():
-            st.subheader(f"Partial Dependence Plot for {model_type}")
-            fig, ax = plt.subplots()
-            plot_partial_dependence(model, X_train, features=[selected_feature], grid_resolution=50, ax=ax)
-            plt.xlabel(selected_feature)
-            plt.ylabel(f'Partial Dependence for {selected_feature}')
-            plt.title(f'Partial Dependence Plot - {model_type}')
+        # Display PDP graphs for selected feature
+        st.header("Partial Dependence Plots (PDP)")
+        selected_feature = st.selectbox("Select feature to visualize", features)
+
+        if selected_feature:
+            fig, axs = plt.subplots(1, 3, figsize=(15, 4), constrained_layout=True)  # Create 3 subplots
+            for i, (model_name, model) in enumerate(best_models.items()):
+                # Generate PDP for each model
+                features_info = {
+                    "features": [selected_feature],
+                    "kind": "average",
+                }
+                display = plot_partial_dependence(
+                    model,
+                    X_train,
+                    **features_info,
+                    ax=axs[i],
+                    # Use common_params if needed
+                )
+                axs[i].set_title(f"{model_name} - {selected_feature}")
+
+            fig.suptitle(f"Partial Dependence of {target_column} on {selected_feature}", fontsize=16)
             st.pyplot(fig)
-        
+
     except Exception as e:
             st.error(f"Error during model training and evaluation: {str(e)}")
 
