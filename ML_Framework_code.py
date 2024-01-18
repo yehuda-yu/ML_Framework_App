@@ -24,6 +24,8 @@ plt.rcParams['font.size'] = 14
 plt.rcParams['axes.titlesize'] = 16
 # Set the font size for large titles
 plt.rcParams['axes.titlesize'] = 20
+# set the palette
+plt.rcParams['axes.prop_cycle'] = cycler('color', ['#2a9d8f', '#e76f51', '#f4a261', '#738bd7', '#d35400', '#a6c7d8'])
 
 # Create a title for the app
 st.title("End to End ML Regression Model Builder")
