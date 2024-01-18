@@ -218,6 +218,7 @@ def plot_pdp(best_models, X_train, features, target_column,):
                 axs[i].set_ylabel(f"Partial Dependence for {target_column}")
 
             fig.suptitle(f"Partial Dependence of {target_column} on {selected_feature}", fontsize=16)
+            plt.tight_layout()
             st.pyplot(fig)
 
     except Exception as e:
