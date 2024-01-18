@@ -153,7 +153,7 @@ if run_model:
         functions.plot_scatter_subplots(model_evaluations)
 
         # present in table
-        st.dataframe(results.set_index('Model')
+        st.dataframe(results.set_index('Model'))
     
         # Plot feature importance using the custom function
         functions.plot_feature_importance(best_models, X_train, y_train)
