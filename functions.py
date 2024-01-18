@@ -189,7 +189,7 @@ def plot_feature_importance(best_models, X_train, y_train):
     except Exception as e:
         st.error(f"An error occurred while plotting feature importance: {e}")
 
-def plot_pdp_plotly(best_models, X_train, features, target_column, colors):
+def plot_pdp(best_models, X_train, features, target_column, colors):
     try:
         for selected_feature in features:
             st.subheader(f"Partial Dependence Plots (PDP) for {selected_feature}")
