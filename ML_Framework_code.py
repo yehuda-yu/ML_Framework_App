@@ -16,7 +16,7 @@ from sklearn.inspection import permutation_importance
 import plotly.graph_objects as go
 import plotly.subplots as sp
 import plotly.express as px
-import pdpbox
+from sklearn.inspection import plot_partial_dependence
 
 # Set the font size for regular text
 plt.rcParams['font.size'] = 14
@@ -159,22 +159,19 @@ if run_model:
         # Plot feature importance using the custom function
         functions.plot_feature_importance(best_models, X_train, y_train)
 
-
-        st.header("Partial Dependence Plots")
-        feature_column = st.selectbox("Select a feature to visualize", X_train.columns)
-
-        # Create a function to plot partial dependence plots
-        def plot_partial_dependence(model, X_train, feature_names, feature_index):
-            pdp = pdpbox.pdp_isolate(model=model, dataset=X_train, model_features=feature_names, feature=feature_index)
-            fig, ax = plt.subplots()
-            pdp.plot(ax=ax)
-            st.pyplot(fig)
-
-        # Plot PDPs for each model
+        # Allow the user to select a feature for PDP
+         st.header("Partial Dependence Plots")
+        selected_feature = st.selectbox("Select a feature for Partial Dependence Plot", X.columns)
+        
+        # Plot Partial Dependence Plots for each model
         for model_type, model in best_models.items():
             st.subheader(f"Partial Dependence Plot for {model_type}")
-            feature_index = list(X_train.columns).index(feature_column)
-            plot_partial_dependence(model, X_train, X_train.columns, feature_index)
+            fig, ax = plt.subplots()
+            plot_partial_dependence(model, X_train, features=[selected_feature], grid_resolution=50, ax=ax)
+            plt.xlabel(selected_feature)
+            plt.ylabel(f'Partial Dependence for {selected_feature}')
+            plt.title(f'Partial Dependence Plot - {model_type}')
+            st.pyplot(fig)
         
     except Exception as e:
             st.error(f"Error during model training and evaluation: {str(e)}")
