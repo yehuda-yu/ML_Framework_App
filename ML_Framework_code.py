@@ -168,7 +168,7 @@ if run_model:
 
         if selected_feature:
             # Call the function to plot PDP with specified colors
-            functions.plot_pdp(best_models, X_train, [selected_feature], target_column,['#2a9d8f', '#e76f51', '#f4a261', '#738bd7', '#d35400', '#a6c7d8'])
+            functions.plot_pdp(best_models, X_train, [selected_feature], target_column,)
 
     except Exception as e:
             st.error(f"Error during model training and evaluation: {str(e)}")
