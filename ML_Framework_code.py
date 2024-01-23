@@ -93,11 +93,11 @@ if uploaded_file is not None:
                     data = data.dropna()
     
             if encode_categorical_variables and categorical_columns:
-                encoder = OneHotEncoder(drop='first', sparse=False)
+                encoder = OneHotEncoder(drop='first')
                 encoded_data = pd.DataFrame(encoder.fit_transform(data[categorical_columns]))
                 data = pd.concat([data, encoded_data], axis=1)
                 data = data.drop(categorical_columns, axis=1)
-    
+        
             if normalize_data:
                 
                 # Identify numerical and categorical columns
