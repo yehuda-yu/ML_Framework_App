@@ -60,12 +60,13 @@ if uploaded_file is not None:
     
     # Checkbox for normalization
    normalize_data = st.checkbox("Normalize data")
-if normalize_data:
-    normalization_method = st.radio("Choose normalization method", ["MinMaxScaler", "StandardScaler"])
 
-    # Identify numerical and categorical columns
-    numerical_columns = list(data.select_dtypes(include=['number']).columns)
-    categorical_columns = list(set(data.columns) - set(numerical_columns))
+    if normalize_data:
+        normalization_method = st.radio("Choose normalization method", ["MinMaxScaler", "StandardScaler"])
+
+        # Identify numerical and categorical columns
+        numerical_columns = list(data.select_dtypes(include=['number']).columns)
+        categorical_columns = list(set(data.columns) - set(numerical_columns))
     
     # Checkbox for encoding
     encode_categorical_variables = st.checkbox("Encode categorical variables")
