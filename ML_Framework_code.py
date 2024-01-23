@@ -59,7 +59,7 @@ if uploaded_file is not None:
         missing_values_option = st.radio("Choose missing values handling method", ["Replace with average", "Replace with 0", "Delete"])
     
     # Checkbox for normalization
-   normalize_data = st.checkbox("Normalize data")
+    normalize_data = st.checkbox("Normalize data")
 
     if normalize_data:
         normalization_method = st.radio("Choose normalization method", ["MinMaxScaler", "StandardScaler"])
