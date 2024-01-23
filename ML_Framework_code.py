@@ -122,6 +122,9 @@ if uploaded_file is not None:
             data = data.sample(frac=1, random_state=42) # shuffle the data
             X = data.drop(target_column, axis=1) # features
             y = data[target_column] # target
+            # Convert column names to strings
+            X.columns = X.columns.astype(str)
+
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split_percentage, random_state=42) # split the data
     
             # Create two regression models: Random Forest and Linear Regression
