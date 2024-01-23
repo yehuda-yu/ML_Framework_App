@@ -94,7 +94,7 @@ if uploaded_file is not None:
     
             if encode_categorical_variables and categorical_columns:
                 encoder = OneHotEncoder(drop='first')
-                encoded_data = pd.DataFrame(encoder.fit_transform(data[categorical_columns]))
+                encoded_data = pd.DataFrame(encoder.fit_transform(data[categorical_columns]).toarray())  # Convert to array
                 data = pd.concat([data, encoded_data], axis=1)
                 data = data.drop(categorical_columns, axis=1)
         
