@@ -59,9 +59,13 @@ if uploaded_file is not None:
         missing_values_option = st.radio("Choose missing values handling method", ["Replace with average", "Replace with 0", "Delete"])
     
     # Checkbox for normalization
-    normalize_data = st.checkbox("Normalize data")
-    if normalize_data:
-        normalization_method = st.radio("Choose normalization method", ["MinMaxScaler", "StandardScaler"])
+   normalize_data = st.checkbox("Normalize data")
+if normalize_data:
+    normalization_method = st.radio("Choose normalization method", ["MinMaxScaler", "StandardScaler"])
+
+    # Identify numerical and categorical columns
+    numerical_columns = list(data.select_dtypes(include=['number']).columns)
+    categorical_columns = list(set(data.columns) - set(numerical_columns))
     
     # Checkbox for encoding
     encode_categorical_variables = st.checkbox("Encode categorical variables")
@@ -97,12 +101,13 @@ if uploaded_file is not None:
                 data = data.drop(categorical_columns, axis=1)
     
             if normalize_data:
-                if normalization_method == "MinMaxScaler":
-                    scaler = MinMaxScaler()
-                    data = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
-                elif normalization_method == "StandardScaler":
-                    scaler = StandardScaler()
-                    data = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
+                   # Normalize numerical columns only
+                    if normalization_method == "MinMaxScaler":
+                        scaler = MinMaxScaler()
+                        data[numerical_columns] = scaler.fit_transform(data[numerical_columns])
+                    elif normalization_method == "StandardScaler":
+                        scaler = StandardScaler()
+                        data[numerical_columns] = scaler.fit_transform(data[numerical_columns])
     
     
             # Display the processed data
