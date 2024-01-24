@@ -13,7 +13,7 @@ import plotly.subplots as sp
 import plotly.express as px
 from sklearn.inspection import PartialDependenceDisplay
 
-#st.cache_data
+@st.cache_data
 def perform_pca(data, target_column, categorical_columns, variance_percentage):
     # Separate features and target
     X = data.drop([target_column], axis=1)
@@ -78,7 +78,7 @@ def plot_cumulative_variance(cum_var, variance_percentage):
     st.plotly_chart(fig)
 
 
-st.cache_data
+@st.cache_data
 def replace_missing_with_average(data):
     """Replace missing values with the average of each column."""
     return data.fillna(data.mean())
