@@ -49,9 +49,30 @@ if uploaded_file is not None:
     # Select target column
     st.header("Step 3: Target Column Selection")
     target_column = st.selectbox("Select the target column", data.columns)
+
+    # Feature Selection/Extraction Section
+    st.header("Step 4: Feature Selection/Extraction Options")
+    
+    # Checkbox for feature selection/extraction
+    feature_reduction = st.checkbox("Reduce the number of features")
+    
+    if feature_reduction:
+        # Radio button to choose between feature extraction and feature selection
+        reduction_method = st.radio("Choose reduction method", ["Feature Extraction", "Feature Selection"])
+    
+        if reduction_method == "Feature Extraction":
+            # Add code for feature extraction method options (e.g., PCA, t-SNE)
+            extraction_method = st.selectbox("Choose extraction method", ["PCA", "t-SNE"])
+
+        # ... Add more options for the selected feature extraction method
+
+        elif reduction_method == "Feature Selection":
+            # Add code for feature selection method options (e.g., Recursive Feature Elimination, SelectKBest)
+            selection_method = st.selectbox("Choose selection method", ["Recursive Feature Elimination", "SelectKBest"])
+
     
     
-    st.header("Step 4: Data Processing Options")
+    st.header("Step 5: Data Processing Options")
     
     # Checkbox for handling missing values
     handle_missing_values = st.checkbox("Handle missing values")
