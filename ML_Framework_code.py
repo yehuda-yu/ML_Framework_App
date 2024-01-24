@@ -128,10 +128,8 @@ if uploaded_file is not None:
     
             if encode_categorical_variables and categorical_encoding_method and categorical_columns:
                 if categorical_encoding_method == "OneHotEncoder":
-                    encoder = OneHotEncoder(drop='first')
-                    encoded_data = pd.DataFrame(encoder.fit_transform(data[categorical_columns]).toarray())
-                    data = pd.concat([data, encoded_data], axis=1)
-                    data = data.drop(categorical_columns, axis=1)
+                    # apply one-hot encoding using 
+                    data = pd.get_dummies(data, columns=[categorical_columns],dtype=float)
                 elif categorical_encoding_method == "LabelEncoder":
                     label_encoder = LabelEncoder()
                     for col in categorical_columns:
