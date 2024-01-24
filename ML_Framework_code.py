@@ -77,7 +77,12 @@ if uploaded_file is not None:
     # Checkbox for handling missing values
     handle_missing_values = st.checkbox("Handle missing values")
     if handle_missing_values:
-        missing_values_option = st.radio("Choose missing values handling method", ["Replace with average", "Replace with 0", "Delete"])
+        missing_values_option = st.radio("Choose missing values handling method", ["Replace with average", "Replace with 0", "Delete", "Linear Interpolation"])
+    
+        if missing_values_option == "Linear Interpolation":
+            # Input a limit for linear interpolation
+            interpolation_limit = st.number_input("Enter the limit for linear interpolation", min_value=0.0, max_value=None, value=0.0, step=0.1)
+
     
     # Checkbox for normalization
     normalize_data = st.checkbox("Normalize data")
@@ -85,7 +90,6 @@ if uploaded_file is not None:
     if normalize_data:
         normalization_method = st.radio("Choose normalization method", ["MinMaxScaler", "StandardScaler"])
 
-    
     # Checkbox for encoding
     encode_categorical_variables = st.checkbox("Encode categorical variables")
     categorical_columns = []
@@ -112,6 +116,9 @@ if uploaded_file is not None:
                     data = data.fillna(0)
                 elif missing_values_option == "Delete":
                     data = data.dropna()
+                elif missing_values_option == "Linear Interpolation":
+                    # Perform linear interpolation with the specified limit
+                    data = data.interpolate(limit=interpolation_limit)
     
             if encode_categorical_variables and categorical_columns:
                 encoder = OneHotEncoder(drop='first')
