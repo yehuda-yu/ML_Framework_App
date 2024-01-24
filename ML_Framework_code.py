@@ -89,7 +89,7 @@ if uploaded_file is not None:
                     st.dataframe(reduced_data.head(), width=700, height=200)  # Adjust width and height as needed
 
                     # Plot the cumulative explained variance ratio
-                    functions.plot_cumulative_variance(cum_var)
+                    functions.plot_cumulative_variance(cum_var,variance_percentage)
                 
                     # Display column count information in a visually distinct way
                     col_count_info = f"""
