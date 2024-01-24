@@ -43,11 +43,29 @@ def perform_pca(data, target_column, categorical_columns, variance_percentage):
     result_df = pd.DataFrame(data=np.column_stack([X_pca[:, :n_components], X[categorical_columns], y]),
                              columns=pc_col_names + categorical_columns + [target_column])
 
-    # Calculate the total number of columns before and after PCA
-    total_columns_before_pca = X.shape[1] + len(categorical_columns) + 1  # +1 for the target column
-    total_columns_after_pca = result_df.shape[1]
+    return result_df, total_cols_before, total_cols_after, pca.explained_variance_ratio_, cum_var
 
-    return result_df, total_columns_before_pca, total_columns_after_pca
+def plot_explained_variance(explained_variance_ratio, variance_percentage):
+    # Plot the explained variance ratio
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=np.arange(1, len(explained_variance_ratio) + 1), y=explained_variance_ratio,
+                             mode='lines+markers', name='Explained Variance Ratio'))
+
+    # Add a vertical line at the specified variance_percentage
+    fig.add_shape(
+        go.layout.Shape(type='line', x0=variance_percentage, x1=variance_percentage, y0=0, y1=1, line=dict(color='red'))
+    )
+
+    # Layout customization
+    fig.update_layout(title='Cumulative Explained Variance Ratio',
+                      xaxis_title='Number of Components',
+                      yaxis_title='Cumulative Explained Variance',
+                      showlegend=True)
+
+    # Show the plot
+    st.plotly_chart(fig)
+
 
 st.cache_data
 def replace_missing_with_average(data):
