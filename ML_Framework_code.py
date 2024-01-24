@@ -77,8 +77,6 @@ if uploaded_file is not None:
             # Add code for feature selection method options (e.g., Recursive Feature Elimination, SelectKBest)
             selection_method = st.selectbox("Choose selection method", ["Recursive Feature Elimination", "SelectKBest"])
 
-    
-    
     st.header("Step 5: Data Processing Options")
     
     # Checkbox for handling missing values
@@ -131,6 +129,10 @@ if uploaded_file is not None:
     
             # Perform encoding
             if has_categorical_columns:
+                # Define numerical_columns based on user selection and numerical dtypes
+                numerical_columns = list(set(data.columns) - set(categorical_columns))  # Exclude categorical columns
+                numerical_columns = list(set(numerical_columns).intersection(data.select_dtypes(include=['number']).columns))  # Ensure they have numerical dtypes
+                
                 if encode_categorical_variables and categorical_encoding_method and categorical_columns:
                     if categorical_encoding_method == "OneHotEncoder":
                         # Apply one-hot encoding using pandas get_dummies
@@ -140,12 +142,8 @@ if uploaded_file is not None:
                         label_encoder = LabelEncoder()
                         for col in categorical_columns:
                             data[col] = label_encoder.fit_transform(data[col])
-
-            # Separate numerical columns from one-hot encoded columns
-            numerical_columns = list(data.select_dtypes(include=['number']).columns)
-            categorical_encoded_columns = list(set(data.columns) - set(numerical_columns))
             
-            # Perform normalization
+            # Perform normalization only on numerical columns
             if normalize_data:
                 if normalization_method == "MinMaxScaler":
                     scaler = MinMaxScaler()
