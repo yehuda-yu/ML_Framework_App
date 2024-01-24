@@ -91,7 +91,6 @@ if uploaded_file is not None:
         normalization_method = st.radio("Choose normalization method", ["MinMaxScaler", "StandardScaler"])
 
     # Checkbox for encoding
-
     encode_categorical_variables = st.checkbox("Encode categorical variables")
     categorical_encoding_method = None
     
@@ -133,7 +132,6 @@ if uploaded_file is not None:
                     encoded_data = pd.DataFrame(encoder.fit_transform(data[categorical_columns]).toarray())
                     data = pd.concat([data, encoded_data], axis=1)
                     data = data.drop(categorical_columns, axis=1)
-    
                 elif categorical_encoding_method == "LabelEncoder":
                     label_encoder = LabelEncoder()
                     for col in categorical_columns:
