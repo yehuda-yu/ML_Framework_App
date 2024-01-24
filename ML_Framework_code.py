@@ -81,7 +81,7 @@ if uploaded_file is not None:
     
         if missing_values_option == "Linear Interpolation":
             # Input a limit for linear interpolation
-            interpolation_limit = st.number_input("Enter the limit for linear interpolation", min_value=0.0, max_value=None, value=0.0, step=0.1)
+            interpolation_limit = st.number_input("Enter the limit for linear interpolation", min_value=0.0, max_value=None, value=0.0, step=1)
 
     
     # Checkbox for normalization
