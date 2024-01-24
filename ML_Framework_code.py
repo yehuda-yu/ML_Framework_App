@@ -79,10 +79,8 @@ if uploaded_file is not None:
                 variance_percentage = st.slider("Select the variance percentage to keep", 70.0, 100.0, 95.0, step=1.0)
 
                 # Call the PCA function from the functions file
-                reduced_data, total_cols_before, total_cols_after,explained_variance_ratio,variance_percentage = functions.perform_pca(data, target_column,
-                                                                                           categorical_columns,
-                                                                                           variance_percentage)
-
+                reduced_data, total_cols_before, total_cols_after, cum_var, individual_var = functions.perform_pca(data, target_column, categorical_columns, variance_percentage)
+               
                 # Create a container to display information about PCA
                 with st.container():
                     st.subheader("PCA Results:")
@@ -91,7 +89,7 @@ if uploaded_file is not None:
                     st.dataframe(reduced_data.head(), width=700, height=200)  # Adjust width and height as needed
 
                     # Plot the cumulative explained variance ratio
-                    functions.plot_explained_variance(explained_variance_ratio, variance_percentage)
+                    functions.plot_cumulative_variance(cum_var, variance_percentage))
                 
                     # Display column count information in a visually distinct way
                     col_count_info = f"""
@@ -100,6 +98,8 @@ if uploaded_file is not None:
                     - After PCA: {total_cols_after}
                     """
                     st.markdown(col_count_info)
+
+                
                 # Define data as the reduced number of bands
                 data = reduced_data
 
