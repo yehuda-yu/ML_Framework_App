@@ -61,9 +61,9 @@ def plot_cumulative_variance(cum_var, variance_percentage):
     # Scatter plot
     fig.add_trace(go.Scatter(x=np.arange(1, len(cum_var) + 1), y=cum_var*100, mode='markers', marker=dict(size=8, color='black'), name='Explained Variance (%)'))
 
-    # Vertical red line
+    # Horizontal red line
     fig.add_shape(
-        dict(type="line", x0=variance_percentage, x1=variance_percentage, y0=cum_var[0]*100, y1=100,
+        dict(type="line", x0=1, x1=variance_percentage, y0=variance_percentage, y1=variance_percentage,
              line=dict(color="red", width=2, dash="dash"),
              )
     )
