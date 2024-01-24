@@ -78,30 +78,26 @@ if uploaded_file is not None:
                 # Input the variance percentage to keep
                 variance_percentage = st.slider("Select the variance percentage to keep", 70.0, 100.0, 98.0, step=1.0)
 
-                # Button to trigger PCA computation and results display
-                pca_button = st.button("Run PCA")
+                # Call the PCA function from the functions file
+                reduced_data, total_cols_before, total_cols_after, cum_var, individual_var = functions.perform_pca(data, target_column, categorical_columns, variance_percentage)
+               
+                # Create a container to display information about PCA
+                with st.expander("PCA Results"):
+                
+                    # Display a preview of the reduced data with clear column headers
+                    st.dataframe(reduced_data.head(), width=700, height=200)  # Adjust width and height as needed
 
-                if pca_button:
-                    # Call the PCA function from the functions file
-                    reduced_data, total_cols_before, total_cols_after, cum_var, individual_var = functions.perform_pca(data, target_column, categorical_columns, variance_percentage)
+                    # Plot the cumulative explained variance ratio
+                    functions.plot_cumulative_variance(cum_var,variance_percentage)
+                
+                    # Display column count information in a visually distinct way
+                    col_count_info = f"""
+                    **Number of Columns:**
+                    - Before PCA: {total_cols_before}
+                    - After PCA: {total_cols_after}
+                    """
+                    st.markdown(col_count_info)
 
-                    # Display results
-                    st.subheader("PCA Results:")
-                    st.dataframe(reduced_data.head(), width=700, height=200)
-            if extraction_method == "PCA":
-                # Input the variance percentage to keep
-                variance_percentage = st.slider("Select the variance percentage to keep", 70.0, 100.0, 98.0, step=1.0)
-
-                # Plot the cumulative explained variance ratio
-                functions.plot_cumulative_variance(cum_var, variance_percentage)
-                    
-                # Display column count information in a visually distinct way
-                col_count_info = f"""
-                **Number of Columns:**
-                - Before PCA: {total_cols_before}
-                - After PCA: {total_cols_after}
-                """
-                st.markdown(col_count_info)
                 
                 # Define data as the reduced number of bands
                 data = reduced_data
