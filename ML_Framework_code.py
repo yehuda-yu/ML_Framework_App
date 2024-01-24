@@ -57,6 +57,9 @@ if uploaded_file is not None:
     st.header("Step 3: Target Column Selection")
     target_column = st.selectbox("Select the target column", data.columns)
 
+    # define data as features + target
+    data = data[features + [target_column]]
+
     # Feature Selection/Extraction Section
     st.header("Step 4: Feature Selection/Extraction Options")
     
@@ -124,8 +127,6 @@ if uploaded_file is not None:
     # Run the model if the button is clicked
     if run_model:
         try:
-            # define data as features + target
-            data = data[features + [target_column]]
             
             # Perform data processing
             if handle_missing_values:
