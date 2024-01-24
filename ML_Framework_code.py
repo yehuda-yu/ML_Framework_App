@@ -42,71 +42,75 @@ if uploaded_file is not None:
         print(e)
         data = pd.read_excel(uploaded_file)
 
-   # Feature columns selection
+    # Feature columns selection
     st.header("Step 2: Feature Columns Selection")
     features = st.multiselect("Select features columns", data.columns.tolist(), default=data.columns.tolist())
-    
+
     # Check if there are categorical columns
     has_categorical_columns = st.checkbox("Are there categorical columns?")
     categorical_columns = []
-    
+
     if has_categorical_columns:
         categorical_columns = st.multiselect("Select categorical columns", features)
-    
+
     # Select target column
     st.header("Step 3: Target Column Selection")
     target_column = st.selectbox("Select the target column", data.columns)
 
-    # define data as features + target
+    # Define data as features + target
     data = data[features + [target_column]]
 
     # Feature Selection/Extraction Section
     st.header("Step 4: Feature Selection/Extraction Options")
-    
+
     # Checkbox for feature selection/extraction
     feature_reduction = st.checkbox("Reduce the number of features")
-    
+
     if feature_reduction:
         # Radio button to choose between feature extraction and feature selection
         reduction_method = st.radio("Choose reduction method", ["Feature Extraction", "Feature Selection"])
-    
+
         if reduction_method == "Feature Extraction":
             # Add code for feature extraction method options (e.g., PCA, t-SNE)
             extraction_method = st.selectbox("Choose extraction method", ["PCA", "t-SNE"])
+
             if extraction_method == "PCA":
                 # Input the variance percentage to keep
                 variance_percentage = st.slider("Select the variance percentage to keep", 70.0, 100.0, 95.0, step=1.0)
-                
+
                 # Call the PCA function from the functions file
-                reduced_data, total_cols_before, total_cols_after = functions.perform_pca(data, target_column, categorical_columns, variance_percentage)
-                
+                reduced_data, total_cols_before, total_cols_after = functions.perform_pca(data, target_column,
+                                                                                           categorical_columns,
+                                                                                           variance_percentage)
+
                 # Display the processed data
                 st.subheader("Processed Data after PCA:")
                 st.write(reduced_data)
-    
+
                 # Display the total number of columns before and after PCA
                 st.subheader("Total Number of Columns:")
                 st.write(f"Before PCA: {total_cols_before}, After PCA: {total_cols_after}")
 
-                # define data as the reduced number of bands
+                # Define data as the reduced number of bands
                 data = reduced_data
 
-        elif reduction_method == "Feature Selection":
-            # Add code for feature selection method options (e.g., Recursive Feature Elimination, SelectKBest)
-            selection_method = st.selectbox("Choose selection method", ["Recursive Feature Elimination", "SelectKBest"])
+    elif reduction_method == "Feature Selection":
+        # Add code for feature selection method options (e.g., Recursive Feature Elimination, SelectKBest)
+        selection_method = st.selectbox("Choose selection method", ["Recursive Feature Elimination", "SelectKBest"])
 
     st.header("Step 5: Data Processing Options")
-    
+
     # Checkbox for handling missing values
     handle_missing_values = st.checkbox("Handle missing values")
     if handle_missing_values:
-        missing_values_option = st.radio("Choose missing values handling method", ["Replace with average", "Replace with 0", "Delete", "Linear Interpolation"])
-    
+        missing_values_option = st.radio("Choose missing values handling method",
+                                         ["Replace with average", "Replace with 0", "Delete", "Linear Interpolation"])
+
         if missing_values_option == "Linear Interpolation":
             # Input a limit for linear interpolation
-            interpolation_limit = st.number_input("Enter the limit for linear interpolation", min_value=0, max_value=None, value=0, step=1)
+            interpolation_limit = st.number_input("Enter the limit for linear interpolation", min_value=0, max_value=None,
+                                                  value=0, step=1)
 
-    
     # Checkbox for normalization
     normalize_data = st.checkbox("Normalize data")
 
@@ -116,14 +120,13 @@ if uploaded_file is not None:
     # Checkbox for encoding
     encode_categorical_variables = st.checkbox("Encode categorical variables")
     categorical_encoding_method = None
-    
+
     if encode_categorical_variables and has_categorical_columns:
         categorical_encoding_method = st.radio("Choose categorical encoding method", ["OneHotEncoder", "LabelEncoder"])
-    
-    
+
     # Allow the user to select a split percentage from slider
     split_percentage = st.slider("Select the train-test split percentage", 0.1, 0.9, 0.7)
-    
+
     # Run Model button
     run_model = st.button("Run Model")
     
