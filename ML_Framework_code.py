@@ -42,9 +42,16 @@ if uploaded_file is not None:
         print(e)
         data = pd.read_excel(uploaded_file)
 
-    # Feature columns selection
+   # Feature columns selection
     st.header("Step 2: Feature Columns Selection")
     features = st.multiselect("Select features columns", data.columns.tolist(), default=data.columns.tolist())
+    
+    # Check if there are categorical columns
+    has_categorical_columns = st.checkbox("Are there categorical columns?")
+    categorical_columns = []
+    
+    if has_categorical_columns:
+        categorical_columns = st.multiselect("Select categorical columns", data.columns)
     
     # Select target column
     st.header("Step 3: Target Column Selection")
@@ -94,13 +101,9 @@ if uploaded_file is not None:
     encode_categorical_variables = st.checkbox("Encode categorical variables")
     categorical_encoding_method = None
     
-    if encode_categorical_variables:
+    if encode_categorical_variables and has_categorical_columns:
         categorical_encoding_method = st.radio("Choose categorical encoding method", ["OneHotEncoder", "LabelEncoder"])
     
-    categorical_columns = []
-    
-    if categorical_encoding_method is not None:
-        categorical_columns = st.multiselect("Select categorical columns for encoding", data.columns)
     
     # Allow the user to select a split percentage from slider
     split_percentage = st.slider("Select the train-test split percentage", 0.1, 0.9, 0.7)
@@ -126,29 +129,33 @@ if uploaded_file is not None:
                     # Perform linear interpolation with the specified limit
                     data = data.interpolate(limit=interpolation_limit)
     
-            if encode_categorical_variables and categorical_encoding_method and categorical_columns:
-                if categorical_encoding_method == "OneHotEncoder":
-                    # apply one-hot encoding using 
-                    data = pd.get_dummies(data, columns=[categorical_columns],dtype=float)
-                elif categorical_encoding_method == "LabelEncoder":
-                    label_encoder = LabelEncoder()
-                    for col in categorical_columns:
-                        data[col] = label_encoder.fit_transform(data[col])
+            # Perform encoding
+            if has_categorical_columns:
+                if encode_categorical_variables and categorical_encoding_method and categorical_columns:
+                    if categorical_encoding_method == "OneHotEncoder":
+                        # Apply one-hot encoding using pandas get_dummies
+                        encoded_data = pd.get_dummies(data[categorical_columns], columns=categorical_columns, dtype=float)
+                        data = pd.concat([data.drop(categorical_columns, axis=1), encoded_data], axis=1)
+                    elif categorical_encoding_method == "LabelEncoder":
+                        label_encoder = LabelEncoder()
+                        for col in categorical_columns:
+                            data[col] = label_encoder.fit_transform(data[col])
+
         
-            if normalize_data:
-                
-                # Identify numerical and categorical columns
+           if normalize_data:
+               # Identify numerical and categorical columns
                 numerical_columns = list(data.select_dtypes(include=['number']).columns)
-                categorical_columns = list(set(data.columns) - set(numerical_columns))
-                
+                # Exclude columns that were one-hot encoded from normalization
+                columns_to_normalize = [col for col in numerical_columns if col not in categorical_columns]
+            
                 # Normalize numerical columns only
                 if normalization_method == "MinMaxScaler":
                     scaler = MinMaxScaler()
-                    data[numerical_columns] = scaler.fit_transform(data[numerical_columns])
+                    data[columns_to_normalize] = scaler.fit_transform(data[columns_to_normalize])
                 elif normalization_method == "StandardScaler":
                     scaler = StandardScaler()
-                    data[numerical_columns] = scaler.fit_transform(data[numerical_columns])
-    
+                    data[columns_to_normalize] = scaler.fit_transform(data[columns_to_normalize])
+        
     
             # Display the processed data
             st.subheader("Processed Data:")
