@@ -63,7 +63,7 @@ def plot_cumulative_variance(cum_var, variance_percentage):
 
     # Vertical red line
     fig.add_shape(
-        dict(type="line", x0=variance_percentage, x1=variance_percentage, y0=0, y1=100,
+        dict(type="line", x0=variance_percentage, x1=variance_percentage, y0=cum_var[0]*100, y1=100,
              line=dict(color="red", width=2, dash="dash"),
              )
     )
