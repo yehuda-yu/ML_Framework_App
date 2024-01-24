@@ -53,40 +53,31 @@ def perform_pca(data, target_column, categorical_columns, variance_percentage):
 
 def plot_cumulative_variance(cum_var, variance_percentage):
     # Plot the cumulative percentage of explained variance for each component
-    fig = go.Figure(
-        go.Scatter(
-            x=np.arange(1, len(cum_var) + 1),
-            y=cum_var * 100,
-            mode='lines+markers',
-            line=dict(color='royalblue', width=2),
-            marker=dict(size=6, color='royalblue'),
-            name='Explained Variance (%)'
-        )
-    )
+    fig = go.Figure()
 
+    # Line plot
+    fig.add_trace(go.Scatter(x=np.arange(1, len(cum_var) + 1), y=cum_var*100, mode='lines', line=dict(color='blue', width=2), name='Explained Variance (%)'))
+
+    # Scatter plot
+    fig.add_trace(go.Scatter(x=np.arange(1, len(cum_var) + 1), y=cum_var*100, mode='markers', marker=dict(size=8, color='black'), name='Explained Variance (%)'))
+
+    # Horizontal red line
     fig.add_shape(
-        dict(
-            type="line",
-            x0=1,
-            x1=variance_percentage,
-            y0=variance_percentage,
-            y1=variance_percentage,
-            line=dict(color="firebrick", width=2, dash="dashdot")
-        )
+        dict(type="line", x0=1, x1=variance_percentage, y0=variance_percentage, y1=variance_percentage,
+             line=dict(color="red", width=2, dash="dash"),
+             )
     )
 
-    fig.update_layout(
-        title="PCA",
-        xaxis_title="Components",
-        yaxis_title="Explained Variance (%)",
-        showlegend=False,
-        height=500,
-        width=800,
-        margin=dict(l=40, r=40, t=40, b=40)
-    )
+    # Layout settings
+    fig.update_layout(title="PCA",
+                      xaxis_title="Components",
+                      yaxis_title="Explained Variance (%)",
+                      showlegend=True,
+                      height=700,
+                      width=1000)
 
+    # Display the plot using Streamlit
     st.plotly_chart(fig)
-
 st.cache_data
 def replace_missing_with_average(data):
     """Replace missing values with the average of each column."""
