@@ -70,8 +70,20 @@ if uploaded_file is not None:
         if reduction_method == "Feature Extraction":
             # Add code for feature extraction method options (e.g., PCA, t-SNE)
             extraction_method = st.selectbox("Choose extraction method", ["PCA", "t-SNE"])
-
-        # ... Add more options for the selected feature extraction method
+            if extraction_method == "PCA":
+                # Input the variance percentage to keep
+                variance_percentage = st.slider("Select the variance percentage to keep", 70.0, 100.0, 95.0, step=1.0)
+                
+                # Call the PCA function from the functions file
+                reduced_data, total_cols_before, total_cols_after = functions.perform_pca(data, target_column, categorical_columns, variance_percentage)
+                
+                # Display the processed data
+                st.subheader("Processed Data after PCA:")
+                st.write(reduced_data)
+    
+                # Display the total number of columns before and after PCA
+                st.subheader("Total Number of Columns:")
+                st.write(f"Before PCA: {total_cols_before}, After PCA: {total_cols_after}")
 
         elif reduction_method == "Feature Selection":
             # Add code for feature selection method options (e.g., Recursive Feature Elimination, SelectKBest)
