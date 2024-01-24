@@ -82,8 +82,7 @@ if uploaded_file is not None:
                 reduced_data, total_cols_before, total_cols_after, cum_var, individual_var = functions.perform_pca(data, target_column, categorical_columns, variance_percentage)
                
                 # Create a container to display information about PCA
-                with st.section():
-                    st.subheader("PCA Results:")
+                with st.expander("PCA Results"):
                 
                     # Display a preview of the reduced data with clear column headers
                     st.dataframe(reduced_data.head(), width=700, height=200)  # Adjust width and height as needed
