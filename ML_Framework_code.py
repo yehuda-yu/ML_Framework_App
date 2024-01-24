@@ -1,4 +1,3 @@
-import streamlit as st
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, LabelEncoder
 from sklearn.ensemble import RandomForestRegressor
@@ -215,26 +214,23 @@ if uploaded_file is not None:
         
             # Plot feature importance using the custom function
             functions.plot_feature_importance(best_models, X_train, y_train)
-            
     
             # Display PDP graphs for selected feature
             st.header("Partial Dependence Plots (PDP)")
+    
+            selected_feature = st.selectbox("Select feature to visualize", features)
+    
+            if selected_feature:
+                # Call the function to plot PDP with specified colors
+                functions.plot_pdp(best_models, X_train, [selected_feature], target_column)
 
-            with st.form(key="pdp_form",prevent_initial_call=True):
-                selected_feature = st.selectbox("Select feature to visualize", features)
-                submitted = st.form_submit_button("Update PDP")
-                if submitted:
-                    # Call the function to plot PDP with specified colors
-                    functions.plot_pdp(best_models, X_train, [selected_feature], target_column)
-
-
+            # Save session state
+            st.session_state.selected_feature = selected_feature
+    
         except Exception as e:
             st.error(f"Error during model training and evaluation: {str(e)}")
-    
-        
 else:
     st.info("Please upload a data file to continue.")
-    # Add placeholders or instructions for file upload, if desired
 
 
         # Allow the user to download the pickle file with a button
