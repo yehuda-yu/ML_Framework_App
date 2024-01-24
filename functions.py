@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, LabelEncoder
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
@@ -11,6 +12,42 @@ import plotly.graph_objects as go
 import plotly.subplots as sp
 import plotly.express as px
 from sklearn.inspection import PartialDependenceDisplay
+
+st.cache_data
+def perform_pca(data, target_column, categorical_columns, variance_percentage):
+    # Separate features and target
+    X = data.drop([target_column], axis=1)
+    y = data[target_column]
+
+    # Identify numerical columns (excluding the target and categorical columns)
+    numerical_columns = [col for col in X.columns if col not in categorical_columns]
+
+    # Standardize the numerical columns
+    scaler = StandardScaler()
+    X[numerical_columns] = scaler.fit_transform(X[numerical_columns])
+
+    # Perform PCA
+    pca = PCA()
+    X_pca = pca.fit_transform(X[numerical_columns])
+
+    # Calculate the cumulative percentage of explained variance for each component
+    cum_var = np.cumsum(pca.explained_variance_ratio_)
+
+    # Determine the number of components to explain the specified variance_percentage
+    n_components = np.argmax(cum_var >= variance_percentage) + 1
+
+    # Get the column names for the selected components
+    pc_col_names = [f"PC_{i+1}" for i in range(n_components)]
+
+    # Create a DataFrame with the selected components, categorical columns, and target column
+    result_df = pd.DataFrame(data=np.column_stack([X_pca[:, :n_components], X[categorical_columns], y]),
+                             columns=pc_col_names + categorical_columns + [target_column])
+
+    # Calculate the total number of columns before and after PCA
+    total_columns_before_pca = X.shape[1] + len(categorical_columns) + 1  # +1 for the target column
+    total_columns_after_pca = result_df.shape[1]
+
+    return result_df, total_columns_before_pca, total_columns_after_pca
 
 st.cache_data
 def replace_missing_with_average(data):
