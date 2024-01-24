@@ -219,7 +219,7 @@ if uploaded_file is not None:
             # Display PDP graphs for selected feature
             st.header("Partial Dependence Plots (PDP)")
     
-            selected_feature = st.selectbox("Select feature to visualize", features)
+            selected_feature = st.selectbox("Select feature to visualize", X_train.columns)
     
             if selected_feature:
                 # Call the function to plot PDP with specified colors
@@ -232,7 +232,6 @@ if uploaded_file is not None:
             st.error(f"Error during model training and evaluation: {str(e)}")
 else:
     st.info("Please upload a data file to continue.")
-
 
         # Allow the user to download the pickle file with a button
         #st.subheader("Download Best Model")
