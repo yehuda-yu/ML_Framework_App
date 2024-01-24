@@ -142,8 +142,8 @@ if uploaded_file is not None:
                             data[col] = label_encoder.fit_transform(data[col])
 
         
-           if normalize_data:
-               # Identify numerical and categorical columns
+            if normalize_data:
+                # Identify numerical and categorical columns
                 numerical_columns = list(data.select_dtypes(include=['number']).columns)
                 # Exclude columns that were one-hot encoded from normalization
                 columns_to_normalize = [col for col in numerical_columns if col not in categorical_columns]
