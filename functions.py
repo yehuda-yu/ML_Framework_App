@@ -30,8 +30,9 @@ def perform_pca(data, target_column, categorical_columns, variance_percentage):
     pca = PCA()
     X_pca = pca.fit_transform(X[numerical_columns])
 
-    # Calculate the cumulative percentage of explained variance for each component
+    # Calculate the cumulative and individual percentage of explained variance for each component
     cum_var = np.cumsum(pca.explained_variance_ratio_)
+    individual_var = pca.explained_variance_ratio_
 
     # Determine the number of components to explain the specified variance_percentage
     n_components = np.argmax(cum_var >= variance_percentage) + 1
@@ -43,29 +44,29 @@ def perform_pca(data, target_column, categorical_columns, variance_percentage):
     result_df = pd.DataFrame(data=np.column_stack([X_pca[:, :n_components], X[categorical_columns], y]),
                              columns=pc_col_names + categorical_columns + [target_column])
 
-    return result_df, total_cols_before, total_cols_after, pca.explained_variance_ratio_, cum_var
+    # Calculate the total number of columns before and after PCA
+    total_cols_before = X.shape[1] + len(categorical_columns) + 1  # +1 for the target column
+    total_cols_after = result_df.shape[1]
 
-def plot_explained_variance(explained_variance_ratio, variance_percentage):
-    # Plot the explained variance ratio
+    return result_df, total_cols_before, total_cols_after, cum_var, individual_var
+
+
+def plot_cumulative_variance(cum_var, variance_percentage):
+    # Plot the cumulative explained variance ratio
     fig = go.Figure()
-
-    fig.add_trace(go.Scatter(x=np.arange(1, len(explained_variance_ratio) + 1), y=explained_variance_ratio,
-                             mode='lines+markers', name='Explained Variance Ratio'))
-
-    # Add a vertical line at the specified variance_percentage
+    fig.add_trace(go.Scatter(x=np.arange(1, len(cum_var) + 1), y=cum_var, mode='lines', name='Cumulative Variance'))
     fig.add_shape(
-        go.layout.Shape(type='line', x0=variance_percentage, x1=variance_percentage, y0=0, y1=1, line=dict(color='red'))
+        dict(type="line", x0=1, x1=len(cum_var), y0=variance_percentage, y1=variance_percentage,
+             line=dict(color="red", width=2, dash="dash"),
+             )
     )
-
-    # Layout customization
-    fig.update_layout(title='Cumulative Explained Variance Ratio',
-                      xaxis_title='Number of Components',
-                      yaxis_title='Cumulative Explained Variance',
+    fig.update_layout(title="Cumulative Explained Variance Ratio",
+                      xaxis_title="Number of Components",
+                      yaxis_title="Cumulative Explained Variance Ratio",
                       showlegend=True)
 
-    # Show the plot
+    # Display the plot using Streamlit
     st.plotly_chart(fig)
-
 
 st.cache_data
 def replace_missing_with_average(data):
