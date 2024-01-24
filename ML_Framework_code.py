@@ -88,6 +88,9 @@ if uploaded_file is not None:
                 st.subheader("Total Number of Columns:")
                 st.write(f"Before PCA: {total_cols_before}, After PCA: {total_cols_after}")
 
+                # define data as the reduced number of bands
+                data = reduced_data
+
         elif reduction_method == "Feature Selection":
             # Add code for feature selection method options (e.g., Recursive Feature Elimination, SelectKBest)
             selection_method = st.selectbox("Choose selection method", ["Recursive Feature Elimination", "SelectKBest"])
