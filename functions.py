@@ -63,7 +63,7 @@ def plot_cumulative_variance(cum_var, variance_percentage):
 
     # Horizontal red line
     fig.add_shape(
-        dict(type="line", x0=1, x1=variance_percentage, y0=variance_percentage, y1=variance_percentage,
+        dict(type="line", x0=1, x1=y, y0=variance_percentage, y1=variance_percentage,
              line=dict(color="red", width=2, dash="dash"),
              )
     )
@@ -71,13 +71,15 @@ def plot_cumulative_variance(cum_var, variance_percentage):
     # Layout settings
     fig.update_layout(title="PCA",
                       xaxis_title="Components",
-                      yaxis_title="Explained Variance (%)",
+                      yaxis_title="Cוumilative Explained Variance (%)",
                       showlegend=True,
                       height=700,
                       width=1000)
 
     # Display the plot using Streamlit
     st.plotly_chart(fig)
+
+
 st.cache_data
 def replace_missing_with_average(data):
     """Replace missing values with the average of each column."""
