@@ -141,22 +141,19 @@ if uploaded_file is not None:
                         for col in categorical_columns:
                             data[col] = label_encoder.fit_transform(data[col])
 
-        
-            if normalize_data:
-                # Identify numerical and categorical columns
-                numerical_columns = list(data.select_dtypes(include=['number']).columns)
-                # Exclude columns that were one-hot encoded from normalization
-                columns_to_normalize = [col for col in numerical_columns if col not in categorical_columns]
+            # Separate numerical columns from one-hot encoded columns
+            numerical_columns = list(data.select_dtypes(include=['number']).columns)
+            categorical_encoded_columns = list(set(data.columns) - set(numerical_columns))
             
-                # Normalize numerical columns only
+            # Perform normalization
+            if normalize_data:
                 if normalization_method == "MinMaxScaler":
                     scaler = MinMaxScaler()
-                    data[columns_to_normalize] = scaler.fit_transform(data[columns_to_normalize])
+                    data[numerical_columns] = scaler.fit_transform(data[numerical_columns])
                 elif normalization_method == "StandardScaler":
                     scaler = StandardScaler()
-                    data[columns_to_normalize] = scaler.fit_transform(data[columns_to_normalize])
+                    data[numerical_columns] = scaler.fit_transform(data[numerical_columns])
         
-    
             # Display the processed data
             st.subheader("Processed Data:")
             st.write(data)
