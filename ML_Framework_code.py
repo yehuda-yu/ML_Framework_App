@@ -83,14 +83,20 @@ if uploaded_file is not None:
                                                                                            categorical_columns,
                                                                                            variance_percentage)
 
-                # Display the processed data
-                st.subheader("Processed Data after PCA:")
-                st.write(reduced_data)
-
-                # Display the total number of columns before and after PCA
-                st.subheader("Total Number of Columns:")
-                st.write(f"Before PCA: {total_cols_before}, After PCA: {total_cols_after}")
-
+                # Create a container to display information about PCA
+                with st.container():
+                    st.subheader("PCA Results:")
+                
+                    # Display a preview of the reduced data with clear column headers
+                    st.dataframe(reduced_data.head(), width=700, height=200)  # Adjust width and height as needed
+                
+                    # Display column count information in a visually distinct way
+                    col_count_info = f"""
+                    **Number of Columns:**
+                    - Before PCA: {total_cols_before}
+                    - After PCA: {total_cols_after}
+                    """
+                    st.markdown(col_count_info)
                 # Define data as the reduced number of bands
                 data = reduced_data
 
