@@ -83,13 +83,13 @@ if uploaded_file is not None:
                
                 # Create a container to display information about PCA
                 with st.expander("PCA Results"):
-                
+                    
                     # Display a preview of the reduced data with clear column headers
                     st.dataframe(reduced_data.head(), width=700, height=200)  # Adjust width and height as needed
-
-                    # Plot the cumulative explained variance ratio
-                    functions.plot_cumulative_variance(cum_var,variance_percentage)
                 
+                    # Plot the cumulative explained variance ratio
+                    functions.plot_cumulative_variance(cum_var, variance_percentage)
+                    
                     # Display column count information in a visually distinct way
                     col_count_info = f"""
                     **Number of Columns:**
@@ -97,7 +97,6 @@ if uploaded_file is not None:
                     - After PCA: {total_cols_after}
                     """
                     st.markdown(col_count_info)
-
                 
                 # Define data as the reduced number of bands
                 data = reduced_data
