@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, LabelEncoder
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.linear_model import LinearRegression
@@ -91,9 +91,16 @@ if uploaded_file is not None:
         normalization_method = st.radio("Choose normalization method", ["MinMaxScaler", "StandardScaler"])
 
     # Checkbox for encoding
+
     encode_categorical_variables = st.checkbox("Encode categorical variables")
-    categorical_columns = []
+    categorical_encoding_method = None
+    
     if encode_categorical_variables:
+        categorical_encoding_method = st.radio("Choose categorical encoding method", ["OneHotEncoder", "LabelEncoder"])
+    
+    categorical_columns = []
+    
+    if categorical_encoding_method is not None:
         categorical_columns = st.multiselect("Select categorical columns for encoding", data.columns)
     
     # Allow the user to select a split percentage from slider
@@ -120,11 +127,17 @@ if uploaded_file is not None:
                     # Perform linear interpolation with the specified limit
                     data = data.interpolate(limit=interpolation_limit)
     
-            if encode_categorical_variables and categorical_columns:
-                encoder = OneHotEncoder(drop='first')
-                encoded_data = pd.DataFrame(encoder.fit_transform(data[categorical_columns]).toarray())  # Convert to array
-                data = pd.concat([data, encoded_data], axis=1)
-                data = data.drop(categorical_columns, axis=1)
+            if encode_categorical_variables and categorical_encoding_method and categorical_columns:
+                if categorical_encoding_method == "OneHotEncoder":
+                    encoder = OneHotEncoder(drop='first')
+                    encoded_data = pd.DataFrame(encoder.fit_transform(data[categorical_columns]).toarray())
+                    data = pd.concat([data, encoded_data], axis=1)
+                    data = data.drop(categorical_columns, axis=1)
+    
+                elif categorical_encoding_method == "LabelEncoder":
+                    label_encoder = LabelEncoder()
+                    for col in categorical_columns:
+                        data[col] = label_encoder.fit_transform(data[col])
         
             if normalize_data:
                 
