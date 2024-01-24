@@ -51,7 +51,7 @@ def perform_pca(data, target_column, categorical_columns, variance_percentage):
     return result_df, total_cols_before, total_cols_after, cum_var, individual_var
 
 
-def plot_cumulative_variance(cum_var):
+def plot_cumulative_variance(cum_var, variance_percentage):
     # Plot the cumulative percentage of explained variance for each component
     fig = go.Figure()
 
@@ -61,17 +61,18 @@ def plot_cumulative_variance(cum_var):
     # Scatter plot
     fig.add_trace(go.Scatter(x=np.arange(1, len(cum_var) + 1), y=cum_var*100, mode='markers', marker=dict(size=8, color='black'), name='Explained Variance (%)'))
 
+    # Vertical red line
+    fig.add_shape(
+        dict(type="line", x0=variance_percentage, x1=variance_percentage, y0=0, y1=100,
+             line=dict(color="red", width=2, dash="dash"),
+             )
+    )
+
     # Layout settings
-    fig.update_layout(title="PCA",
-                      xaxis_title="Components",
-                      yaxis_title="Explained Variance (%)",
-                      showlegend=True,
-                      height=700,
-                      width=1000)
+    fig.update_layout(title="PCA", xaxis_title="Components", yaxis_title="Explained Variance (%)", showlegend=True, height=700, width=1000)
 
     # Display the plot using Streamlit
     st.plotly_chart(fig)
-
 
 st.cache_data
 def replace_missing_with_average(data):
