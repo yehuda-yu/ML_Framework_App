@@ -51,7 +51,7 @@ if uploaded_file is not None:
     categorical_columns = []
     
     if has_categorical_columns:
-        categorical_columns = st.multiselect("Select categorical columns", data.columns)
+        categorical_columns = st.multiselect("Select categorical columns", features)
     
     # Select target column
     st.header("Step 3: Target Column Selection")
