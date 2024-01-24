@@ -72,9 +72,7 @@ def plot_cumulative_variance(cum_var, variance_percentage):
     fig.update_layout(title="PCA",
                       xaxis_title="Components",
                       yaxis_title="Cוumilative Explained Variance (%)",
-                      showlegend=True,
-                      height=700,
-                      width=1000)
+                      showlegend=True)
 
     # Display the plot using Streamlit
     st.plotly_chart(fig)
