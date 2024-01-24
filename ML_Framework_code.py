@@ -76,7 +76,7 @@ if uploaded_file is not None:
 
             if extraction_method == "PCA":
                 # Input the variance percentage to keep
-                variance_percentage = st.slider("Select the variance percentage to keep", 70.0, 100.0, 95.0, step=1.0)
+                variance_percentage = st.slider("Select the variance percentage to keep", 70.0, 100.0, 98.0, step=1.0)
 
                 # Call the PCA function from the functions file
                 reduced_data, total_cols_before, total_cols_after, cum_var, individual_var = functions.perform_pca(data, target_column, categorical_columns, variance_percentage)
