@@ -215,6 +215,9 @@ if uploaded_file is not None:
         
             # Plot feature importance using the custom function
             functions.plot_feature_importance(best_models, X_train, y_train)
+            
+        except Exception as e:
+            st.error(f"Error during model training and evaluation: {str(e)}")
     
             # Display PDP graphs for selected feature
             st.header("Partial Dependence Plots (PDP)")
@@ -226,8 +229,7 @@ if uploaded_file is not None:
                     # Call the function to plot PDP with specified colors
                     functions.plot_pdp(best_models, X_train, [selected_feature], target_column)
     
-        except Exception as e:
-            st.error(f"Error during model training and evaluation: {str(e)}")
+        
 else:
     st.info("Please upload a data file to continue.")
     # Add placeholders or instructions for file upload, if desired
