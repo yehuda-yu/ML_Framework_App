@@ -103,11 +103,11 @@ if uploaded_file is not None:
                 data = reduced_data
 
             elif extraction_method == "Time Series":
-                # Call the user-defined feature extraction function
+                # Call the Time series-based feature extraction function
                 reduced_data = functions.time_series_feature_extraction(data, target_column, categorical_columns)
     
                 # Display the results or any additional information
-                with st.expander("User-Defined Feature Extraction Results"):
+                with st.expander("Time Series-Based Feature Extraction Results"):
                     st.dataframe(reduced_data, width=700, height=200)
                 
                 # Define data as the reduced number of bands
