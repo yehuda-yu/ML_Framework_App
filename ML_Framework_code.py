@@ -89,6 +89,9 @@ if uploaded_file is not None:
 
                     # Plot the cumulative explained variance ratio
                     functions.plot_cumulative_variance(cum_var,variance_percentage)
+
+                    st.metric("Columns Before PCA", value=total_cols_before, delta=total_cols_before - total_cols_after)
+                    st.metric("Columns After PCA", value=total_cols_after, delta=total_cols_after - total_cols_before)
                 
                     # Display column count information in a visually distinct way
                     col_count_info = f"""
