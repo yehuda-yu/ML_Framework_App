@@ -30,25 +30,28 @@ def perform_pca(data, target_column, categorical_columns, variance_percentage):
     pca = PCA()
     X_pca = pca.fit_transform(X[numerical_columns])
 
+    # Assume that pca.transform(df_std) returns a numpy array with shape (n_samples, n_components)
+    n_components = pca.n_components_
+    pc_col_names = [f"PC_{i+1}" for i in range(n_components)]
+    df_pca = pd.DataFrame(data=X_pca, columns=pc_col_names)
+
     # Calculate the cumulative and individual percentage of explained variance for each component
     cum_var = np.cumsum(pca.explained_variance_ratio_)
-    individual_var = pca.explained_variance_ratio_
 
-    # Determine the number of components to explain the specified variance_percentage
-    n_components = np.argmax(cum_var >= variance_percentage) + 1
+    # Determine the number of components needed to explain variance_percentage% of the variance
+    n_components_to_keep = np.argmax(cum_var >= variance_percentage / 100) + 1
 
-    # Get the column names for the selected components
-    pc_col_names = [f"PC_{i+1}" for i in range(n_components)]
+    # Keep only the selected principal components
+    df_pca_reduced = df_pca.iloc[:, :n_components_to_keep]
 
-    # Create a DataFrame with the selected components, categorical columns, and target column
-    result_df = pd.DataFrame(data=np.column_stack([X_pca[:, :n_components], X[categorical_columns], y]),
-                             columns=pc_col_names + categorical_columns + [target_column])
+    # Add back the target column
+    df_final = pd.concat([df_pca_reduced, data[target_column]], axis=1)
 
     # Calculate the total number of columns before and after PCA
     total_cols_before = X.shape[1] + len(categorical_columns) + 1  # +1 for the target column
-    total_cols_after = result_df.shape[1]
+    total_cols_after = df_final.shape[1]
 
-    return result_df, total_cols_before, total_cols_after, cum_var, individual_var
+    return df_final, total_cols_before, total_cols_after, cum_var
 
 
 def plot_cumulative_variance(cum_var, variance_percentage):
