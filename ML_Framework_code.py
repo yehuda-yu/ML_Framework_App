@@ -93,21 +93,11 @@ if uploaded_file is not None:
                 
                     # Display column count information in a visually distinct way
                     col_count_info = f"""
-                    **Number of Columns:**
+                    **Number of Features:**
                     - **Before PCA:** {total_cols_before}
                     - **After PCA:** {total_cols_after}
                     """
-                    
-                    # Use a card layout to present the information
-                    st.markdown(
-                        f"""
-                        <div class="card" style="padding: 20px; margin-top: 20px; border-radius: 10px; background-color: #f0f0f0;">
-                            <p style="font-size: 18px; color: #333333;">Column Count Information</p>
-                            {col_count_info}
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
+                
 
                 
                 # Define data as the reduced number of bands
