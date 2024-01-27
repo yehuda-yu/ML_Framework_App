@@ -90,16 +90,24 @@ if uploaded_file is not None:
                     # Plot the cumulative explained variance ratio
                     functions.plot_cumulative_variance(cum_var,variance_percentage)
 
-                    st.metric("Columns Before PCA", value=total_cols_before, delta=total_cols_before - total_cols_after)
-                    st.metric("Columns After PCA", value=total_cols_after, delta=total_cols_after - total_cols_before)
                 
                     # Display column count information in a visually distinct way
                     col_count_info = f"""
                     **Number of Columns:**
-                    - Before PCA: {total_cols_before}
-                    - After PCA: {total_cols_after}
+                    - **Before PCA:** {total_cols_before}
+                    - **After PCA:** {total_cols_after}
                     """
-                    st.markdown(col_count_info)
+                    
+                    # Use a card layout to present the information
+                    st.markdown(
+                        f"""
+                        <div class="card" style="padding: 20px; margin-top: 20px; border-radius: 10px; background-color: #f0f0f0;">
+                            <p style="font-size: 18px; color: #333333;">Column Count Information</p>
+                            {col_count_info}
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
 
                 
                 # Define data as the reduced number of bands
