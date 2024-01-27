@@ -97,7 +97,8 @@ if uploaded_file is not None:
                     - **Before PCA:** {total_cols_before}
                     - **After PCA:** {total_cols_after}
                     """
-                
+                    # present the results
+                    st.markdown(col_count_info)
 
                 
                 # Define data as the reduced number of bands
