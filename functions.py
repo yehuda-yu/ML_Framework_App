@@ -15,27 +15,43 @@ from sklearn.inspection import PartialDependenceDisplay
 
 @st.cache_data
 def perform_pca(data, target_column, categorical_columns, variance_percentage):
+    """
+   Performs Principal Component Analysis (PCA) on numerical columns of a DataFrame,
+   retaining components that explain a specified percentage of variance.
+
+   Args:
+       data (pd.DataFrame): The input DataFrame containing features and target.
+       target_column (str): The name of the target column.
+       categorical_columns (list): A list of categorical column names.
+       variance_percentage (float): The desired percentage of variance to explain.
+
+   Returns:
+       tuple: A tuple containing:
+           - df_final (pd.DataFrame): The DataFrame with reduced dimensions after PCA.
+           - total_cols_before (int): The total number of columns before PCA.
+           - total_cols_after (int): The total number of columns after PCA.
+           - cum_var (np.ndarray): The cumulative explained variance ratios.
+   """
     # Separate features and target
-    X = data.drop([target_column], axis=1)
+    X = data.drop(columns=[target_column])
     y = data[target_column]
 
     # Identify numerical columns (excluding the target and categorical columns)
     numerical_columns = [col for col in X.columns if col not in categorical_columns]
 
     # Standardize the numerical columns
-    scaler = StandardScaler()
-    X[numerical_columns] = scaler.fit_transform(X[numerical_columns])
+    X[numerical_columns] = StandardScaler().fit_transform(X[numerical_columns])
 
     # Perform PCA
     pca = PCA()
     X_pca = pca.fit_transform(X[numerical_columns])
 
-    # Assume that pca.transform(df_std) returns a numpy array with shape (n_samples, n_components)
+    # Create DataFrame with principal components
     n_components = pca.n_components_
     pc_col_names = [f"PC_{i+1}" for i in range(n_components)]
     df_pca = pd.DataFrame(data=X_pca, columns=pc_col_names)
 
-    # Calculate the cumulative and individual percentage of explained variance for each component
+    # Calculate the cumulative percentage of explained variance
     cum_var = np.cumsum(pca.explained_variance_ratio_)
 
     # Determine the number of components needed to explain variance_percentage% of the variance
@@ -45,14 +61,14 @@ def perform_pca(data, target_column, categorical_columns, variance_percentage):
     df_pca_reduced = df_pca.iloc[:, :n_components_to_keep]
 
     # Add back the target column
-    df_final = pd.concat([df_pca_reduced, data[target_column]], axis=1)
+    df_final = pd.concat([df_pca_reduced, y], axis=1)
 
     # Calculate the total number of columns before and after PCA
     total_cols_before = X.shape[1] + len(categorical_columns) + 1  # +1 for the target column
     total_cols_after = df_final.shape[1]
 
     return df_final, total_cols_before, total_cols_after, cum_var
-
+ 
 
 def plot_cumulative_variance(cum_var, variance_percentage):
     # Plot the cumulative percentage of explained variance for each component
