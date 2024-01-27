@@ -65,7 +65,7 @@ def perform_pca(data, target_column, categorical_columns, variance_percentage):
 
     # Calculate the total number of columns before and after PCA
     total_cols_before = X.shape[1] + len(categorical_columns)
-    total_cols_after = df_final.shape[1]
+    total_cols_after = df_final.shape[1] - 1
 
     return df_final, total_cols_before, total_cols_after, cum_var
  
