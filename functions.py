@@ -80,22 +80,131 @@ def plot_cumulative_variance(cum_var, variance_percentage):
     fig.add_trace(go.Scatter(x=np.arange(1, len(cum_var) + 1), y=cum_var*100, mode='markers', marker=dict(size=8, color='black'), name='Explained Variance (%)'))
 
     # Horizontal red line
-    fig.add_shape(
-        dict(type="line", x0=1, x1=len(cum_var), y0=variance_percentage, y1=variance_percentage,
-             line=dict(color="red", width=2, dash="dash"),
-             )
-    )
+    fig.add_shape(dict(type="line", x0=1, x1=len(cum_var), y0=variance_percentage, y1=variance_percentage,line=dict(color="red", width=2, dash="dash"),))
 
     # Layout settings
-    fig.update_layout(title="PCA",
-                      xaxis_title="Components",
-                      yaxis_title="Cוumilative Explained Variance (%)",
-                      showlegend=True)
+    fig.update_layout(title="PCA", xaxis_title="Components", yaxis_title="Cוumilative Explained Variance (%)", showlegend=True)
 
     # Display the plot using Streamlit
     st.plotly_chart(fig)
 
+@st.cache_data
+def time_series_feature_extraction(data, target_col, categorical_columns):
+    """
+    Extract time series features from a DataFrame.
 
+    Parameters
+    ----------
+    data : pandas DataFrame
+        The input DataFrame with hyperspectral data.
+    target_col : str
+        The name of the target column in the DataFrame.
+    categorical_columns : list 
+        A list of column names that are categorical and you want to keep in the DataFrame.
+
+    Returns
+    -------
+    pandas DataFrame
+        The output DataFrame with computed features and the target column.
+    """
+    # Save the target data 
+    target_col_data = data[target_col].values
+
+    # Store categorical columns to add back later
+    categorical_columns_data = data[categorical_columns]
+    
+    # exclude non numeric columns and categorical columns
+    data = data.drop(columns=categorical_columns)
+    data = data.select_dtypes(include=np.number)
+
+    # Get the hyperspectral data columns
+    data_cols = [col for col in data.columns if col != target_col]
+
+    data = data[data_cols]
+
+    # calculate means
+    means = data.mean(axis=1).values
+
+    # calculate medians
+    medians = data.median(axis=1).values
+
+    # calculate standard deviations
+    stds = data.std(axis=1).values
+
+    # calculate percent of data beyond 1 std
+    percent_beyond_1_std = data.apply(lambda x: np.sum(np.abs(x - x.mean()) > x.std()) / len(x), axis=1)
+    percent_beyond_1_std = percent_beyond_1_std.values
+
+    # calculate amplitudes
+    amplitudes = data.apply(lambda row: np.ptp(row), axis=1)
+    amplitudes = amplitudes.values
+
+    # calculate max values
+    maxs = data.max(axis=1).values
+
+    # calculate min values
+    mins = data.max(axis=1).values
+
+    # calculate max slopes
+    max_slopes = data.apply(lambda row: np.max(np.abs(np.diff(row))), axis=1)
+    max_slopes = max_slopes.values
+
+    # calculate median absolute deviations (MAD)
+    mads = data.apply(lambda row: np.median(np.abs(row - np.median(row))), axis=1)
+    mads = mads.values
+
+    # calculate percent close to median
+    percent_close_to_median = data.apply(lambda x: np.sum(np.abs(x - np.median(x)) < 0.5 * np.median(x)) / len(x) * 100, axis=1)
+    percent_close_to_median = percent_close_to_median.values
+
+    # calculate skewness
+    skewness = data.apply(lambda x: x.skew(), axis=1)
+    skewness = skewness.values
+
+    # calculate flux percentile
+    flux_percentile = data.quantile(q=0.9, axis=1)
+
+    # calculate percent difference in flux percentile
+    percent_difference = flux_percentile.pct_change().fillna(0)
+    percent_difference = percent_difference.values
+
+    # define the weights as a numpy array of the column names
+    wavelengths = np.array(data.columns)
+
+    # convert the column names to floats if necessary
+    if wavelengths.dtype == 'object':
+        wavelengths = wavelengths.astype(float)
+
+    # calculate the weighted average for each row in the DataFrame
+    weighted_average = data.apply(lambda row: np.average(row, weights=wavelengths), axis=1)
+    weighted_average = weighted_average.values
+
+    # create a new DataFrame to store the parameter values for each row
+    parameters_df = pd.DataFrame({
+        'Mean': means,
+        'Median': medians,
+        'Std': stds,
+        'Percent_Beyond_Std': percent_beyond_1_std,
+        'Amplitude': amplitudes,
+        'Max': maxs,
+        'Min': mins,
+        'Max_Slope': max_slopes,
+        'MAD': mads,
+        'Percent_Close_to_Median': percent_close_to_median,
+        'Skew': skewness,
+        'Flux_Percentile': flux_percentile.values,
+        'Percent_Difference_Flux_Percentile': percent_difference,
+        'Weighted_Average': weighted_average
+    })
+
+    # Add the categorical columns data back to the DataFrame
+    parameters_df = pd.concat([parameters_df, categorical_columns_data], axis=1)
+        
+    # Add the target column
+    parameters_df[target_col] = target_col_data
+    
+    return parameters_df
+    
 @st.cache_data
 def replace_missing_with_average(data):
     """Replace missing values with the average of each column."""
