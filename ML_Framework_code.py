@@ -72,7 +72,7 @@ if uploaded_file is not None:
 
         if reduction_method == "Feature Extraction":
             # Add code for feature extraction method options (e.g., PCA, t-SNE)
-            extraction_method = st.selectbox("Choose extraction method", ["PCA", "t-SNE"])
+            extraction_method = st.selectbox("Choose extraction method", ["PCA", "Time Series"])
 
             if extraction_method == "PCA":
                 # Input the variance percentage to keep
@@ -89,8 +89,7 @@ if uploaded_file is not None:
 
                     # Plot the cumulative explained variance ratio
                     functions.plot_cumulative_variance(cum_var,variance_percentage)
-
-                
+                    
                     # Display column count information in a visually distinct way
                     col_count_info = f"""
                     **Number of Features:**
@@ -99,11 +98,22 @@ if uploaded_file is not None:
                     """
                     # present the results
                     st.markdown(col_count_info)
-
                 
                 # Define data as the reduced number of bands
                 data = reduced_data
 
+            elif extraction_method == "Time Series":
+                # Call the user-defined feature extraction function
+                reduced_data = functions.user_defined_feature_extraction(data, target_column, categorical_columns)
+    
+                # Display the results or any additional information
+                with st.expander("User-Defined Feature Extraction Results"):
+                    st.dataframe(reduced_data, width=700, height=200)
+                
+                # Define data as the reduced number of bands
+                data = reduced_data
+
+        
         elif reduction_method == "Feature Selection":
             # Add code for feature selection method options (e.g., Recursive Feature Elimination, SelectKBest)
             selection_method = st.selectbox("Choose selection method", ["Recursive Feature Elimination", "SelectKBest"])
