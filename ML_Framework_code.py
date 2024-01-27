@@ -104,7 +104,7 @@ if uploaded_file is not None:
 
             elif extraction_method == "Time Series":
                 # Call the user-defined feature extraction function
-                reduced_data = functions.user_defined_feature_extraction(data, target_column, categorical_columns)
+                reduced_data = functions.time_series_feature_extraction(data, target_column, categorical_columns)
     
                 # Display the results or any additional information
                 with st.expander("User-Defined Feature Extraction Results"):
