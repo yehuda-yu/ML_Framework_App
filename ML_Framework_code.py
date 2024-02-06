@@ -122,6 +122,7 @@ if uploaded_file is not None:
                 df_results = functions.NDSI_pearson(data, target_column)
                 st.subheader("NDSI Pearson Results")
                 st.dataframe(df_results)
+                functions.display_ndsi_heatmap(df_results)
             
 
     st.header("Step 5: Data Processing Options")
