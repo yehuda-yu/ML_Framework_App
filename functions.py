@@ -262,12 +262,35 @@ def NDSI_pearson(data, target_col):
 
 @st.cache_data
 def display_ndsi_heatmap(results, threshold, max_distance):
+    """
+    Display a heatmap with local minima and maxima points based on Pearson correlation values.
+
+    Parameters:
+    - results : DataFrame
+        DataFrame containing Pearson correlation values between spectral bands.
+    - threshold : float
+        Threshold value for identifying local minima and maxima points.
+    - max_distance : int
+        Maximum distance for local minima and maxima identification.
+
+    Returns:
+    - top_bands_list : list of tuples
+        List of tuples where each tuple contains the names of two spectral bands
+        corresponding to the local minima and maxima points.
+    """
     # Pivot the dataframe to have bands as rows and columns
     data = results.pivot(index='band1', columns='band2', values='Pearson_Corr')
 
     # Find local maxima and minima exceeding the threshold
     local_max = (maximum_filter(data, footprint=np.ones((max_distance, max_distance))) == data) & (data > threshold)
     local_min = (minimum_filter(data, footprint=np.ones((max_distance, max_distance))) == data) & (data < -threshold)
+
+    # Create lists to store band1 and band2 indices for minima and maxima
+    minima_list = [(data.index[minima_x][i], data.columns[minima_y][i]) for i in range(len(minima_x))]
+    maxima_list = [(data.index[maxima_x][i], data.columns[maxima_y][i]) for i in range(len(maxima_x))]
+
+    # Merge the two lists into one list
+    top_bands_list = minima_list + maxima_list
 
     # Create a Plotly heatmap
     fig = go.Figure(data=go.Heatmap(
@@ -299,17 +322,17 @@ def display_ndsi_heatmap(results, threshold, max_distance):
     # Display the Plotly figure using st.plotly_chart()
     st.plotly_chart(fig)
 
-    return minima_x, minima_y, maxima_x, maxima_y, data
+    return top_bands_list
 
 @st.cache_data
-def calculate_ndsi(data, tuple_list):
+def calculate_ndsi(data, top_bands_list):
     """
     Calculate Normalized Difference Spectral Index (NDSI) for each pair of spectral bands.
 
     Parameters:
     - data : DataFrame
         Original data containing spectral bands.
-    - tuple_list : list of tuples
+    - top_bands_list : list of tuples
         List where each tuple contains the names of two spectral bands.
 
     Returns:
@@ -321,7 +344,7 @@ def calculate_ndsi(data, tuple_list):
     ndsi_df = pd.DataFrame()
 
     # Calculate NDSI for each tuple in the list
-    for tup in tuple_list:
+    for tup in top_bands_list:
         a = data[tup[0]]
         b = data[tup[1]]
         ndsi = (a - b) / (a + b)
