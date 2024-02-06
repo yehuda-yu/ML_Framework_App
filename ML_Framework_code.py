@@ -131,9 +131,12 @@ if uploaded_file is not None:
 
                 # Button to save NDSI values
                 if st.button('Save NDSI Values'):
-                    data = functions.calculate_ndsi(data, top_bands_list)
+                    final_ndsi_df = functions.calculate_ndsi(data, top_bands_list)
                     # Show the user the number of columns after NDSI calculation
-                    st.info(f"Number of columns before NDSI calculation: {len(data.columns)}")
+                    st.info(f"Number of columns after NDSI calculation: {len(final_ndsi_df.columns)}")
+
+                    # Add the categorial columns and target column
+                    data = pd.concat([final_ndsi_df, data[categorical_columns], data[target_column]], axis=1)
                     st.dataframe(data)
             
 
