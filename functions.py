@@ -265,10 +265,10 @@ def display_ndsi_heatmap(results):
     corr_matrix = results.pivot(index='band1', columns='band2', values='Pearson_Corr')
 
     # User input for threshold value
-    threshold = st.slider('Threshold', min_value=0.0, max_value=1.0, value=0.4)
+    threshold = 0.5
     
     # Set maximum distance for local maxima and minima
-    max_distance = st.slider('Max Distance', min_value=1, max_value=20, value=10)
+    max_distance = 10
     
     data = corr_matrix
     # Find local maxima and minima exceeding the threshold
