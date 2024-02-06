@@ -301,19 +301,34 @@ def display_ndsi_heatmap(results, threshold, max_distance):
 
     return minima_x, minima_y, maxima_x, maxima_y, data
 
-def save_ndsi_values(minima_x, minima_y, maxima_x, maxima_y, corr_matrix):
-    # Calculate NDSI for minima points
-    ndsi_min = (corr_matrix.values[minima_x, minima_y] - corr_matrix.values[minima_y, minima_x]) / (corr_matrix.values[minima_x, minima_y] + corr_matrix.values[minima_y, minima_x])
-    
-    # Calculate NDSI for maxima points
-    ndsi_max = (corr_matrix.values[maxima_x, maxima_y] - corr_matrix.values[maxima_y, maxima_x]) / (corr_matrix.values[maxima_x, maxima_y] + corr_matrix.values[maxima_y, maxima_x])
+@st.cache_data
+def calculate_ndsi(data, tuple_list):
+    """
+    Calculate Normalized Difference Spectral Index (NDSI) for each pair of spectral bands.
 
-    # Combine into a dataframe
-    df = pd.DataFrame({'Minima NDSI': ndsi_min, 'Maxima NDSI': ndsi_max})
+    Parameters:
+    - data : DataFrame
+        Original data containing spectral bands.
+    - tuple_list : list of tuples
+        List where each tuple contains the names of two spectral bands.
 
-    # Save to file
-    df.to_csv('ndsi_values.csv', index=False)
-    st.success('NDSI values saved successfully!')
+    Returns:
+    - ndsi_df : DataFrame
+        DataFrame where each column represents a pair of spectral bands,
+        and the values are the corresponding NDSI values calculated as (a - b) / (a + b),
+        where 'a' and 'b' are the values of the respective spectral bands.
+    """
+    ndsi_df = pd.DataFrame()
+
+    # Calculate NDSI for each tuple in the list
+    for tup in tuple_list:
+        a = data[tup[0]]
+        b = data[tup[1]]
+        ndsi = (a - b) / (a + b)
+        column_name = f"{tup[0]}-{tup[1]}"
+        ndsi_df[column_name] = ndsi
+
+    return ndsi_df
 
 @st.cache_data
 def replace_missing_with_average(data):
