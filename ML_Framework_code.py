@@ -127,11 +127,11 @@ if uploaded_file is not None:
                 threshold = st.slider('Threshold', min_value=0.0, max_value=1.0, value=0.4)
                 # Set maximum distance for local maxima and minima
                 max_distance = st.slider('Max Distance', min_value=1, max_value=20, value=10)
-                minima_x, minima_y, maxima_x, maxima_y, corr_matrix = functions.display_ndsi_heatmap(df_results,threshold,max_distance)
+                top_bands_list = functions.display_ndsi_heatmap(df_results,threshold,max_distance)
 
                 # Button to save NDSI values
                 if st.button('Save NDSI Values'):
-                    functions.save_ndsi_values(minima_x, minima_y, maxima_x, maxima_y, corr_matrix)
+                    functions.calculate_ndsi(data, top_bands_list )
             
 
     st.header("Step 5: Data Processing Options")
