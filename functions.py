@@ -271,9 +271,9 @@ def display_ndsi_heatmap(results, threshold, max_distance):
 
     # Create a Plotly heatmap
     fig = go.Figure(data=go.Heatmap(
-        z=corr_matrix.values,
-        x=corr_matrix.columns,
-        y=corr_matrix.index,
+        z=data.values,
+        x=data.columns,
+        y=data.index,
         colorscale='RdBu_r',  # Choose the color scale
         zmin=-1, zmax=1,  # Set the color scale range
         colorbar=dict(title='Pearson Correlation')  # Add colorbar title
@@ -281,10 +281,10 @@ def display_ndsi_heatmap(results, threshold, max_distance):
     
     # Add local maxima and minima
     maxima_x, maxima_y = np.where(local_max)
-    fig.add_trace(go.Scatter(x=corr_matrix.columns[maxima_y], y=corr_matrix.index[maxima_x], mode='markers', marker=dict(color='red'), name='Local Maxima'))
+    fig.add_trace(go.Scatter(x=data.columns[maxima_y], y=data.index[maxima_x], mode='markers', marker=dict(color='red'), name='Local Maxima'))
 
     minima_x, minima_y = np.where(local_min)
-    fig.add_trace(go.Scatter(x=corr_matrix.columns[minima_y], y=corr_matrix.index[minima_x], mode='markers', marker=dict(color='blue'), name='Local Minima'))
+    fig.add_trace(go.Scatter(x=data.columns[minima_y], y=data.index[minima_x], mode='markers', marker=dict(color='blue'), name='Local Minima'))
 
     # Update layout
     fig.update_layout(
