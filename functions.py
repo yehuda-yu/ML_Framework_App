@@ -12,6 +12,8 @@ import plotly.graph_objects as go
 import plotly.subplots as sp
 import plotly.express as px
 from sklearn.inspection import PartialDependenceDisplay
+import itertools
+from scipy import stats
 
 @st.cache_data
 def perform_pca(data, target_column, categorical_columns, variance_percentage):
