@@ -126,7 +126,7 @@ if uploaded_file is not None:
                 # User input for threshold value
                 threshold = st.slider('Threshold', min_value=0.0, max_value=1.0, value=0.4)
                 # Set maximum distance for local maxima and minima
-                max_distance = st.slider('Max Distance', min_value=1, max_value=20, value=10)
+                max_distance = st.slider('Max Distance', min_value=1, max_value=50, value=10)
                 top_bands_list = functions.display_ndsi_heatmap(df_results,threshold,max_distance)
 
                 # Show the NDSI results
