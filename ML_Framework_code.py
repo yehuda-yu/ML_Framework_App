@@ -116,7 +116,13 @@ if uploaded_file is not None:
         
         elif reduction_method == "Feature Selection":
             # Add code for feature selection method options (e.g., Recursive Feature Elimination, SelectKBest)
-            selection_method = st.selectbox("Choose selection method", ["Recursive Feature Elimination", "SelectKBest"])
+            selection_method = st.selectbox("Choose selection method", ["NDSI", "SelectKBest"])
+            if selection_method == "NDSI":
+                # Call the NDSI Pearson function
+                df_results = functions.NDSI_pearson(data, target_column)
+                st.subheader("NDSI Pearson Results")
+                st.dataframe(df_results)
+            
 
     st.header("Step 5: Data Processing Options")
 
