@@ -131,7 +131,8 @@ if uploaded_file is not None:
 
                 # Button to save NDSI values
                 if st.button('Save NDSI Values'):
-                    functions.calculate_ndsi(data, top_bands_list )
+                    data = functions.calculate_ndsi(data, top_bands_list )
+                    st.dataframe(data)
             
 
     st.header("Step 5: Data Processing Options")
