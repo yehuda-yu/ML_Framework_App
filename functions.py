@@ -298,7 +298,23 @@ def display_ndsi_heatmap(results, threshold, max_distance):
 
     # Display the Plotly figure using st.plotly_chart()
     st.plotly_chart(fig)
+
+    return minima_x, minima_y, maxima_x, maxima_y, data
+
+def save_ndsi_values(minima_x, minima_y, maxima_x, maxima_y, corr_matrix):
+    # Calculate NDSI for minima points
+    ndsi_min = (corr_matrix.values[minima_x, minima_y] - corr_matrix.values[minima_y, minima_x]) / (corr_matrix.values[minima_x, minima_y] + corr_matrix.values[minima_y, minima_x])
     
+    # Calculate NDSI for maxima points
+    ndsi_max = (corr_matrix.values[maxima_x, maxima_y] - corr_matrix.values[maxima_y, maxima_x]) / (corr_matrix.values[maxima_x, maxima_y] + corr_matrix.values[maxima_y, maxima_x])
+
+    # Combine into a dataframe
+    df = pd.DataFrame({'Minima NDSI': ndsi_min, 'Maxima NDSI': ndsi_max})
+
+    # Save to file
+    df.to_csv('ndsi_values.csv', index=False)
+    st.success('NDSI values saved successfully!')
+
 @st.cache_data
 def replace_missing_with_average(data):
     """Replace missing values with the average of each column."""
