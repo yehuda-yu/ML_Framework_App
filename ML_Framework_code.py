@@ -130,7 +130,7 @@ if uploaded_file is not None:
                 top_bands_list = functions.display_ndsi_heatmap(df_results,threshold,max_distance)
 
                 # Show the NDSI results
-                with st.expander("PCA Results"):
+                with st.expander("NDSI Results"):
                     final_ndsi_df = functions.calculate_ndsi(data, top_bands_list)
                     # Show the user the number of columns after NDSI calculation
                     st.info(f"Number of columns after NDSI calculation: {len(final_ndsi_df.columns)}")
