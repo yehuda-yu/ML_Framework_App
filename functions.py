@@ -258,6 +258,34 @@ def NDSI_pearson(data, target_col):
     df_results["Abs_Pearson_Corr"] = df_results["Pearson_Corr"].abs()
     
     return df_results.sort_values('Abs_Pearson_Corr', ascending=False)
+
+@st.cache_data
+def display_ndsi_heatmap(results):
+    # Pivot the dataframe to have bands as rows and columns
+    corr_matrix = results.pivot(index='band1', columns='band2', values='Pearson_Corr')
+
+    # Create a Plotly heatmap
+    fig = go.Figure(data=go.Heatmap(
+        z=corr_matrix.values,
+        x=corr_matrix.columns,
+        y=corr_matrix.index,
+        colorscale='RdBu_r',  # Choose the color scale
+        zmin=-1, zmax=1,  # Set the color scale range
+        colorbar=dict(title='Pearson Correlation')  # Add colorbar title
+    ))
+
+    # Update layout
+    fig.update_layout(
+        title='NDSI',
+        xaxis_title='Band 2',
+        yaxis_title='Band 1',
+        height=600,  # Adjust height as needed
+        width=800,  # Adjust width as needed
+        template='plotly'  # Choose plotly theme
+    )
+
+    # Display the Plotly figure using st.plotly_chart()
+    st.plotly_chart(fig)
     
 @st.cache_data
 def replace_missing_with_average(data):
