@@ -261,17 +261,10 @@ def NDSI_pearson(data, target_col):
     return df_results.sort_values('Abs_Pearson_Corr', ascending=False)
 
 @st.cache_data
-def display_ndsi_heatmap(results):
+def display_ndsi_heatmap(results, threshold, max_distance):
     # Pivot the dataframe to have bands as rows and columns
-    corr_matrix = results.pivot(index='band1', columns='band2', values='Pearson_Corr')
+    data = results.pivot(index='band1', columns='band2', values='Pearson_Corr')
 
-    # User input for threshold value
-    threshold = 0.5
-    
-    # Set maximum distance for local maxima and minima
-    max_distance = 10
-    
-    data = corr_matrix
     # Find local maxima and minima exceeding the threshold
     local_max = (maximum_filter(data, footprint=np.ones((max_distance, max_distance))) == data) & (data > threshold)
     local_min = (minimum_filter(data, footprint=np.ones((max_distance, max_distance))) == data) & (data < -threshold)
