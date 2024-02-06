@@ -122,7 +122,13 @@ if uploaded_file is not None:
                 df_results = functions.NDSI_pearson(data, target_column)
                 st.subheader("NDSI Pearson Results")
                 st.dataframe(df_results)
-                functions.display_ndsi_heatmap(df_results)
+               
+                # User input for threshold value
+                threshold = st.slider('Threshold', min_value=0.0, max_value=1.0, value=0.4)
+                
+                # Set maximum distance for local maxima and minima
+                max_distance = st.slider('Max Distance', min_value=1, max_value=20, value=10)
+                functions.display_ndsi_heatmap(df_results,threshold,max_distance)
             
 
     st.header("Step 5: Data Processing Options")
