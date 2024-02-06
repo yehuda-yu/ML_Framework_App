@@ -209,13 +209,14 @@ def time_series_feature_extraction(data, target_col, categorical_columns):
     return parameters_df
 
 @st.cache_data
-def NDSI_pearson(data, target_col):
+def NDSI_pearson(data,categorical_columns,  target_col):
     '''
     Calculates the Pearson correlation coefficient and p-value
     between the normalized difference spectral index (NDSI) and the target column.
 
     Parameters:
     - data: DataFrame, input data containing spectral bands and target column
+    - categorical_columns: list, list of the categorial colums to drop before ndsi
     - target_col: str, name of the target column
 
     Returns:
@@ -226,6 +227,8 @@ def NDSI_pearson(data, target_col):
     y = data[target_col].values
     # Delete target column from features dataframe
     df = data.drop(target_col, axis=1)
+    # drop non numeric columns
+    df = data.drop(categorical_columns, axis=1)
     # Convert column names to str
     df.columns = df.columns.map(str)
     bands_list = df.columns
