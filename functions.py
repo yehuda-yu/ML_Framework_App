@@ -204,6 +204,58 @@ def time_series_feature_extraction(data, target_col, categorical_columns):
     parameters_df[target_col] = target_col_data
     
     return parameters_df
+
+@st.cache_data
+def NDSI_pearson(data, target_col):
+    '''
+    Calculates the Pearson correlation coefficient and p-value
+    between the normalized difference spectral index (NDSI) and the target column.
+
+    Parameters:
+    - data: DataFrame, input data containing spectral bands and target column
+    - target_col: str, name of the target column
+
+    Returns:
+    - df_results: DataFrame, contains band pairs, Pearson correlation, p-value, and absolute Pearson correlation
+    '''
+
+    # Extract labels column
+    y = data[target_col].values
+    # Delete target column from features dataframe
+    df = data.drop(target_col, axis=1)
+    # Convert column names to str
+    df.columns = df.columns.map(str)
+    bands_list = df.columns
+
+    # All possible pairs of columns
+    all_pairs = list(itertools.combinations(bands_list, 2))
+
+    # Initialize arrays for correlation values and p-values
+    corrs = np.zeros(len(all_pairs))
+    pvals = np.zeros(len(all_pairs))
+
+    # Calculate the NDSI and Pearson correlation
+    progress_bar = st.progress(0)
+    for index, pair in enumerate(all_pairs):
+        a = df[pair[0]].values
+        b = df[pair[1]].values
+        Norm_index = (a - b) / (a + b)
+        # Pearson correlation and p-value
+        corr, pval = stats.pearsonr(Norm_index, y)
+        corrs[index] = corr
+        pvals[index] = pval
+        # Update progress bar
+        progress_bar.progress((index + 1) / len(all_pairs))
+
+    # Convert results to DataFrame
+    col1 = [tple[0] for tple in all_pairs]
+    col2 = [tple[1] for tple in all_pairs]
+    index_col = [f"{tple[0]},{tple[1]}" for tple in all_pairs]
+    data = {'band1': col1, "band2": col2, 'Pearson_Corr': corrs, 'p_value': pvals}
+    df_results = pd.DataFrame(data=data, index=index_col)
+    df_results["Abs_Pearson_Corr"] = df_results["Pearson_Corr"].abs()
+    
+    return df_results.sort_values('Abs_Pearson_Corr', ascending=False)
     
 @st.cache_data
 def replace_missing_with_average(data):
