@@ -119,7 +119,7 @@ if uploaded_file is not None:
             selection_method = st.selectbox("Choose selection method", ["NDSI", "SelectKBest"])
             if selection_method == "NDSI":
                 # Call the NDSI Pearson function
-                df_results = functions.NDSI_pearson(data, target_column)
+                df_results = functions.NDSI_pearson(data, categorical_columns, target_column)
                 st.subheader("NDSI Pearson Results")
                 st.dataframe(df_results)
                
