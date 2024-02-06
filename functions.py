@@ -14,6 +14,7 @@ import plotly.express as px
 from sklearn.inspection import PartialDependenceDisplay
 import itertools
 from scipy import stats
+from scipy.ndimage.filters import maximum_filter, minimum_filter
 
 @st.cache_data
 def perform_pca(data, target_column, categorical_columns, variance_percentage):
