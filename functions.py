@@ -285,6 +285,10 @@ def display_ndsi_heatmap(results, threshold, max_distance):
     local_max = (maximum_filter(data, footprint=np.ones((max_distance, max_distance))) == data) & (data > threshold)
     local_min = (minimum_filter(data, footprint=np.ones((max_distance, max_distance))) == data) & (data < -threshold)
 
+    # Get indices of local maxima and minima
+    maxima_x, maxima_y = np.where(local_max)
+    minima_x, minima_y = np.where(local_min)
+
     # Create lists to store band1 and band2 indices for minima and maxima
     minima_list = [(data.index[minima_x][i], data.columns[minima_y][i]) for i in range(len(minima_x))]
     maxima_list = [(data.index[maxima_x][i], data.columns[maxima_y][i]) for i in range(len(maxima_x))]
