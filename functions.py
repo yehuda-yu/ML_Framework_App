@@ -264,6 +264,17 @@ def display_ndsi_heatmap(results):
     # Pivot the dataframe to have bands as rows and columns
     corr_matrix = results.pivot(index='band1', columns='band2', values='Pearson_Corr')
 
+    # User input for threshold value
+    threshold = st.slider('Threshold', min_value=0.0, max_value=1.0, value=0.4)
+    
+    # Set maximum distance for local maxima and minima
+    max_distance = st.slider('Max Distance', min_value=1, max_value=20, value=10)
+    
+    data = corr_matrix
+    # Find local maxima and minima exceeding the threshold
+    local_max = (maximum_filter(data, footprint=np.ones((max_distance, max_distance))) == data) & (data > threshold)
+    local_min = (minimum_filter(data, footprint=np.ones((max_distance, max_distance))) == data) & (data < -threshold)
+
     # Create a Plotly heatmap
     fig = go.Figure(data=go.Heatmap(
         z=corr_matrix.values,
@@ -273,6 +284,13 @@ def display_ndsi_heatmap(results):
         zmin=-1, zmax=1,  # Set the color scale range
         colorbar=dict(title='Pearson Correlation')  # Add colorbar title
     ))
+    
+    # Add local maxima and minima
+    maxima_x, maxima_y = np.where(local_max)
+    fig.add_trace(go.Scatter(x=corr_matrix.columns[maxima_y], y=corr_matrix.index[maxima_x], mode='markers', marker=dict(color='red'), name='Local Maxima'))
+
+    minima_x, minima_y = np.where(local_min)
+    fig.add_trace(go.Scatter(x=corr_matrix.columns[minima_y], y=corr_matrix.index[minima_x], mode='markers', marker=dict(color='blue'), name='Local Minima'))
 
     # Update layout
     fig.update_layout(
