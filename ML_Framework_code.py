@@ -4,7 +4,8 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, LabelEncoder
 from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor, AdaBoostRegressor, BaggingRegressor, GradientBoostingRegressor
 from sklearn.svm import SVR, NuSVR
-from sklearn.linear_model import LinearRegression, LassoCV, LassoLarsCV, LarsCV, Lasso, OrthogonalMatchingPursuitCV, LassoLars, OrthogonalMatchingPursuit, ElasticNetCV, ElasticNet, TweedieRegressor, DummyRegressor, HuberRegressor, RANSACRegressor, BayesianRidge, Ridge, LassoLarsIC, Lars, PassiveAggressiveRegressor, SGDRegressor
+from sklearn.linear_model import LinearRegression, LassoCV, LassoLarsCV, LarsCV, Lasso, OrthogonalMatchingPursuitCV, LassoLars, OrthogonalMatchingPursuit, ElasticNetCV, ElasticNet, TweedieRegressor, HuberRegressor, RANSACRegressor, BayesianRidge, Ridge, LassoLarsIC, Lars, PassiveAggressiveRegressor, SGDRegressor
+from sklearn.dummy import DummyRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.kernel_ridge import KernelRidge
