@@ -5,16 +5,25 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, LabelEncoder
-from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import RandomizedSearchCV, train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from sklearn.inspection import permutation_importance
+from sklearn.inspection import permutation_importance, PartialDependenceDisplay
 import plotly.graph_objects as go
 import plotly.subplots as sp
 import plotly.express as px
-from sklearn.inspection import PartialDependenceDisplay
 import itertools
 from scipy import stats
 from scipy.ndimage.filters import maximum_filter, minimum_filter
+from sklearn.linear_model import LassoCV, LassoLarsCV, LarsCV, Lasso, OrthogonalMatchingPursuitCV, LassoLars, OrthogonalMatchingPursuit, ElasticNetCV, ElasticNet, TweedieRegressor, DummyRegressor, HuberRegressor, RANSACRegressor, LinearRegression, BayesianRidge, Ridge, TransformedTargetRegressor, LassoLarsIC, Lars, PassiveAggressiveRegressor, SVR, NuSVR, SGDRegressor
+from sklearn.neural_network import MLPRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.ensemble import ExtraTreesRegressor, AdaBoostRegressor, GradientBoostingRegressor, RandomForestRegressor, BaggingRegressor
+from sklearn.kernel_ridge import KernelRidge
+import lightgbm as lgb
+import xgboost as xgb
+from scipy.stats import uniform, randint, loguniform
+from sklearn.utils.fixes import loguniform
+from lazypredict.Supervised import LazyRegressor
 
 @st.cache_data
 def perform_pca(data, target_column, categorical_columns, variance_percentage):
@@ -365,31 +374,31 @@ def replace_missing_with_average(data):
     """Replace missing values with the average of each column."""
     return data.fillna(data.mean())
 
-st.cache_data
+@st.cache_data
 def replace_missing_with_zero(data):
     """Replace missing values with zero."""
     return data.fillna(0)
 
-st.cache_data
+@st.cache_data
 def delete_missing_values(data):
     """Delete rows containing missing values."""
     return data.dropna()
 
-st.cache_data
+@st.cache_data
 def normalize_data_minmax(data):
     """Normalize data using Min-Max scaling."""
     scaler = MinMaxScaler()
     normalized_data = scaler.fit_transform(data)
     return pd.DataFrame(normalized_data, columns=data.columns)
 
-st.cache_data
+@st.cache_data
 def normalize_data_standard(data):
     """Standardize data using Z-score standardization."""
     scaler = StandardScaler()
     standardized_data = scaler.fit_transform(data)
     return pd.DataFrame(standardized_data, columns=data.columns)
 
-st.cache_data
+@st.cache_data
 def encode_categorical_onehot(data):
     """One-hot encode categorical variables."""
     categorical_columns = data.select_dtypes(include=['object']).columns
@@ -399,7 +408,7 @@ def encode_categorical_onehot(data):
     data = data.drop(categorical_columns, axis=1)
     return data
 
-st.cache_data
+@st.cache_data
 def encode_categorical_label(data):
     """Label encode categorical variables."""
     le = LabelEncoder()
@@ -408,176 +417,1316 @@ def encode_categorical_label(data):
         data[column] = le.fit_transform(data[column])
     return data
 
-st.cache_data
-def train_models(models, param_grids, X_train, y_train):
+@st.cache_data
+def evaluate_regression_models(X_train, X_test, y_train, y_test):
+     """
+    This function evaluates various regression models using LazyRegressor.
+    
+    Inputs:
+    - X_train: Training features (array-like, shape (n_samples, n_features))
+    - X_test: Testing features (array-like, shape (n_samples, n_features))
+    - y_train: Training target (array-like, shape (n_samples,))
+    - y_test: Testing target (array-like, shape (n_samples,))
+    
+    Returns:
+    - models_df: DataFrame containing information about various regression models
+    """
     try:
-        best_models = {}  # Store the best models for each type
-        best_scores = {}  # Store the best scores for each type
-        best_params = {}  # Store the best parameters for each type
-
-        for model_type in models.keys():
-            st.write(f"Training {model_type} model...")
-            # Perform the randomized search with cross-validation
-            search = RandomizedSearchCV(models[model_type], param_grids[model_type], cv=3, n_iter=10, random_state=42)
-            search.fit(X_train, y_train)
-
-            # Store the best model, score, and parameters
-            best_models[model_type] = search.best_estimator_
-            best_scores[model_type] = round(search.best_score_, 2)
-            best_params[model_type] = search.best_params_
-
-        return best_models, best_scores, best_params
+        # Initialize LazyRegressor
+        reg = LazyRegressor(verbose=0, ignore_warnings=False, custom_metric=None)
+        
+        # Fit LazyRegressor on the data
+        models, _ = reg.fit(X_train, X_test, y_train, y_test)
+        
+        # Convert model dictionary to DataFrame
+        models_df = pd.DataFrame(models)
+        
+        return models_df
 
     except Exception as e:
         st.error(f"An error occurred while training models: {e}")
-        return None, None, None
+        return None
+@st.cache_data
+def tune_LassoCV_model(X_train, y_train):
+    try:
+        # Define the model
+        lasso_cv = LassoCV()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "eps": [0.001, 0.01, 0.1],
+            # wide range of alpha values
+            "n_alphas": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+            "fit_intercept": [True, False],
+            "precompute": ['auto', True, False],
+            "max_iter": [500, 1000, 2000, 3000],
+            "tol": [0.0001, 0.001, 0.01],
+            "cv": [3, 5, 10],  # Cross-validation strategy
+            "positive": [False, True],
+            "selection": ['cyclic', 'random']
+        }
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(lasso_cv, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_,random_search.best_score_
+    
+    except Exception as e:
+        st.error(f"An error occurred while tuning LassoCV model: {e}")
+        return None
+
+@st.cache_data
+def tune_LassoLarsCV_model(X_train, y_train):
+    try:
+
+        # Define the model
+        lasso_lars_cv = LassoLarsCV()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "fit_intercept": [True, False],
+            "verbose": [True, False],
+            "max_iter": [500, 1000, 1500],
+            "precompute": [True, False, 'auto'],
+            "max_n_alphas": [500, 1000, 1500],
+            "eps": [1e-16, 1e-12, 1e-8],
+            "copy_X": [True, False],
+            "positive": [True, False]
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(lasso_lars_cv, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_score_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning LassoLarsCV model: {e}")
+        return None
+@st.cache_data  
+def tune_LarsCV(X_train, y_train):
+    try:
+
+        # Define the model
+        lars_cv = LarsCV()
+
+        param_dist = {
+            'fit_intercept': [True, False],
+            'verbose': [False, True],
+            'max_iter': randint(100, 1000),
+            'precompute': ['auto', True, False],
+            'cv': randint(3, 10),
+            'max_n_alphas': randint(100, 2000),
+            'n_jobs': [-1, None],
+            'eps': uniform(1e-8, 1e-3),
+            'copy_X': [True, False]
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(lars_cv, param_distributions=param_dist, n_iter=100, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        return random_search.best_estimator_, random_search.best_params_
+    
+    except Exception as e:
+        st.error(f"An error occurred while tuning LarsCV model: {e}")
+        return None
+@st.cache_data
+def tune_OrthogonalMatchingPursuitCV(X_train, y_train):
+    try:
+
+        # Define the model
+        omp_cv = OrthogonalMatchingPursuitCV()
+
+        param_dist = {
+            "copy": [True, False],
+            "fit_intercept": [True, False],
+            # "max_iter": randint(10, 100),
+            "cv": [3, 5, 10],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(omp_cv, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning OrthogonalMatchingPursuitCV model: {e}")
+        return None
+@st.cache_data  
+def tune_NuSVR(X_train, y_train,):
+    try:
+        # Define the model
+        nusvr = NuSVR()
+
+        param_dist = {
+            "nu": uniform(0.1, 0.9),
+            "C": uniform(0.1, 10),
+            "kernel": ['linear', 'poly', 'rbf', 'sigmoid'],
+            "degree": randint(1, 10),
+            "gamma": ['scale', 'auto', uniform(0.001, 1)],
+            "coef0": uniform(-1, 1),
+            "shrinking": [True, False],
+            "tol": uniform(1e-4, 1e-2),
+            "cache_size": [100, 200, 300],
+            "verbose": [True],
+            "max_iter": [-1, 1000, 2000]
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(nusvr, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning NuSVR model: {e}")
+        return None
+@st.cache_data    
+def tune_lasso(X_train, y_train):
+    try:
+        # Define the model
+        lasso = Lasso()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "alpha": [0.1, 0.5, 1.0, 2.0, 5.0, 10.0],
+            "fit_intercept": [True, False],
+            "normalize": [True, False],
+            "precompute": ['auto', True, False],
+            "copy_X": [True, False],
+            "max_iter": [1000, 2000, 3000],
+            "tol": [0.0001, 0.001, 0.01],
+            "warm_start": [True, False],
+            "positive": [False, True],
+            "selection": ['cyclic', 'random']
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(lasso, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning Lasso model: {e}")
+        return None
+@st.cache_data
+def tune_LassoLarsCV(X_train, y_train):
+    try:
+        # Define the model
+        lasso_lars_cv = LassoLarsCV()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "fit_intercept": [True, False],
+            "verbose": [True, False],
+            "normalize": [True, False],
+            "precompute": [True, False, 'auto'],
+            "max_iter": [500, 1000, 1500],
+            "eps": [1e-16, 1e-12, 1e-8],
+            "copy_X": [True, False],
+            "positive": [True, False]
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(lasso_lars_cv, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning LassoLarsCV model: {e}")
+        return None
+    
+@st.cache_data
+def omp_hyperparam_search(X_train, y_train):
+    try:
+
+        # Define the model
+        omp = OrthogonalMatchingPursuit()
+
+        # Define hyperparameters to tune
+        param_dist = {
+                "n_nonzero_coefs": randint(1, X_train.shape[1] // 2),  # Set a reasonable range for n_nonzero_coefs
+                "tol": uniform(1e-5, 1e-2),  # Set a reasonable range for tol
+                "fit_intercept": [True, False],
+                "precompute": ['auto', True, False],
+            }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(omp, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning OrthogonalMatchingPursuit model: {e}")
+        return None
+@st.cache_data   
+def elastic_net_cv_hyperparam_search(X_train, y_train):
+    try:
+
+        # Define the model
+        elastic_net_cv = ElasticNetCV()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "l1_ratio": uniform(0, 1),  # Set a reasonable range for l1_ratio
+            "eps": [1e-3, 1e-2, 1e-1],  # Set a reasonable range for eps
+            "n_alphas": [100, 200, 300, 400, 500],  # Set a reasonable range for n_alphas
+            "fit_intercept": [True, False],
+            "precompute": ['auto', True, False],
+            "max_iter": [500, 1000, 2000, 3000],  # Set a reasonable range for max_iter
+            "tol": [1e-4, 1e-3, 1e-2],  # Set a reasonable range for tol
+            "cv": [3, 5, 10],  # Set a reasonable range for cv
+            "positive": [False, True],
+            "selection": ['cyclic', 'random']
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(elastic_net_cv, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning ElasticNetCV model: {e}")
+        return None
+    
+@st.cache_data
+def elastic_net_hyperparam_search(X_train, y_train):
+    try:
+        # Define the model
+        elastic_net = ElasticNet()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "alpha": uniform(1e-6, 1.0),  # Set a reasonable range for alpha
+            "l1_ratio": uniform(0.01, 1.0),  # Set a reasonable range for l1_ratio
+            "fit_intercept": [True, False],
+            "normalize": [True, False],
+            "precompute": ['auto', True, False],
+            "max_iter": [1000, 2000, 3000],  # Set a reasonable range for max_iter
+            "tol": [1e-4, 1e-3, 1e-2],  # Set a reasonable range for tol
+            "warm_start": [True, False],
+            "positive": [False, True],
+            "selection": ['cyclic', 'random']
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(elastic_net, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_params_
+    
+    except Exception as e:
+        st.error(f"An error occurred while tuning ElasticNet model: {e}")
+        return None
+
+@st.cache_data
+def tweedie_regressor_hyperparam_search(X_train, y_train):
+    try:
+
+        # Define the model
+        tweedie_regressor = TweedieRegressor()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "power": [0, 1, 2],  # Set a reasonable range for power
+            "alpha": uniform(0, 1),  # Set a reasonable range for alpha
+            "fit_intercept": [True, False],
+            "link": ['auto', 'identity', 'log'],
+            #"solver": ["lbfgs", "newton-cholesky"],
+            "warm_start": [True, False],
+            "max_iter": [100, 500, 1000],  # Set a reasonable range for max_iter
+            "tol": uniform(1e-5, 1e-2),  # Set a reasonable range for tol
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(tweedie_regressor, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning TweedieRegressor model: {e}")
+        return None
+@st.cache_data
+def dummy_regressor_hyperparam_search(X_train, y_train):
+    try:
+
+        # Define the model
+        dummy_regressor = DummyRegressor()
+
+        # if y_train is numpy array
+        if isinstance(y_train, np.ndarray):
+            train_max, train_min, train_mean, train_median = np.max(y_train), np.min(y_train), np.mean(y_train), np.median(y_train)
+
+        elif isinstance(y_train, pd.Series):
+            train_max, train_min, train_mean, train_median = y_train.max(), y_train.min(), y_train.mean(), y_train.median()
+        
+        # Define hyperparameters to tune
+        param_dist = {
+            "strategy": ["mean", "median", "quantile", "constant"],
+            "constant": [0.0, 1.0, -1.0, train_max, train_min, train_mean, train_median],
+            "quantile": [0.0, 0.25, 0.5, 0.75, 1.0],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(dummy_regressor, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning DummyRegressor model: {e}")
+        return None
+@st.cache_data   
+def huber_regressor_hyperparam_search(X_train, y_train):
+    try:
+        # Define the model
+        huber_regressor = HuberRegressor()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "epsilon": uniform(1.0, 2.0),  # Epsilon controls the number of outliers
+            "alpha": uniform(1e-6, 1.0),  # Strength of L2 regularization
+            "max_iter": [100, 500, 1000],  # Maximum number of iterations
+            "fit_intercept": [True, False],
+            "tol": uniform(1e-5, 1e-2),  # Tolerance for stopping criterion
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(huber_regressor, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning HuberRegressor model: {e}")
+        return None
+@st.cache_data   
+def svr_hyperparam_search(X_train, y_train):
+    try:
+        # Define the model
+        svr = NuSVR()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "nu": uniform(0.1, 0.9),  # An upper bound on the fraction of margin errors and a lower bound of support vectors
+            "C": uniform(0.1, 100),  # Regularization parameter
+            "kernel": ['linear', 'poly', 'rbf', 'sigmoid'],  # Type of kernel
+            "degree": randint(1, 10),  # Degree of the polynomial kernel
+            "gamma": ['scale', 'auto', uniform(0.001, 1)],  # Kernel coefficient for 'rbf', 'poly' and 'sigmoid'
+            "coef0": uniform(-1, 1),  # Independent term in kernel function
+            "shrinking": [True, False],  # Whether to use the shrinking heuristic
+            "tol": uniform(1e-4, 1e-2),  # Tolerance for stopping criterion
+            "cache_size": [100, 200, 300],  # Size of the kernel cache
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(svr, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning SVR model: {e}")
+        return None
+    
+@st.cache_data
+def ransac_regressor_hyperparam_search(X_train, y_train):
+    try:
+        # Define the model
+        ransac_regressor = RANSACRegressor()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "min_samples": uniform(0.1, 0.5),  # Minimum number of samples for consensus set
+            "residual_threshold": uniform(1.0, 5.0),  # Maximum residual for inliers
+            "max_trials": [100, 200, 300],  # Maximum number of iterations for random sample selection
+            "max_skips": [10, 20, 30],  # Maximum number of iterations that can be skipped
+            "stop_n_inliers": [int(0.8 * X_train.shape[0]), int(0.9 * X_train.shape[0])],  # Stop iteration if at least this number of inliers are found
+            "stop_score": [0.95, 0.96, 0.97],  # Stop iteration if score is greater equal than this threshold
+            "stop_probability": [0.98, 0.99],  # Probability for stopping iteration
+            "loss": ["absolute_loss", "squared_loss"],  # Loss function for determining inliers/outliers
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(ransac_regressor, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_params_
+    
+    except Exception as e:
+        st.error(f"An error occurred while tuning RANSACRegressor model: {e}")
+        return None
+@st.cache_data
+def bayesian_ridge_hyperparam_search(X_train, y_train):
+    try:
+
+        # Define the model
+        bayesian_ridge = BayesianRidge()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "tol": uniform(1e-5, 1e-2),  # Tolerance for stopping criterion
+            "alpha_1": uniform(1e-8, 1e-4),  # Shape parameter for Gamma prior over alpha
+            "alpha_2": uniform(1e-8, 1e-4),  # Inverse scale parameter for Gamma prior over alpha
+            "lambda_1": uniform(1e-8, 1e-4),  # Shape parameter for Gamma prior over lambda
+            "lambda_2": uniform(1e-8, 1e-4),  # Inverse scale parameter for Gamma prior over lambda
+            "alpha_init": [None] + list(uniform(0.1, 1.0).rvs(10)),  # Initial value for alpha
+            "lambda_init": [None] + list(uniform(0.1, 1.0).rvs(10)),  # Initial value for lambda
+            "compute_score": [True, False],
+            "fit_intercept": [True, False],
+            "copy_X": [True, False],
+            "verbose": [False],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(bayesian_ridge, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_params_
+    
+    except Exception as e:
+        st.error(f"An error occurred while tuning BayesianRidge model: {e}")
+        return None
+
+
+@st.cache_data
+def ridge_hyperparam_search(X_train, y_train):
+    try:
+        # Define the model
+        ridge = Ridge()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "alpha": uniform(0.1, 10),  # Regularization strength
+            "fit_intercept": [True, False],
+            "copy_X": [True, False],
+            "max_iter": [100, 500, 1000],  # Maximum number of iterations
+            "tol": uniform(1e-5, 1e-2),  # Tolerance for stopping criterion
+            "solver": ["auto", "svd", "cholesky", "lsqr", "sparse_cg", "sag", "saga"],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(ridge, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_params_
+    
+    except Exception as e:
+        st.error(f"An error occurred while tuning Ridge model: {e}")
+        return None
+@st.cache_data
+def linear_regression_hyperparam_search(X_train, y_train):
+    try:
+        # Define the model
+        linear_regression = LinearRegression()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "fit_intercept": [True, False],
+            "normalize": [True, False],
+            "copy_X": [True, False],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(linear_regression, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning LinearRegression model: {e}")
+        return None
+@st.cache_data
+def transformed_target_regressor_hyperparam_search(X_train, y_train):
+    try:
+        # Define the model
+        transformed_target_regressor = TransformedTargetRegressor()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "regressor": [LinearRegression(), Ridge(), BayesianRidge()],
+            "transformer": [None, "quantile", "yeo-johnson", "box-cox"],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(transformed_target_regressor, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning TransformedTargetRegressor model: {e}")
+        return None
+
+@st.cache_data   
+def lasso_lars_ic_hyperparam_search(X_train, y_train):
+    try:
+
+        # Define the model
+        lasso_lars_ic = LassoLarsIC()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "criterion": ["aic", "bic"],
+            "normalize": [True, False],
+            "fit_intercept": [True, False],
+            "max_iter": [500, 1000, 1500],
+            "eps": [1e-16, 1e-12, 1e-8],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(lasso_lars_ic, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        # Return the best model
+        return random_search.best_estimator_, random_search.best_params_
+ 
+    except Exception as e:
+        st.error(f"An error occurred while tuning LassoLarsIC model: {e}")
+        return None
+@st.cache_data
+def lars_hyperparam_search(X_train, y_train):
+
+    try:
+
+        # Define the model
+        lars = Lars()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "fit_intercept": [True, False],
+            "normalize": [True, False],
+            "precompute": [True, False, 'auto'],
+            "n_nonzero_coefs": [100, 200, 300, 400, 500],
+            "eps": uniform(1e-16, 1e-8),
+            "copy_X": [True, False],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(lars, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning Lars model: {e}")
+        return None
+@st.cache_data
+def mlp_regressor_hyperparam_search(X_train, y_train):
+    try:
+        # Define the model
+        mlp_regressor = MLPRegressor()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "hidden_layer_sizes": [(100,), (200,), (300,), (400,), (500,)],
+            "activation": ["identity", "logistic", "tanh", "relu"],
+            "solver": ["lbfgs", "sgd", "adam"],
+            "alpha": loguniform(1e-6, 1.0),
+            "batch_size": [16, 32, 64, 128],
+            "learning_rate": ["constant", "invscaling", "adaptive"],
+            "learning_rate_init": loguniform(1e-4, 1e-2),
+            "power_t": loguniform(0.1, 1.0),
+            "max_iter": [200, 400, 600, 800, 1000],
+            "shuffle": [True, False],
+            "tol": loguniform(1e-5, 1e-2),
+            "warm_start": [True, False],
+            "momentum": np.linspace(0.1, 0.9, 20),
+            "nesterovs_momentum": [True, False],
+            "early_stopping": [True, False],
+            "validation_fraction": loguniform(0.1, 0.3),
+            "beta_1": np.linspace(0.1, 0.9, 20),
+            "beta_2": np.linspace(0.1, 0.9, 20),
+            "epsilon": loguniform(1e-8, 1e-4),
+            "n_iter_no_change": [10, 20, 30],
+            "max_fun": [15000],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(mlp_regressor, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning MLPRegressor model: {e}")
+        return None
+
+@st.cache_data
+def knn_regressor_hyperparam_search(X_train, y_train):
+    try:
+
+        # Define the model
+        knn_regressor = KNeighborsRegressor()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "n_neighbors": [3, 5, 7, 9, 11],
+            "weights": ["uniform", "distance"],
+            "algorithm": ["auto", "ball_tree", "kd_tree", "brute"],
+            "leaf_size": [10, 20, 30, 40, 50],
+            "p": [1,2],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(knn_regressor,  param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning KNeighborsRegressor model: {e}")
+        return None
+    
+@st.cache_data
+def extra_trees_regressor_hyperparam_search(X_train, y_train):
+    try:
+        # Define the model
+        extra_trees_regressor = ExtraTreesRegressor()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "n_estimators": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+            "criterion": ["mse", "mae", "poisson"],
+            "max_depth": [10, 20, 30, 40, 50],
+            "min_samples_split": [2, 5, 10],
+            "min_samples_leaf": [1, 2, 4],
+            "min_weight_fraction_leaf": uniform(0.0, 0.5),
+            "max_features": ["auto", "sqrt", "log2"],
+            "max_leaf_nodes": [None, 10, 20, 30],
+            "min_impurity_decrease": uniform(0.0, 0.5),
+            "bootstrap": [True, False],
+            "oob_score": [True, False],
+            "random_state": [None, 42],
+            "warm_start": [True, False],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(extra_trees_regressor, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning ExtraTreesRegressor model: {e}")
+        return None
+@st.cache_data    
+def kernel_ridge_hyperparam_search(X_train, y_train):
+    try:
+        # Define the model
+        kernel_ridge = KernelRidge()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "alpha": uniform(1e-6, 1.0),
+            "kernel": ["linear", "poly", "rbf", "sigmoid"],
+            "degree": randint(1, 10),
+            "gamma": ["scale", "auto", uniform(0.001, 1)],
+            "coef0": uniform(-1, 1),
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(kernel_ridge, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning KernelRidge model: {e}")
+        return None
+    
+@st.cache_data
+def ada_boost_regressor_hyperparam_search(X_train, y_train):
+    try:
+        # Define the model
+        ada_boost_regressor = AdaBoostRegressor()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "base_estimator": [None, LinearRegression(), Ridge(), BayesianRidge()],
+            "n_estimators": [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+            "learning_rate": uniform(0.1, 1.0),
+            "loss": ["linear", "square", "exponential"],
+            "random_state": [42],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(ada_boost_regressor, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning AdaBoostRegressor model: {e}")
+        return None
+@st.cache_data   
+def passive_aggressive_regressor_hyperparam_search(X_train, y_train):
+    try:
+        # Define the model
+        passive_aggressive_regressor = PassiveAggressiveRegressor()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "C": uniform(0.1, 10),
+            "fit_intercept": [True, False],
+            "max_iter": [1000, 2000, 3000],
+            "tol": uniform(1e-5, 1e-2),
+            "early_stopping": [True, False],
+            "validation_fraction": uniform(0.1, 0.3),
+            "n_iter_no_change": [5, 10, 15],
+            "shuffle": [True, False],
+            "loss": ["epsilon_insensitive", "squared_epsilon_insensitive"],
+            "random_state": [42],
+            "warm_start": [True, False],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(passive_aggressive_regressor, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning PassiveAggressiveRegressor model: {e}")
+        return None
+@st.cache_data   
+def gradient_boosting_regressor_hyperparam_search(X_train, y_train):
+    try:
+        # Define the model
+        gradient_boosting_regressor = GradientBoostingRegressor()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "loss": ["ls", "lad", "huber", "quantile"],
+            "learning_rate": [0.0001, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+            "n_estimators": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+            "subsample": uniform(0.1, 1.0),
+            "criterion": ["friedman_mse", "mse", "mae"],
+            "min_samples_split": [2, 5, 10],
+            "min_samples_leaf": [1, 2, 4],
+            "min_weight_fraction_leaf": uniform(0.0, 0.5),
+            "max_depth": [3, 4, 5, 6, 7],
+            "min_impurity_decrease": uniform(0.0, 0.5),
+            "max_features": ["auto", "sqrt", "log2"],
+            "max_leaf_nodes": [None, 10, 20, 30],
+            "warm_start": [True, False],
+            "validation_fraction": uniform(0.1, 0.3),
+            "n_iter_no_change": [5, 10, 15],
+            "tol": uniform(1e-5, 1e-2),
+            "random_state": [42],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(gradient_boosting_regressor, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning GradientBoostingRegressor model: {e}")
+        return None
+@st.cache_data    
+def tune_sgd_regressor(X_train, y_train):
+    try:
+        # Define the model
+        sgd_regressor = SGDRegressor()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "loss": ["squared_loss", "huber", "epsilon_insensitive", "squared_epsilon_insensitive"],
+            "penalty": ["l2", "l1", "elasticnet"],
+            "alpha": uniform(1e-6, 1.0),
+            "l1_ratio": uniform(0.01, 0.99),
+            "fit_intercept": [True, False],
+            "max_iter": [1000, 2000, 3000],
+            "tol": uniform(1e-5, 1e-2),
+            "shuffle": [True, False],
+            "epsilon": uniform(0.1, 1.0),
+            "learning_rate": ["constant", "optimal", "invscaling", "adaptive"],
+            "eta0": uniform(0.01, 1.0),
+            "power_t": uniform(0.1, 1.0),
+            "early_stopping": [True, False],
+            "validation_fraction": uniform(0.1, 0.3),
+            "n_iter_no_change": [5, 10, 15],
+            "warm_start": [True, False],
+            "average": [True, False],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(sgd_regressor, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning SGDRegressor model: {e}")
+        return None
+    
+@st.cache_data
+def tune_rf_regressor(X_train, y_train):
+    try:
+
+        # Define the model
+        rf_regressor = RandomForestRegressor()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            "n_estimators": [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)],
+            "criterion": ["mse", "mae"],
+            "max_depth": [10, 20, 30, 40, 50],
+            "min_samples_split": [2, 5, 10],
+            "min_samples_leaf": [1, 2, 4],
+            "min_weight_fraction_leaf": uniform(0.0, 0.5),
+            "max_features": ["auto", "sqrt", "log2"],
+            "max_leaf_nodes": [None, 10, 20, 30],
+            "min_impurity_decrease": uniform(0.0, 0.5),
+            "bootstrap": [True, False],
+            "oob_score": [True, False],
+            "warm_start": [True],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(rf_regressor, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning RandomForestRegressor model: {e}")
+        return None
+@st.cache_data    
+def tune_hist_gradient_boosting_regressor(X_train, y_train):
+    try:
+
+        # Define the model
+        hist_gradient_boosting_regressor = HistGradientBoostingRegressor()
+
+        # Define hyperparameters to tune
+        # Define the model
+        hist_gbr = HistGradientBoostingRegressor()
+        
+        # Define hyperparameters to tune
+        param_dist = {
+            'loss': ['squared_error', 'absolute_error', 'gamma', 'poisson'],
+            'learning_rate': uniform(0.01, 0.5),
+            'max_iter': randint(50, 500),
+            'max_leaf_nodes': randint(10, 100),
+            'max_depth': [None] + list(randint(2, 20)),
+            'min_samples_leaf': randint(5, 50),
+            'l2_regularization': uniform(0, 1),
+            'max_features': uniform(0.1, 1.0),
+            'max_bins': randint(32, 256),
+            'categorical_features': ['auto', 'from_dtype', None],
+            'early_stopping': ['auto', True, False],
+            'n_iter_no_change': randint(5, 20),
+            'validation_fraction': uniform(0.1, 0.3),
+            'tol': [1e-8, 1e-7, 1e-6, 1e-5],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(hist_gbr, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        return random_search.best_estimator_, random_search.best_params_
+
+    except Exception as e:
+        st.error(f"An error occurred while tuning HistGradientBoostingRegressor model: {e}")
+        return None
+@st.cache_data
+def tune_bagging_regressor(X_train, y_train):
+    try:
+        # Define the model
+        bagging_regressor = BaggingRegressor()
+
+        # Define hyperparameters to tune
+        param_dist = {
+            'n_estimators': randint(10, 200),
+            'max_samples': uniform(0.1, 1.0),
+            'max_features': uniform(0.1, 1.0),
+            'bootstrap': [True, False],
+            'bootstrap_features': [True, False],
+            'oob_score': [True, False],
+            'warm_start': [True, False],
+        }
+
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(bagging_regressor, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search.fit(X_train, y_train)
+
+        # Best parameters and best score
+        print("Best Parameters:", random_search.best_params_)
+        print("Best Score:", random_search.best_score_)
+
+        return random_search.best_estimator_, random_search.best_params_
+    
+    except Exception as e:
+        st.error(f"An error occurred while tuning BaggingRegressor model: {e}")
+        return None
+@st.cache_data
+def tune_lgbm_regressor(X_train, y_train):
+    try:
+        
+        # Define the model
+        lgbm_regressor = lgb.LGBMRegressor()
+        
+        # Define hyperparameters to tune
+        param_dist = {
+            'boosting_type': ['gbdt', 'dart', 'rf'],
+            'num_leaves': randint(10, 200),
+            'max_depth': randint(-1, 20),
+            'learning_rate': [0.01, 0.05, 0.1, 0.2, 0.3],
+            'n_estimators': randint(100, 1000),
+            'subsample_for_bin': randint(20000, 300000),
+            'min_split_gain': uniform(0, 1),
+            'min_child_weight': uniform(1e-5, 1e-1),
+            'min_child_samples': randint(5, 100),
+            'subsample': uniform(0.5, 1),
+            'subsample_freq': randint(0, 10),
+            'colsample_bytree': uniform(0.5, 1),
+            'reg_alpha': uniform(0, 1),
+            'reg_lambda': uniform(0, 1),
+            'random_state': randint(1, 1000)
+        }
+        
+        # Perform RandomizedSearchCV
+        random_search = RandomizedSearchCV(lgbm_regressor, param_distributions=param_dist,
+                                        n_iter=100, cv=5, random_state=42, n_jobs=-1)
+        random_search.fit(X_train, y_train)
+        
+        # Best parameters and best score
+        best_model = random_search.best_estimator_
+        best_params = random_search.best_params_
+
+        return best_model, best_params
+    
+    except Exception as e:
+        st.error(f"An error occurred while tuning LGBMRegressor model: {e}")
+        return None
+@st.cache_data
+def tune_xgb_regressor(X_train, y_train):
+    try:
+
+        # Define the parameter grid for the search
+        param_grid = {
+            'max_depth': [4, 5, 6, 7, 8],
+            'learning_rate': [0.1, 0.01, 0.001],
+            'n_estimators': [i for i in range(100, 1400, 150)],
+            'subsample': [i/10 for i in range(1, 10)],
+            'colsample_bytree': [i/10 for i in range(1, 10)],
+            'reg_alpha': [i/10 for i in range(1, 10)],
+            'reg_lambda': [i/10 for i in range(1, 10)],
+            'min_child_weight': [i for i in range(2, 8)]
+        }
+        
+        # Initialize the XGBoost model
+        xgb_model = xgb.XGBRegressor()
+        
+        # Perform the randomized search with cross-validation
+        search = RandomizedSearchCV(xgb_model, param_grid, cv=3, n_iter=10, random_state=42)
+        search.fit(X_train, y_train)
+        
+        # Get the best model, parameters, and score
+        best_model = search.best_estimator_
+        best_params = search.best_params_
+        best_score = search.best_score_
+        
+        return best_model, best_params
+    
+    except Exception as e:
+        st.error(f"An error occurred while tuning XGBRegressor model: {e}")
+        return None
 
 st.cache_data
-def evaluate_models(best_models, X_test, y_test):
+def evaluate_model(best_model, X_test, y_test):
+    """
+    Evaluate the best model on the test set using various metrics.
+    Args:
+        best_model: The best model to be evaluated.
+        X_test (pd.DataFrame): The test set features.
+        y_test (pd.Series): The test set target variable.
+    Returns:
+        pd.DataFrame: A DataFrame containing the evaluation results for the model.
+        dict: A dictionary containing the model evaluation results.
+    """
     try:
         # Create a DataFrame to store the evaluation results
         results = pd.DataFrame(columns=["Model", "MAE", "MSE", "RMSE", "R2", "RPD"])
 
-        # Evaluate each model on the test set and store the results in a dictionary
-        model_evaluations = {}
-        for model_type, model in best_models.items():
-            # Predict the target variable for the test set
-            y_test_pred = model.predict(X_test)
+        # Predict the target variable for the test set
+        y_test_pred = best_model.predict(X_test)
 
-            # Calculate MAE, MSE, RMSE, R2, etc.
-            mae = mean_absolute_error(y_test, y_test_pred)
-            mse = mean_squared_error(y_test, y_test_pred)
-            rmse = np.sqrt(mse)
-            r2 = r2_score(y_test, y_test_pred)
-            rpd = y_test.std() / rmse
+        # Calculate MAE, MSE, RMSE, R2, etc.
+        mae = mean_absolute_error(y_test, y_test_pred)
+        mse = mean_squared_error(y_test, y_test_pred)
+        rmse = np.sqrt(mse)
+        r2 = r2_score(y_test, y_test_pred)
+        rpd = y_test.std() / rmse
 
-            # Append the results to the dataframe
-            results = pd.concat([results, pd.DataFrame({"Model": [model_type],
-                                                        "MAE": [mae],
-                                                        "MSE": [mse],
-                                                        "RMSE": [rmse],
-                                                        "R2": [r2],
-                                                        "RPD": [rpd]})])
+        # Append the results to the dataframe
+        results = results.append({"Model": "Best Model",
+                                  "MAE": mae,
+                                  "MSE": mse,
+                                  "RMSE": rmse,
+                                  "R2": r2,
+                                  "RPD": rpd}, ignore_index=True)
 
-            # Store the model evaluation results in the dictionary
-            model_evaluations[model_type] = {
-                "y_test": y_test,
-                "y_test_pred": y_test_pred
-            }
+        # Store the model evaluation results in the dictionary
+        model_evaluation = {
+            "y_test": y_test,
+            "y_test_pred": y_test_pred
+        }
 
-        return results, model_evaluations
+        return results, model_evaluation
 
     except Exception as e:
-        st.error(f"An error occurred while evaluating models: {e}")
+        print(f"An error occurred while evaluating the model: {e}")
         return None, None
 
-st.cache_data
-def plot_scatter_subplots(model_evaluations):
+@st.cache_data
+def plot_scatter_subplot(model_evaluation):
     try:
-        fig = sp.make_subplots(rows=1, cols=len(model_evaluations),
-                               subplot_titles=list(model_evaluations.keys()))
+        fig = go.Figure()
 
-        colors = ['#2a9d8f', '#e76f51', '#f4a261', '#e9c46a', '#264653']  # Example color palette
-        color_iter = iter(colors)
+        # Scatter plot
+        scatter_trace = go.Scatter(x=model_evaluation["y_test_pred"],
+                                   y=model_evaluation["y_test"],
+                                   mode='markers',
+                                   marker=dict(color='blue', line=dict(color='black', width=1)),
+                                   name="Predictions vs True Values")
 
-        for i, (model_type, evaluation) in enumerate(model_evaluations.items()):
-            color = next(color_iter)  # Assign a distinct color to each model
+        # Reference line
+        reference_line = go.Scatter(x=[min(model_evaluation["y_test"]), max(model_evaluation["y_test"])],
+                                    y=[min(model_evaluation["y_test"]), max(model_evaluation["y_test"])],
+                                    mode='lines',
+                                    line=dict(color='black', dash='dash'),
+                                    showlegend=False)
 
-            scatter_trace = go.Scatter(x=evaluation["y_test_pred"],
-                                       y=evaluation["y_test"],
-                                       mode='markers',
-                                       marker=dict(color=color, line=dict(color='black', width=1)),
-                                       name=model_type)
+        fig.add_trace(scatter_trace)
+        fig.add_trace(reference_line)
 
-            reference_line = go.Scatter(x=[min(evaluation["y_test"]), max(evaluation["y_test"])],
-                                        y=[min(evaluation["y_test"]), max(evaluation["y_test"])],
-                                        mode='lines',
-                                        line=dict(color='black', dash='dash'),
-                                        showlegend=False)
+        fig.update_xaxes(title_text="Predictions (test set)")
+        fig.update_yaxes(title_text="True Values (test set)")
 
-            fig.add_trace(scatter_trace, row=1, col=i+1)
-            fig.add_trace(reference_line, row=1, col=i+1)
+        fig.update_layout(title_text="Scatter Subplot")
 
-            fig.update_xaxes(title_text="Predictions (test set)", row=1, col=i+1)
-            fig.update_yaxes(title_text="True Values (test set)", row=1, col=i+1)
-
-        fig.update_layout(title_text="Scatter Subplots",
-                          margin=dict(l=0, r=0, t=60, b=0))
-
-        st.plotly_chart(fig)
+        fig.show()
 
     except Exception as e:
-        st.error(f"An error occurred while plotting scatter subplots: {e}")
-        
+        print(f"An error occurred while plotting scatter subplot: {e}")
 
-st.cache_data       
-def plot_feature_importance(best_models, X_train, y_train):
-    try:
-        colors = ['#2a9d8f', '#e76f51', '#f4a261']   # Color palette for 3 models
-        color_iter = iter(colors)
+@st.cache_data
+def plot_feature_importance(best_model, X_train, y_train):
+                try:
+                    if hasattr(best_model, 'feature_importances_'):  # For models with feature_importances_
+                        importances = best_model.feature_importances_
+                    else:  # For models without feature_importances_
+                        result = permutation_importance(best_model, X_train, y_train, n_repeats=10, random_state=42)
+                        importances = result.importances_mean
 
-        fig = sp.make_subplots(rows=1, cols=len(best_models),
-                               specs=[[{'type': 'pie'}] * len(best_models)],
-                               subplot_titles=list(best_models.keys()))
+                    indices = np.argsort(importances)[::-1]
+                    names = [X_train.columns[i] for i in indices]
+                    importance_values = [importances[i] for i in indices]
 
-        for i, (model_type, model) in enumerate(best_models.items()):
-            color = next(color_iter)  # Assign next color from palette
+                    fig = go.Figure(go.Pie(labels=names, values=importance_values,
+                                            textinfo='label+percent', hole=0.3,
+                                            marker=dict(colors=plt.cm.tab20c.colors, line=dict(color='white', width=2))))
 
-            if hasattr(model, 'feature_importances_'):  # For Random Forest
-                importances = model.feature_importances_
-            else:  # For SVM Regression and other models
-                result = permutation_importance(model, X_train, y_train, n_repeats=10, random_state=42)
-                importances = result.importances_mean
+                    fig.update_layout(title_text="Feature Importance", margin=dict(l=0, r=0, t=60, b=0))
+                    st.plotly_chart(fig)
 
-            indices = np.argsort(importances)[::-1]
-            names = [X_train.columns[i] for i in indices]
-            importance_values = [importances[i] for i in indices]
+                except Exception as e:
+                    print(f"An error occurred while plotting feature importance: {e}")
+@st.cache_data
+def plot_pdp(best_model, X_train, features, target_column):
+                try:
+                    colors = ['#2a9d8f', '#e76f51', '#f4a261', '#738bd7', '#d35400', '#a6c7d8']
+                    num_features = len(features)
+                    max_plots_per_row = 5
+                    num_rows = (num_features + max_plots_per_row - 1) // max_plots_per_row
+                    num_cols = min(num_features, max_plots_per_row)
 
-            fig.add_trace(go.Pie(labels=names, values=importance_values,
-                                  textinfo='label+percent', hole=0.3,
-                                  marker=dict(colors=[color] * len(importances),line=dict(color='white', width=2)),  # Set color for pie chart
-                                  title=model_type),
-                          row=1, col=i+1)
+                    fig, axs = plt.subplots(num_rows, num_cols, figsize=(5 * num_cols, 5 * num_rows), constrained_layout=True)
 
-        fig.update_layout(title_text="Feature Importance",
-                          margin=dict(l=0, r=0, t=60, b=0))
+                    for j, selected_feature in enumerate(features):
+                        row_idx = j // max_plots_per_row
+                        col_idx = j % max_plots_per_row
 
-        st.plotly_chart(fig)
+                        features_info = {
+                            "features": [selected_feature],
+                            "kind": "average",
+                        }
 
-    except Exception as e:
-        st.error(f"An error occurred while plotting feature importance: {e}")
+                        if num_rows == 1:  # If only one row, axs is 1D
+                            display = PartialDependenceDisplay.from_estimator(
+                                best_model,
+                                X_train,
+                                **features_info,
+                                ax=axs[col_idx],
+                            )
+                        else:
+                            display = PartialDependenceDisplay.from_estimator(
+                                best_model,
+                                X_train,
+                                **features_info,
+                                ax=axs[row_idx, col_idx],
+                            )
 
-st.cache_data
-def plot_pdp(best_models, X_train, features, target_column):
-    try:
-        colors = ['#2a9d8f', '#e76f51', '#f4a261', '#738bd7', '#d35400', '#a6c7d8']
+                        color_idx = j % len(colors)
+                        axs[row_idx, col_idx].set_facecolor(colors[color_idx])
+                        axs[row_idx, col_idx].set_title(f"PDP for {selected_feature}")
+                        axs[row_idx, col_idx].set_xlabel(selected_feature)
+                        axs[row_idx, col_idx].set_ylabel(f"Partial Dependence for {target_column}")
 
-        for selected_feature in features:
-            st.subheader(f"Partial Dependence Plots (PDP) for {selected_feature}")
-            fig, axs = plt.subplots(1, len(best_models), figsize=(15, 6), constrained_layout=True)
+                    fig.suptitle(f"Partial Dependence of {target_column} on Selected Features", y=1.02)
+                    plt.tight_layout()
+                    st.pyplot(fig)
 
-            for i, (model_name, model) in enumerate(best_models.items()):
-                features_info = {
-                    "features": [selected_feature],
-                    "kind": "average",
-                }
-
-                display = PartialDependenceDisplay.from_estimator(
-                    model,
-                    X_train,
-                    **features_info,
-                    ax=axs[i],
-                )
-
-                axs[i].set_facecolor(colors[i % len(colors)])  # Cycle through colors
-                axs[i].set_title(f"{model_name}")
-                axs[i].set_xlabel(selected_feature)
-                axs[i].set_ylabel(f"Partial Dependence for {target_column}")
-
-            fig.suptitle(f"Partial Dependence of {target_column} on {selected_feature}")
-            plt.tight_layout()
-            st.pyplot(fig)
-
-    except Exception as e:
-        st.error(f"An error occurred while plotting PDP: {e}")
-
+                except Exception as e:
+                    print(f"An error occurred while plotting partial dependence: {e}")
