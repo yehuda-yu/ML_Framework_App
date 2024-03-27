@@ -271,8 +271,7 @@ if uploaded_file is not None:
                 "Hist Gradient Boosting Regressor": functions.tune_hist_gradient_boosting_regressor,
                 "Bagging Regressor": functions.tune_bagging_regressor,
                 "LightGBM Regressor": functions.tune_lgbm_regressor,
-                "XGBoost Regressor": functions.tune_xgb_regressor
-            }
+                "XGBoost Regressor": functions.tune_xgb_regressor}
 
             # Call the function based on the model name
             model_func = model_names_dict[model_name]
@@ -288,4 +287,3 @@ if uploaded_file is not None:
 
             # Plot the partial dependence
             functions.plot_pdp(best_model, X_train, features, target_column)
-
