@@ -22,7 +22,7 @@ from sklearn.ensemble import ExtraTreesRegressor, AdaBoostRegressor, GradientBoo
 from sklearn.kernel_ridge import KernelRidge
 import lightgbm as lgb
 import xgboost as xgb
-from scipy.stats import uniform, randint, loguniform
+from scipy.stats import uniform, randint
 from sklearn.utils.fixes import loguniform
 from lazypredict.Supervised import LazyRegressor
 
