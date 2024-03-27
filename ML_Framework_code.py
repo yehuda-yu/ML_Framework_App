@@ -13,7 +13,7 @@ import lightgbm as lgb
 import xgboost as xgb
 from sklearn.model_selection import RandomizedSearchCV, train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from scipy.stats import expon, reciprocal, uniform, randint, loguniform
+from scipy.stats import expon, reciprocal, uniform, randint
 from sklearn.utils.fixes import loguniform
 from sklearn.inspection import permutation_importance, PartialDependenceDisplay
 import plotly.graph_objects as go
