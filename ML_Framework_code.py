@@ -1,22 +1,30 @@
 import streamlit as st
 import pandas as pd
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, LabelEncoder
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.svm import SVR
-from sklearn.linear_model import LinearRegression
-from scipy.stats import expon, reciprocal
-from sklearn.model_selection import RandomizedSearchCV, cross_val_predict, train_test_split
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-import functions  # Custom functions.py file
-import pickle
-import seaborn as sns
-import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.inspection import permutation_importance
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, LabelEncoder
+from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor, AdaBoostRegressor, BaggingRegressor, GradientBoostingRegressor
+from sklearn.svm import SVR, NuSVR
+from sklearn.linear_model import LinearRegression, LassoCV, LassoLarsCV, LarsCV, Lasso, OrthogonalMatchingPursuitCV, LassoLars, OrthogonalMatchingPursuit, ElasticNetCV, ElasticNet, TweedieRegressor, DummyRegressor, HuberRegressor, RANSACRegressor, BayesianRidge, Ridge, LassoLarsIC, Lars, PassiveAggressiveRegressor, SGDRegressor
+from sklearn.neural_network import MLPRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.kernel_ridge import KernelRidge
+import lightgbm as lgb
+import xgboost as xgb
+from sklearn.model_selection import RandomizedSearchCV, train_test_split
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from scipy.stats import expon, reciprocal, uniform, randint, loguniform
+from sklearn.utils.fixes import loguniform
+from sklearn.inspection import permutation_importance, PartialDependenceDisplay
 import plotly.graph_objects as go
 import plotly.subplots as sp
 import plotly.express as px
-from sklearn.inspection import PartialDependenceDisplay
+import seaborn as sns
+import matplotlib.pyplot as plt
+import functions  # Custom functions.py file
+import pickle
+import lazypredict
+from lazypredict.Supervised import LazyRegressor
+
 
 # Set the font size for regular text
 plt.rcParams['font.size'] = 14
@@ -226,79 +234,58 @@ if uploaded_file is not None:
             X.columns = X.columns.astype(str)
 
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split_percentage, random_state=42) # split the data
-    
-            # Create two regression models: Random Forest and Linear Regression
-            models = {"Random Forest": RandomForestRegressor(),
-                      "SVM Regression": SVR(),
-                      "Linear Regression": LinearRegression()}
-    
-            # Define the parameter grids for each model
-            param_grids = {
-                "Random Forest": {'n_estimators': [int(x) for x in np.linspace(start=200, stop=2000, num=10)],
-                                  'max_features': ['auto', 'sqrt'],
-                                  'max_depth': [int(x) for x in np.linspace(10, 110, num=11)],
-                                  'min_samples_split': [2, 5, 10],
-                                  'min_samples_leaf': [1, 2, 4],
-                                  'bootstrap': [True, False]},
-                
-                "SVM Regression": {'kernel': ['rbf', 'linear'],
-                                   'shrinking': [False, True],
-                                   'C': reciprocal(10, 200),
-                                   'epsilon': reciprocal(0.1, 1.0),
-                                   'coef0': expon(scale=1.0),
-                                   'gamma': expon(scale=1.0),
-                                   'degree': [1, 2, 3, 4, 5, 6],
-                                   'tol': expon(scale=1e-4)},
-            
-                "Linear Regression": {'fit_intercept': [True, False],
-                                      'copy_X': [True, False],
-                                      'n_jobs': [None, 1, 2, 4],
-                                      'positive': [True, False],}  
+
+            # Apply the function to the sinthetic data
+            models_df = functions.evaluate_regression_models(X_train, X_test, y_train, y_test)
+            models_df 
+
+            # Define list of all models
+            all_models = models_df.index.tolist()
+
+            # Select the model to use using streamlit selectbox
+            model_name = st.selectbox("Select a model", all_models)
+
+            # Create dict for model names and functions
+            model_names_dict = {
+                "Linear Regression": functions.linear_regression_hyperparam_search,
+                "Ridge": functions.ridge_hyperparam_search,
+                "Bayesian Ridge": functions.bayesian_ridge_hyperparam_search,
+                "Lasso Lars IC": functions.lasso_lars_ic_hyperparam_search,
+                "Lars": functions.lars_hyperparam_search,
+                "Elastic Net": functions.elastic_net_hyperparam_search,
+                "Tweedie Regressor": functions.tweedie_regressor_hyperparam_search,
+                "Dummy Regressor": functions.dummy_regressor_hyperparam_search,
+                "Huber Regressor": functions.huber_regressor_hyperparam_search,
+                "SVR": functions.svr_hyperparam_search,
+                "RANSAC Regressor": functions.ransac_regressor_hyperparam_search,
+                "Transformed Target Regressor": functions.transformed_target_regressor_hyperparam_search,
+                "MLP Regressor": functions.mlp_regressor_hyperparam_search,
+                "KNN Regressor": functions.knn_regressor_hyperparam_search,
+                "Extra Trees Regressor": functions.extra_trees_regressor_hyperparam_search,
+                "Kernel Ridge": functions.kernel_ridge_hyperparam_search,
+                "Ada Boost Regressor": functions.ada_boost_regressor_hyperparam_search,
+                "Passive Aggressive Regressor": functions.passive_aggressive_regressor_hyperparam_search,
+                "Gradient Boosting Regressor": functions.gradient_boosting_regressor_hyperparam_search,
+                "SGD Regressor": functions.tune_sgd_regressor,
+                "Random Forest Regressor": functions.tune_rf_regressor,
+                "Hist Gradient Boosting Regressor": functions.tune_hist_gradient_boosting_regressor,
+                "Bagging Regressor": functions.tune_bagging_regressor,
+                "LightGBM Regressor": functions.tune_lgbm_regressor,
+                "XGBoost Regressor": functions.tune_xgb_regressor
             }
-    
-            # Training the models using the custom function
-            best_models, best_scores, best_params = functions.train_models(models, param_grids, X_train, y_train)
-    
-            
+
+            # Call the function based on the model name
+            model_func = model_names_dict[model_name]
+
+            # Call the function
+            best_model, best_params = model_func(X_train, X_test, y_train, y_test)
+
             # Evaluate the models on the test set using the custom function
-            results, model_evaluations = functions.evaluate_models(best_models, X_test, y_test)
-        
-            # Plot scatter subplots using the custom function
-            functions.plot_scatter_subplots(model_evaluations)
-    
-            # present in table
-            st.dataframe(results.set_index('Model'))
-        
-            # Plot feature importance using the custom function
-            functions.plot_feature_importance(best_models, X_train, y_train)
-    
-            # Display PDP graphs for selected feature
-            st.header("Partial Dependence Plots (PDP)")
-    
-            selected_feature = st.selectbox("Select feature to visualize", X_train.columns)
-    
-            if selected_feature:
-                # Call the function to plot PDP with specified colors
-                functions.plot_pdp(best_models, X_train, [selected_feature], target_column)
+            results, model_evaluations = functions.evaluate_model(best_model, X_test, y_test)
+            
+            # Plot the feature importance
+            functions.plot_feature_importance(best_model, X_train, y_train)
 
-            # Save session state
-            st.session_state.selected_feature = selected_feature
-    
-        except Exception as e:
-            st.error(f"Error during model training and evaluation: {str(e)}")
-else:
-    st.info("Please upload a data file to continue.")
-
-        # Allow the user to download the pickle file with a button
-        #st.subheader("Download Best Model")
-        # Helper function to create a download link for a file
-        #def get_binary_file_downloader_html(bin_file, file_label="File"):
-         #   import base64
-          #  bin_str = base64.b64encode(bin_file.encode()).decode()
-           # href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{bin_file}">Download {file_label}</a>'
-            #return href
-        #st.markdown("Click the button below to download the best model as a pickle file.")
-        #if st.button("Download"):
-         #   st.markdown(functions.get_binary_file_downloader_html("best_model.pkl", "Best Model"), unsafe_allow_html=True)
-
+            # Plot the partial dependence
+            functions.plot_pdp(best_model, X_train, features, target_column)
 
