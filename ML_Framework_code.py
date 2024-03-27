@@ -287,3 +287,8 @@ if uploaded_file is not None:
 
             # Plot the partial dependence
             functions.plot_pdp(best_model, X_train, features, target_column)
+
+        except Exception as e:
+            st.error(f"Error during model training and evaluation: {str(e)}")
+else:
+    st.info("Please upload a data file to continue.")
