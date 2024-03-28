@@ -405,7 +405,7 @@ def normalize_data_standard(data):
 def encode_categorical_onehot(data):
     """One-hot encode categorical variables."""
     categorical_columns = data.select_dtypes(include=['object']).columns
-    encoder = OneHotEncoder(drop='first', sparse=False)
+    encoder = OneHotEncoder(drop='first', sparse_output=False)
     encoded_data = pd.DataFrame(encoder.fit_transform(data[categorical_columns]))
     data = pd.concat([data, encoded_data], axis=1)
     data = data.drop(categorical_columns, axis=1)
