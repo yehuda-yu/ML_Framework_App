@@ -236,8 +236,10 @@ if uploaded_file is not None:
 
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1-split_percentage, random_state=42) # split the data
 
-            # Apply the function to the sinthetic data
-            models_df = functions.evaluate_regression_models(X_train, X_test, y_train, y_test)
+            # Use bar to 
+            with st.spinner('Training ML models'):
+                # Apply the function to the data
+                models_df = functions.evaluate_regression_models(X_train, X_test, y_train, y_test)
 
             st.table(models_df)
             
