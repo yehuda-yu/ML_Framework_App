@@ -135,6 +135,8 @@ def get_card_split(df, cols, n=11):
     return card_low, card_high
 
 # Helper class for performing classification
+def adjusted_rsquared(r2, n, p):
+    return 1 - (1 - r2) * ((n - 1) / (n - p - 1))
 
 class LazyRegressor:
     """
