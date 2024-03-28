@@ -15,6 +15,6 @@ matplotlib
 numpy
 seaborn
 plotly
-lazypredict == 0.2.12
+lazypredict
 lightgbm
 xgboost
