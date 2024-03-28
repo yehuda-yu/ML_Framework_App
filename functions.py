@@ -14,7 +14,8 @@ import plotly.express as px
 import itertools
 from scipy import stats
 from scipy.ndimage.filters import maximum_filter, minimum_filter
-from sklearn.linear_model import LassoCV, LassoLarsCV, LarsCV, Lasso, OrthogonalMatchingPursuitCV, LassoLars, OrthogonalMatchingPursuit, ElasticNetCV, ElasticNet, TweedieRegressor, HuberRegressor, RANSACRegressor, LinearRegression, BayesianRidge, Ridge, LassoLarsIC, Lars, PassiveAggressiveRegressor, SVR, NuSVR, SGDRegressor
+from sklearn.linear_model import LassoCV, LassoLarsCV, LarsCV, Lasso, OrthogonalMatchingPursuitCV, LassoLars, OrthogonalMatchingPursuit, ElasticNetCV, ElasticNet, TweedieRegressor, HuberRegressor, RANSACRegressor, LinearRegression, BayesianRidge, Ridge, LassoLarsIC, Lars, PassiveAggressiveRegressor, SGDRegressor
+from sklearn.svm SVR, NuSVR
 from sklearn.compose import TransformedTargetRegressor
 from sklearn.dummy import DummyRegressor
 from sklearn.neural_network import MLPRegressor
