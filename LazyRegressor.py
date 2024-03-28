@@ -407,4 +407,3 @@ class LazyRegressor:
 
 
 Regression = LazyRegressor
-Classification = LazyClassifier
