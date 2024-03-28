@@ -442,7 +442,7 @@ def evaluate_regression_models(X_train, X_test, y_train, y_test):
         # Fit LazyRegressor on the data
         models_df, predictions_df = reg.fit(X_train, X_test, y_train, y_test)
         
-        return models_df
+        return predictions_df
         
     except Exception as e:
         print(f"An error occurred: {e}")
