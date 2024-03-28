@@ -433,25 +433,19 @@ def evaluate_regression_models(X_train, X_test, y_train, y_test):
     
     Returns:
     - models_df: DataFrame containing information about various regression models
+    - predictions_df: DataFrame containing predictions of various regression models
     """
     try:
         # Initialize LazyRegressor
-        reg = LazyRegressor(verbose=0, ignore_warnings=False, custom_metric=None)
+        reg = LazyRegressor(verbose=0, ignore_warnings=False, custom_metric=None, predictions=True)
         
         # Fit LazyRegressor on the data
-        models = reg.fit(X_train, y_train)
-        
-        # Predict with the fitted models
-        y_pred = reg.predict(X_test)
-        
-        # Convert model dictionary to DataFrame
-        models_df = pd.DataFrame(models)
+        models_df, predictions_df = reg.fit(X_train, X_test, y_train, y_test)
         
         return models_df
-
+        
     except Exception as e:
-        st.error(f"An error occurred while training models: {e}")
-        return None
+        print(f"An error occurred: {e}")
 @st.cache_data
 
 def tune_LassoCV_model(X_train, y_train):
