@@ -122,7 +122,7 @@ class LazyRegressor:
         self.random_state = random_state
         self.regressors = regressors
 
-    def fit(self, X_train, X_test, y_train, y_test):
+    def fit_model(self, X_train, X_test, y_train, y_test):
         """Fit Regression algorithms to X_train and y_train, predict and score on X_test, y_test.
         Parameters
         ----------
