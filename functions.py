@@ -420,7 +420,7 @@ def encode_categorical_label(data):
 
 @st.cache_data
 def evaluate_regression_models(X_train, X_test, y_train, y_test):
-     """
+    """
     This function evaluates various regression models using LazyRegressor.
     
     Inputs:
@@ -437,7 +437,10 @@ def evaluate_regression_models(X_train, X_test, y_train, y_test):
         reg = LazyRegressor(verbose=0, ignore_warnings=False, custom_metric=None)
         
         # Fit LazyRegressor on the data
-        models, _ = reg.fit(X_train, X_test, y_train, y_test)
+        models = reg.fit(X_train, y_train)
+        
+        # Predict with the fitted models
+        y_pred = reg.predict(X_test)
         
         # Convert model dictionary to DataFrame
         models_df = pd.DataFrame(models)
@@ -448,6 +451,7 @@ def evaluate_regression_models(X_train, X_test, y_train, y_test):
         st.error(f"An error occurred while training models: {e}")
         return None
 @st.cache_data
+
 def tune_LassoCV_model(X_train, y_train):
     try:
         # Define the model
@@ -481,10 +485,9 @@ def tune_LassoCV_model(X_train, y_train):
         st.error(f"An error occurred while tuning LassoCV model: {e}")
         return None
 
-@st.cache_data
+@st.cache
 def tune_LassoLarsCV_model(X_train, y_train):
     try:
-
         # Define the model
         lasso_lars_cv = LassoLarsCV()
 
@@ -513,11 +516,11 @@ def tune_LassoLarsCV_model(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning LassoLarsCV model: {e}")
-        return None
-@st.cache_data  
+        return None, None
+
+@st.cache
 def tune_LarsCV(X_train, y_train):
     try:
-
         # Define the model
         lars_cv = LarsCV()
 
@@ -545,18 +548,17 @@ def tune_LarsCV(X_train, y_train):
     
     except Exception as e:
         st.error(f"An error occurred while tuning LarsCV model: {e}")
-        return None
-@st.cache_data
+        return None, None
+        
+@st.cache
 def tune_OrthogonalMatchingPursuitCV(X_train, y_train):
     try:
-
         # Define the model
         omp_cv = OrthogonalMatchingPursuitCV()
 
         param_dist = {
             "copy": [True, False],
             "fit_intercept": [True, False],
-            # "max_iter": randint(10, 100),
             "cv": [3, 5, 10],
         }
 
@@ -572,9 +574,10 @@ def tune_OrthogonalMatchingPursuitCV(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning OrthogonalMatchingPursuitCV model: {e}")
-        return None
-@st.cache_data  
-def tune_NuSVR(X_train, y_train,):
+        return None, None
+        
+@st.cache
+def tune_NuSVR(X_train, y_train):
     try:
         # Define the model
         nusvr = NuSVR()
@@ -605,8 +608,9 @@ def tune_NuSVR(X_train, y_train,):
 
     except Exception as e:
         st.error(f"An error occurred while tuning NuSVR model: {e}")
-        return None
-@st.cache_data    
+        return None, None
+
+@st.cache
 def tune_lasso(X_train, y_train):
     try:
         # Define the model
@@ -639,8 +643,9 @@ def tune_lasso(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning Lasso model: {e}")
-        return None
-@st.cache_data
+        return None, None
+        
+@st.cache
 def tune_LassoLarsCV(X_train, y_train):
     try:
         # Define the model
@@ -671,12 +676,11 @@ def tune_LassoLarsCV(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning LassoLarsCV model: {e}")
-        return None
+        return None, None
     
-@st.cache_data
+@st.cache
 def omp_hyperparam_search(X_train, y_train):
     try:
-
         # Define the model
         omp = OrthogonalMatchingPursuit()
 
@@ -701,17 +705,17 @@ def omp_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning OrthogonalMatchingPursuit model: {e}")
-        return None
-@st.cache_data   
+        return None, None
+        
+@st.cache
 def elastic_net_cv_hyperparam_search(X_train, y_train):
     try:
-
         # Define the model
         elastic_net_cv = ElasticNetCV()
 
         # Define hyperparameters to tune
         param_dist = {
-            "l1_ratio": uniform(0, 1),  # Set a reasonable range for l1_ratio
+            "l1_ratio": uniform(0, 0.99),  # Set a reasonable range for l1_ratio
             "eps": [1e-3, 1e-2, 1e-1],  # Set a reasonable range for eps
             "n_alphas": [100, 200, 300, 400, 500],  # Set a reasonable range for n_alphas
             "fit_intercept": [True, False],
@@ -736,9 +740,9 @@ def elastic_net_cv_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning ElasticNetCV model: {e}")
-        return None
+        return None, None
     
-@st.cache_data
+@st.cache
 def elastic_net_hyperparam_search(X_train, y_train):
     try:
         # Define the model
@@ -771,12 +775,11 @@ def elastic_net_hyperparam_search(X_train, y_train):
     
     except Exception as e:
         st.error(f"An error occurred while tuning ElasticNet model: {e}")
-        return None
+        return None, None
 
-@st.cache_data
+@st.cache
 def tweedie_regressor_hyperparam_search(X_train, y_train):
     try:
-
         # Define the model
         tweedie_regressor = TweedieRegressor()
 
@@ -805,11 +808,11 @@ def tweedie_regressor_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning TweedieRegressor model: {e}")
-        return None
-@st.cache_data
+        return None, None
+        
+@st.cache
 def dummy_regressor_hyperparam_search(X_train, y_train):
     try:
-
         # Define the model
         dummy_regressor = DummyRegressor()
 
@@ -840,8 +843,9 @@ def dummy_regressor_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning DummyRegressor model: {e}")
-        return None
-@st.cache_data   
+        return None, None
+        
+@st.cache
 def huber_regressor_hyperparam_search(X_train, y_train):
     try:
         # Define the model
@@ -869,8 +873,9 @@ def huber_regressor_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning HuberRegressor model: {e}")
-        return None
-@st.cache_data   
+        return None, None
+        
+@st.cache
 def svr_hyperparam_search(X_train, y_train):
     try:
         # Define the model
@@ -902,9 +907,9 @@ def svr_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning SVR model: {e}")
-        return None
+        return None, None
     
-@st.cache_data
+@st.cache
 def ransac_regressor_hyperparam_search(X_train, y_train):
     try:
         # Define the model
@@ -935,8 +940,9 @@ def ransac_regressor_hyperparam_search(X_train, y_train):
     
     except Exception as e:
         st.error(f"An error occurred while tuning RANSACRegressor model: {e}")
-        return None
-@st.cache_data
+        return None, None
+        
+@st.cache
 def bayesian_ridge_hyperparam_search(X_train, y_train):
     try:
 
@@ -971,10 +977,9 @@ def bayesian_ridge_hyperparam_search(X_train, y_train):
     
     except Exception as e:
         st.error(f"An error occurred while tuning BayesianRidge model: {e}")
-        return None
+        return None, None
 
-
-@st.cache_data
+@st.cache
 def ridge_hyperparam_search(X_train, y_train):
     try:
         # Define the model
@@ -1003,8 +1008,9 @@ def ridge_hyperparam_search(X_train, y_train):
     
     except Exception as e:
         st.error(f"An error occurred while tuning Ridge model: {e}")
-        return None
-@st.cache_data
+        return None, None
+        
+@st.cache
 def linear_regression_hyperparam_search(X_train, y_train):
     try:
         # Define the model
@@ -1030,8 +1036,9 @@ def linear_regression_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning LinearRegression model: {e}")
-        return None
-@st.cache_data
+        return None, None
+        
+@st.cache
 def transformed_target_regressor_hyperparam_search(X_train, y_train):
     try:
         # Define the model
@@ -1056,12 +1063,11 @@ def transformed_target_regressor_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning TransformedTargetRegressor model: {e}")
-        return None
-
-@st.cache_data   
+        return None, None
+        
+@st.cache
 def lasso_lars_ic_hyperparam_search(X_train, y_train):
     try:
-
         # Define the model
         lasso_lars_ic = LassoLarsIC()
 
@@ -1084,15 +1090,14 @@ def lasso_lars_ic_hyperparam_search(X_train, y_train):
 
         # Return the best model
         return random_search.best_estimator_, random_search.best_params_
- 
+
     except Exception as e:
         st.error(f"An error occurred while tuning LassoLarsIC model: {e}")
-        return None
-@st.cache_data
+        return None, None
+        
+@st.cache
 def lars_hyperparam_search(X_train, y_train):
-
     try:
-
         # Define the model
         lars = Lars()
 
@@ -1118,8 +1123,9 @@ def lars_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning Lars model: {e}")
-        return None
-@st.cache_data
+        return None, None
+        
+@st.cache
 def mlp_regressor_hyperparam_search(X_train, y_train):
     try:
         # Define the model
@@ -1162,12 +1168,11 @@ def mlp_regressor_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning MLPRegressor model: {e}")
-        return None
-
-@st.cache_data
+        return None, None
+        
+@st.cache
 def knn_regressor_hyperparam_search(X_train, y_train):
     try:
-
         # Define the model
         knn_regressor = KNeighborsRegressor()
 
@@ -1177,11 +1182,11 @@ def knn_regressor_hyperparam_search(X_train, y_train):
             "weights": ["uniform", "distance"],
             "algorithm": ["auto", "ball_tree", "kd_tree", "brute"],
             "leaf_size": [10, 20, 30, 40, 50],
-            "p": [1,2],
+            "p": [1, 2],
         }
 
         # Perform RandomizedSearchCV
-        random_search = RandomizedSearchCV(knn_regressor,  param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
+        random_search = RandomizedSearchCV(knn_regressor, param_distributions=param_dist, n_iter=50, cv=5, random_state=42)
         random_search.fit(X_train, y_train)
 
         # Best parameters and best score
@@ -1192,9 +1197,9 @@ def knn_regressor_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning KNeighborsRegressor model: {e}")
-        return None
+        return None, None
     
-@st.cache_data
+@st.cache
 def extra_trees_regressor_hyperparam_search(X_train, y_train):
     try:
         # Define the model
@@ -1229,8 +1234,9 @@ def extra_trees_regressor_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning ExtraTreesRegressor model: {e}")
-        return None
-@st.cache_data    
+        return None, None
+        
+@st.cache
 def kernel_ridge_hyperparam_search(X_train, y_train):
     try:
         # Define the model
@@ -1257,9 +1263,9 @@ def kernel_ridge_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning KernelRidge model: {e}")
-        return None
+        return None, None
     
-@st.cache_data
+@st.cache
 def ada_boost_regressor_hyperparam_search(X_train, y_train):
     try:
         # Define the model
@@ -1286,8 +1292,9 @@ def ada_boost_regressor_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning AdaBoostRegressor model: {e}")
-        return None
-@st.cache_data   
+        return None, None
+        
+@st.cache
 def passive_aggressive_regressor_hyperparam_search(X_train, y_train):
     try:
         # Define the model
@@ -1320,8 +1327,9 @@ def passive_aggressive_regressor_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning PassiveAggressiveRegressor model: {e}")
-        return None
-@st.cache_data   
+        return None, None
+        
+@st.cache
 def gradient_boosting_regressor_hyperparam_search(X_train, y_train):
     try:
         # Define the model
@@ -1360,8 +1368,9 @@ def gradient_boosting_regressor_hyperparam_search(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning GradientBoostingRegressor model: {e}")
-        return None
-@st.cache_data    
+        return None, None
+        
+@st.cache
 def tune_sgd_regressor(X_train, y_train):
     try:
         # Define the model
@@ -1400,12 +1409,11 @@ def tune_sgd_regressor(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning SGDRegressor model: {e}")
-        return None
+        return None, None
     
-@st.cache_data
+@st.cache
 def tune_rf_regressor(X_train, y_train):
     try:
-
         # Define the model
         rf_regressor = RandomForestRegressor()
 
@@ -1437,18 +1445,14 @@ def tune_rf_regressor(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning RandomForestRegressor model: {e}")
-        return None
-@st.cache_data    
+        return None, None
+        
+@st.cache
 def tune_hist_gradient_boosting_regressor(X_train, y_train):
     try:
-
-        # Define the model
-        hist_gradient_boosting_regressor = HistGradientBoostingRegressor()
-
-        # Define hyperparameters to tune
         # Define the model
         hist_gbr = HistGradientBoostingRegressor()
-        
+
         # Define hyperparameters to tune
         param_dist = {
             'loss': ['squared_error', 'absolute_error', 'gamma', 'poisson'],
@@ -1479,8 +1483,9 @@ def tune_hist_gradient_boosting_regressor(X_train, y_train):
 
     except Exception as e:
         st.error(f"An error occurred while tuning HistGradientBoostingRegressor model: {e}")
-        return None
-@st.cache_data
+        return None, None
+        
+@st.cache
 def tune_bagging_regressor(X_train, y_train):
     try:
         # Define the model
@@ -1509,13 +1514,14 @@ def tune_bagging_regressor(X_train, y_train):
     
     except Exception as e:
         st.error(f"An error occurred while tuning BaggingRegressor model: {e}")
-        return None
-@st.cache_data
+        return None, None
+        
+@st.cache
 def tune_lgbm_regressor(X_train, y_train):
     try:
         
         # Define the model
-        lgbm_regressor = lgb.LGBMRegressor()
+        lgbm_regressor = LGBMRegressor()
         
         # Define hyperparameters to tune
         param_dist = {
@@ -1549,8 +1555,9 @@ def tune_lgbm_regressor(X_train, y_train):
     
     except Exception as e:
         st.error(f"An error occurred while tuning LGBMRegressor model: {e}")
-        return None
-@st.cache_data
+        return None, None
+        
+@st.cache
 def tune_xgb_regressor(X_train, y_train):
     try:
 
@@ -1582,9 +1589,9 @@ def tune_xgb_regressor(X_train, y_train):
     
     except Exception as e:
         st.error(f"An error occurred while tuning XGBRegressor model: {e}")
-        return None
+        return None, None
 
-st.cache_data
+@st.cache
 def evaluate_model(best_model, X_test, y_test):
     """
     Evaluate the best model on the test set using various metrics.
@@ -1627,10 +1634,10 @@ def evaluate_model(best_model, X_test, y_test):
         return results, model_evaluation
 
     except Exception as e:
-        print(f"An error occurred while evaluating the model: {e}")
-        return None, None
+        st.error(f"An error occurred while evaluating the model: {e}")
+        return pd.DataFrame(), {}
 
-@st.cache_data
+@st.cache
 def plot_scatter_subplot(model_evaluation):
     try:
         fig = go.Figure()
@@ -1657,77 +1664,77 @@ def plot_scatter_subplot(model_evaluation):
 
         fig.update_layout(title_text="Scatter Subplot")
 
-        fig.show()
+        st.plotly_chart(fig)
 
     except Exception as e:
-        print(f"An error occurred while plotting scatter subplot: {e}")
+        st.error(f"An error occurred while plotting scatter subplot: {e}")
 
-@st.cache_data
+@st.cache
 def plot_feature_importance(best_model, X_train, y_train):
-                try:
-                    if hasattr(best_model, 'feature_importances_'):  # For models with feature_importances_
-                        importances = best_model.feature_importances_
-                    else:  # For models without feature_importances_
-                        result = permutation_importance(best_model, X_train, y_train, n_repeats=10, random_state=42)
-                        importances = result.importances_mean
+    try:
+        if hasattr(best_model, 'feature_importances_'):  # For models with feature_importances_
+            importances = best_model.feature_importances_
+        else:  # For models without feature_importances_
+            result = permutation_importance(best_model, X_train, y_train, n_repeats=10, random_state=42)
+            importances = result.importances_mean
 
-                    indices = np.argsort(importances)[::-1]
-                    names = [X_train.columns[i] for i in indices]
-                    importance_values = [importances[i] for i in indices]
+        indices = np.argsort(importances)[::-1]
+        names = [X_train.columns[i] for i in indices]
+        importance_values = [importances[i] for i in indices]
 
-                    fig = go.Figure(go.Pie(labels=names, values=importance_values,
-                                            textinfo='label+percent', hole=0.3,
-                                            marker=dict(colors=plt.cm.tab20c.colors, line=dict(color='white', width=2))))
+        fig = go.Figure(go.Pie(labels=names, values=importance_values,
+                                textinfo='label+percent', hole=0.3,
+                                marker=dict(colors=plt.cm.tab20c.colors, line=dict(color='white', width=2))))
 
-                    fig.update_layout(title_text="Feature Importance", margin=dict(l=0, r=0, t=60, b=0))
-                    st.plotly_chart(fig)
+        fig.update_layout(title_text="Feature Importance", margin=dict(l=0, r=0, t=60, b=0))
+        st.plotly_chart(fig)
 
-                except Exception as e:
-                    print(f"An error occurred while plotting feature importance: {e}")
-@st.cache_data
+    except Exception as e:
+        st.error(f"An error occurred while plotting feature importance: {e}")
+@st.cache
 def plot_pdp(best_model, X_train, features, target_column):
-                try:
-                    colors = ['#2a9d8f', '#e76f51', '#f4a261', '#738bd7', '#d35400', '#a6c7d8']
-                    num_features = len(features)
-                    max_plots_per_row = 5
-                    num_rows = (num_features + max_plots_per_row - 1) // max_plots_per_row
-                    num_cols = min(num_features, max_plots_per_row)
+    try:
+        colors = ['#2a9d8f', '#e76f51', '#f4a261', '#738bd7', '#d35400', '#a6c7d8']
+        num_features = len(features)
+        max_plots_per_row = 5
+        num_rows = (num_features + max_plots_per_row - 1) // max_plots_per_row
+        num_cols = min(num_features, max_plots_per_row)
 
-                    fig, axs = plt.subplots(num_rows, num_cols, figsize=(5 * num_cols, 5 * num_rows), constrained_layout=True)
+        fig, axs = plt.subplots(num_rows, num_cols, figsize=(5 * num_cols, 5 * num_rows), constrained_layout=True)
 
-                    for j, selected_feature in enumerate(features):
-                        row_idx = j // max_plots_per_row
-                        col_idx = j % max_plots_per_row
+        for j, selected_feature in enumerate(features):
+            row_idx = j // max_plots_per_row
+            col_idx = j % max_plots_per_row
 
-                        features_info = {
-                            "features": [selected_feature],
-                            "kind": "average",
-                        }
+            features_info = {
+                "features": [selected_feature],
+                "kind": "average",
+            }
 
-                        if num_rows == 1:  # If only one row, axs is 1D
-                            display = PartialDependenceDisplay.from_estimator(
-                                best_model,
-                                X_train,
-                                **features_info,
-                                ax=axs[col_idx],
-                            )
-                        else:
-                            display = PartialDependenceDisplay.from_estimator(
-                                best_model,
-                                X_train,
-                                **features_info,
-                                ax=axs[row_idx, col_idx],
-                            )
+            if num_rows == 1:  # If only one row, axs is 1D
+                display = PartialDependenceDisplay.from_estimator(
+                    best_model,
+                    X_train,
+                    **features_info,
+                    ax=axs[col_idx],
+                )
+            else:
+                display = PartialDependenceDisplay.from_estimator(
+                    best_model,
+                    X_train,
+                    **features_info,
+                    ax=axs[row_idx, col_idx],
+                )
 
-                        color_idx = j % len(colors)
-                        axs[row_idx, col_idx].set_facecolor(colors[color_idx])
-                        axs[row_idx, col_idx].set_title(f"PDP for {selected_feature}")
-                        axs[row_idx, col_idx].set_xlabel(selected_feature)
-                        axs[row_idx, col_idx].set_ylabel(f"Partial Dependence for {target_column}")
+            color_idx = j % len(colors)
+            axs[row_idx, col_idx].set_facecolor(colors[color_idx])
+            axs[row_idx, col_idx].set_title(f"PDP for {selected_feature}")
+            axs[row_idx, col_idx].set_xlabel(selected_feature)
+            axs[row_idx, col_idx].set_ylabel(f"Partial Dependence for {target_column}")
 
-                    fig.suptitle(f"Partial Dependence of {target_column} on Selected Features", y=1.02)
-                    plt.tight_layout()
-                    st.pyplot(fig)
+        fig.suptitle(f"Partial Dependence of {target_column} on Selected Features", y=1.02)
+        plt.tight_layout()
+        st.pyplot(fig)
 
-                except Exception as e:
-                    print(f"An error occurred while plotting partial dependence: {e}")
+    except Exception as e:
+        st.error(f"An error occurred while plotting partial dependence: {e}")
