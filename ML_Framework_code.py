@@ -23,9 +23,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import functions  # Custom functions.py file
 import pickle
-import lazypredict
-from lazypredict.Supervised import LazyRegressor
-# import LazyRegressor
 
 
 # Set the font size for regular text
