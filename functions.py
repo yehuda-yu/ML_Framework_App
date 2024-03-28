@@ -440,7 +440,7 @@ def evaluate_regression_models(X_train, X_test, y_train, y_test):
         reg = LazyRegressor(verbose=0, ignore_warnings=False, custom_metric=None, predictions=True)
         
         # Fit LazyRegressor on the data
-        models_df, predictions_df = reg.LazyRegressor.fit(X_train, X_test, y_train, y_test)
+        models_df, predictions_df = reg.fit(X_train, X_test, y_train, y_test)
         
         return models_df
         
