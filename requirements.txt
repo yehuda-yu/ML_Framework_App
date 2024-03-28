@@ -9,7 +9,7 @@
 # plotly
 streamlit
 pandas
-#scikit-learn
+scikit-learn
 scipy
 matplotlib
 numpy
