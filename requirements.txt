@@ -1,6 +1,6 @@
 # scikit-learn
 # streamlit
-# openpyxl
+openpyxl
 # pandas
 # numpy
 # scipy
