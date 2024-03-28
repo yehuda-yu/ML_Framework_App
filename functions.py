@@ -26,8 +26,9 @@ import lightgbm as lgb
 import xgboost as xgb
 from scipy.stats import uniform, randint
 from scipy.stats import loguniform
-import lazypredict
-from lazypredict.Supervised import LazyRegressor
+# import lazypredict
+# from lazypredict.Supervised import LazyRegressor
+import LazyRegressor
 
 @st.cache_data
 def perform_pca(data, target_column, categorical_columns, variance_percentage):
