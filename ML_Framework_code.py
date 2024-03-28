@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 import functions  # Custom functions.py file
 import pickle
 import lazypredict
-import LazyRegressor
+from lazypredict.Supervised import LazyRegressor
 
 
 # Set the font size for regular text
