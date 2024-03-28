@@ -1,12 +1,4 @@
-# scikit-learn
-# streamlit
 openpyxl
-# pandas
-# numpy
-# scipy
-# matplotlib
-# seaborn
-# plotly
 streamlit
 pandas
 scikit-learn
