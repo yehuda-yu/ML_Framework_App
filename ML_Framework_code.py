@@ -241,7 +241,7 @@ if uploaded_file is not None:
                 # Apply the function to the data
                 models_df = functions.evaluate_regression_models(X_train, X_test, y_train, y_test)
 
-            st.table(models_df)
+            st.write(models_df)
             
             # Define list of all models
             all_models = models_df.index.tolist()
